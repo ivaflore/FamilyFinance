@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FamilyFinance — Gestión Financiera Familiar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
+<style>
+:root {
+  --teal:#1D9E75;--teal-l:#E1F5EE;--teal-d:#085041;--teal-m:#0F6E56;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#633806;
+  --coral:#D85A30;--coral-l:#FAECE7;--coral-d:#712B13;
+  --blue:#185FA5;--blue-l:#E6F1FB;--blue-d:#042C53;
+  --green:#3B6D11;--green-l:#EAF3DE;--green-d:#173404;
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#26215C;
+  --red:#A32D2D;--red-l:#FCEBEB;
+  --bg:#F7F6F2;--surface:#FFFFFF;--border:#E8E6DF;--border-strong:#D0CEC5;
+  --text:#1A1916;--text-2:#5C5A54;--text-3:#9B9890;
+  --font:'DM Sans',sans-serif;--font-serif:'DM Serif Display',serif;
+  --r:10px;--r-lg:14px;--shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+button,select,input{font-family:var(--font)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:230px;min-width:230px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ── SIDEBAR ── */
+.sb-head{padding:1.25rem 1rem 1rem;border-bottom:1px solid var(--border)}
+.sb-logo{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.sb-icon{width:34px;height:34px;background:var(--teal);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;flex-shrink:0}
+.sb-name{font-size:15px;font-weight:600;color:var(--text)}
+.sb-sub{font-size:11px;color:var(--text-3)}
+.family-pill{background:var(--teal-l);color:var(--teal-d);font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:5px}
+.nav{flex:1;overflow-y:auto;padding:.75rem 0}
+.nav-sec{padding:0 .75rem;margin-bottom:.5rem}
+.nav-sec-label{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;padding:0 .5rem;margin-bottom:3px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text-2);transition:all .13s;margin-bottom:1px;border:none;background:transparent;width:100%;text-align:left}
+.nav-item i{font-size:16px;width:18px}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{background:var(--teal-l);color:var(--teal-d);font-weight:500}
+.nav-item .nb{margin-left:auto;background:var(--coral);color:#fff;font-size:9px;padding:1px 5px;border-radius:10px}
+.sb-foot{padding:.875rem;border-top:1px solid var(--border)}
+.user-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;transition:background .13s}
+.user-row:hover{background:var(--bg)}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.av-t{background:var(--teal-l);color:var(--teal-d)}
+.av-a{background:var(--amber-l);color:var(--amber-d)}
+.av-b{background:var(--blue-l);color:var(--blue-d)}
+.av-p{background:var(--purple-l);color:var(--purple-d)}
+.u-name{font-size:12px;font-weight:500;color:var(--text)}
+.u-role{font-size:10px;color:var(--text-3)}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;height:54px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-title{font-size:15px;font-weight:600;color:var(--text)}
+.tb-sub{font-size:12px;color:var(--text-3)}
+.tb-right{display:flex;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);transition:all .13s}
+.btn:hover{background:var(--bg)}
+.btn-primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn-primary:hover{background:var(--teal-m);border-color:var(--teal-m)}
+.btn-amber{background:var(--amber);color:#fff;border-color:var(--amber)}
+.btn-amber:hover{background:var(--amber-d)}
+.btn-sm{padding:4px 9px;font-size:11px}
+.btn-icon{width:30px;height:30px;padding:0;justify-content:center}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:1.5rem}
+.panel{display:none}.panel.on{display:block}
+
+/* ── CARDS & GRIDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1rem 1.25rem;margin-bottom:10px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem}
+.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-sub{font-size:11px;color:var(--text-3)}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1rem}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:1rem}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:1rem}
+.metric{background:var(--bg);border-radius:var(--r);padding:.875rem 1rem;border:1px solid var(--border)}
+.m-label{font-size:11px;color:var(--text-3);margin-bottom:4px}
+.m-val{font-size:22px;font-weight:600;color:var(--text)}
+.m-sub{font-size:10px;color:var(--text-3);margin-top:2px}
+.m-good{color:var(--green)}.m-bad{color:var(--coral)}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;padding:0 8px 8px;border-bottom:1px solid var(--border)}
+.tbl td{padding:9px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg)}
+
+/* ── TAGS / PILLS ── */
+.tag{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.tag-t{background:var(--teal-l);color:var(--teal-d)}
+.tag-a{background:var(--amber-l);color:var(--amber-d)}
+.tag-c{background:var(--coral-l);color:var(--coral-d)}
+.tag-b{background:var(--blue-l);color:var(--blue-d)}
+.tag-g{background:var(--green-l);color:var(--green-d)}
+.tag-p{background:var(--purple-l);color:var(--purple-d)}
+.seg-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.sp-1{background:var(--teal-l);color:var(--teal-d)}
+.sp-2{background:var(--amber-l);color:var(--amber-d)}
+.sp-s{background:var(--coral-l);color:var(--coral-d)}
+
+/* ── FORMS ── */
+.form-row{margin-bottom:.75rem}
+.form-label{font-size:11px;font-weight:500;color:var(--text-2);margin-bottom:4px;display:block}
+input[type=text],input[type=number],select,textarea{width:100%;padding:7px 10px;border:1px solid var(--border-strong);border-radius:8px;font-size:12px;background:var(--surface);color:var(--text);font-family:var(--font);transition:border .13s}
+input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal)}
+textarea{resize:vertical;min-height:70px}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);padding:1.5rem;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.modal-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.modal-actions{display:flex;gap:8px;margin-top:1rem}
+
+/* ── TIPS ── */
+.tip-item{display:flex;gap:10px;padding:10px;background:var(--bg);border-radius:var(--r);margin-bottom:8px;border:1px solid var(--border)}
+.tip-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.tip-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.tip-desc{font-size:11px;color:var(--text-2);line-height:1.5}
+.tip-saving{font-size:11px;font-weight:600;color:var(--green);margin-top:3px}
+
+/* ── BARS ── */
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bar-lbl{width:95px;font-size:11px;color:var(--text-2);text-align:right}
+.bar-track{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;border:1px solid var(--border)}
+.bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.bar-val{width:60px;font-size:11px;font-weight:500;color:var(--text)}
+
+/* ── PANTRY ── */
+.pantry-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.pantry-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px;text-align:center;cursor:pointer;transition:all .15s}
+.pantry-card:hover{border-color:var(--teal)}
+.pantry-card.low{border-color:var(--coral);background:var(--coral-l)}
+.p-icon{font-size:26px;margin-bottom:6px;display:block}
+.p-name{font-size:11px;font-weight:600;color:var(--text)}
+.p-qty{font-size:10px;color:var(--text-3)}
+.p-qty.low-txt{color:var(--coral);font-weight:600}
+
+/* ── SHOPPING ── */
+.shop-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.shop-item:last-child{border-bottom:none}
+.shop-check{width:17px;height:17px;border:1.5px solid var(--border-strong);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .13s}
+.shop-check.checked{background:var(--teal);border-color:var(--teal)}
+.shop-name{flex:1;font-size:13px;color:var(--text)}
+.shop-name.done{text-decoration:line-through;color:var(--text-3)}
+.shop-price{font-size:12px;color:var(--text-2)}
+
+/* ── BUDGET ── */
+.bud-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.bud-item:last-child{border-bottom:none}
+.bud-name{flex:1;font-size:12px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:5px}
+.bud-track{flex:2}
+.bud-nums{font-size:11px;color:var(--text-2);text-align:right;min-width:80px}
+.prog{height:5px;background:var(--bg);border-radius:3px;margin-top:5px;overflow:hidden;border:1px solid var(--border)}
+.prog-fill{height:100%;border-radius:3px}
+
+/* ── CALENDAR ── */
+.cal-dow{text-align:center;font-size:10px;font-weight:600;color:var(--text-3);padding:5px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:5px;min-height:76px;cursor:pointer;transition:all .13s;position:relative}
+.cal-day:hover{border-color:var(--teal)}
+.cal-day.today{border-color:var(--teal);border-width:2px}
+.cal-day.other{opacity:.3}
+.day-num{font-size:10px;font-weight:600;color:var(--text-2);margin-bottom:3px}
+.meal-pill{font-size:9px;padding:2px 5px;border-radius:4px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;display:block}
+.mp-a{background:var(--teal-l);color:var(--teal-d)}
+.mp-c{background:var(--amber-l);color:var(--amber-d)}
+.mp-d{background:var(--purple-l);color:var(--purple-d)}
+.day-add{position:absolute;bottom:4px;right:4px;width:16px;height:16px;background:var(--border-strong);border:none;border-radius:50%;color:var(--text-2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .13s}
+.cal-day:hover .day-add{opacity:1}
+
+/* ── RECIPE CARDS ── */
+.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px;margin-bottom:1rem}
+.recipe-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px;cursor:pointer;transition:all .15s;position:relative}
+.recipe-card:hover,.recipe-card.sel{border-color:var(--teal);background:var(--teal-l)}
+.rc-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
+.rc-meta{font-size:10px;color:var(--text-3);display:flex;gap:8px;margin-bottom:6px}
+.rc-ingr{font-size:10px;color:var(--text-3);line-height:1.4}
+.rc-add{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:var(--teal);border:none;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .13s;opacity:0}
+.recipe-card:hover .rc-add{opacity:1}
+.rc-steps{counter-reset:s}
+.rc-step{display:flex;gap:7px;margin-bottom:5px;font-size:12px;color:var(--text-2);line-height:1.5}
+.rc-num{background:var(--teal);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+/* ── SCAN ── */
+.scan-zone{border:2px dashed var(--border-strong);border-radius:var(--r-lg);padding:2rem;text-align:center;cursor:pointer;transition:all .2s}
+.scan-zone:hover{border-color:var(--teal);background:var(--teal-l)}
+.scan-zone i{font-size:38px;color:var(--teal);margin-bottom:8px;display:block}
+.scan-zone p{font-size:13px;color:var(--text-2)}
+.scan-zone small{font-size:11px;color:var(--text-3)}
+.scan-result{background:var(--teal-l);border:1px solid var(--teal);border-radius:var(--r);padding:1rem;margin-top:.875rem}
+.pulse{width:7px;height:7px;background:var(--teal);border-radius:50%;display:inline-block;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── MEMBER ── */
+.member-card{display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg);border-radius:var(--r);margin-bottom:8px;border:1px solid var(--border)}
+.mem-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.mem-name{font-size:13px;font-weight:600;color:var(--text)}
+.mem-role{font-size:11px;color:var(--text-3)}
+
+/* ── AI CHAT ── */
+.ai-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);display:flex;flex-direction:column;height:360px}
+.ai-msgs{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:8px}
+.ai-msg{max-width:82%;font-size:12px;line-height:1.6;padding:9px 12px;border-radius:12px}
+.ai-msg.user{align-self:flex-end;background:var(--teal);color:#fff;border-radius:12px 12px 3px 12px}
+.ai-msg.bot{align-self:flex-start;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:12px 12px 12px 3px}
+.ai-msg.bot.loading{color:var(--text-3)}
+.ai-input-row{display:flex;gap:8px;padding:.875rem;border-top:1px solid var(--border)}
+.ai-input-row input{flex:1;border-radius:20px;padding:7px 14px;font-size:12px}
+.ai-input-row button{border-radius:20px;padding:7px 14px}
+
+/* ── FILTER CHIPS ── */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.875rem}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-2);transition:all .13s}
+.chip.on{background:var(--teal-l);color:var(--teal-d);border-color:var(--teal)}
+.chip-amber.on{background:var(--amber-l);color:var(--amber-d);border-color:var(--amber)}
+.chip-coral.on{background:var(--coral-l);color:var(--coral-d);border-color:var(--coral)}
+
+/* ── NOTIFICATIONS ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:#fff;font-size:12px;padding:10px 16px;border-radius:8px;z-index:200;animation:slideup .25s ease;display:flex;align-items:center;gap:6px}
+@keyframes slideup{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ── SEARCH ── */
+.search-wrap{position:relative;flex:1}
+.search-wrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-3)}
+.search-wrap input{padding-left:30px;border-radius:20px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g3{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mobile-nav{display:flex!important}
+}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:50;padding:.5rem 0}
+.mobile-nav button{flex:1;background:none;border:none;cursor:pointer;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;color:var(--text-3);font-family:var(--font)}
+.mobile-nav button i{font-size:20px}
+.mobile-nav button.active{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<div class="app">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-head">
+    <div class="sb-logo">
+      <div class="sb-icon"><i class="ti ti-home-heart"></i></div>
+      <div><div class="sb-name">FamilyFinance</div><div class="sb-sub">gestión familiar</div></div>
+    </div>
+    <div class="family-pill"><i class="ti ti-users" style="font-size:12px"></i> Familia García · 4 miembros</div>
+  </div>
+  <nav class="nav" id="sidebar-nav">
+    <div class="nav-sec">
+      <div class="nav-sec-label">principal</div>
+      <button class="nav-item active" onclick="goTo('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Resumen</button>
+      <button class="nav-item" onclick="goTo('gastos',this)"><i class="ti ti-receipt"></i> Gastos <span class="nb" id="nb-gastos">3</span></button>
+      <button class="nav-item" onclick="goTo('scan',this)"><i class="ti ti-scan"></i> Escanear boleta</button>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-sec-label">hogar</div>
+      <button class="nav-item" onclick="goTo('alacena',this)"><i class="ti ti-package"></i> Alacena</button>
+      <button class="nav-item" onclick="goTo('compras',this)"><i class="ti ti-shopping-cart"></i> Lista de compras</button>
+      <button class="nav-item" onclick="goTo('presupuesto',this)"><i class="ti ti-chart-pie"></i> Presupuesto</button>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-sec-label">planificación</div>
+      <button class="nav-item" onclick="goTo('recetario',this)"><i class="ti ti-chef-hat"></i> Recetario</button>
+      <button class="nav-item" onclick="goTo('calendario',this)"><i class="ti ti-calendar-month"></i> Menú del mes</button>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-sec-label">familia</div>
+      <button class="nav-item" onclick="goTo('ahorros',this)"><i class="ti ti-pig-money"></i> Tips de ahorro</button>
+      <button class="nav-item" onclick="goTo('segmentacion',this)"><i class="ti ti-layers-intersect"></i> Segmentación</button>
+      <button class="nav-item" onclick="goTo('familia',this)"><i class="ti ti-users-group"></i> Mi familia</button>
+      <button class="nav-item" onclick="goTo('asistente',this)"><i class="ti ti-sparkles"></i> Asistente IA</button>
+    </div>
+  </nav>
+  <div class="sb-foot">
+    <div class="user-row">
+      <div class="av av-t">MG</div>
+      <div><div class="u-name">María García</div><div class="u-role">Administradora</div></div>
+      <i class="ti ti-settings" style="margin-left:auto;color:var(--text-3);font-size:14px"></i>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-left">
+      <div>
+        <div class="tb-title" id="page-title">Resumen financiero</div>
+        <div class="tb-sub" id="page-sub">Junio 2025 · semana 2</div>
+      </div>
+    </div>
+    <div class="tb-right">
+      <button class="btn btn-amber" onclick="goTo('scan',document.querySelector('[onclick*=scan]'))"><i class="ti ti-scan"></i> Escanear boleta</button>
+      <button class="btn btn-primary" onclick="goTo('asistente',document.querySelector('[onclick*=asistente]'))"><i class="ti ti-sparkles"></i> Asistente IA</button>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+
+<!-- ════════════════════════════════ DASHBOARD ════════════════════════════════ -->
+<div class="panel on" id="panel-dashboard">
+  <div class="g4">
+    <div class="metric"><div class="m-label">Gasto del mes</div><div class="m-val">$487.320</div><div class="m-sub m-bad">↑ 8% vs mes anterior</div></div>
+    <div class="metric"><div class="m-label">Presupuesto restante</div><div class="m-val">$162.680</div><div class="m-sub m-good">25 días restantes</div></div>
+    <div class="metric"><div class="m-label">Ahorro del mes</div><div class="m-val">$38.000</div><div class="m-sub">Meta: $50.000</div></div>
+    <div class="metric"><div class="m-label">Productos alacena</div><div class="m-val">47</div><div class="m-sub m-bad">6 por agotarse</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Gastos por categoría</div><span class="card-sub">este mes</span></div>
+      <div class="bar-row"><div class="bar-lbl">Supermercado</div><div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--teal)"></div></div><div class="bar-val">$181.200</div></div>
+      <div class="bar-row"><div class="bar-lbl">Servicios</div><div class="bar-track"><div class="bar-fill" style="width:52%;background:var(--blue)"></div></div><div class="bar-val">$121.000</div></div>
+      <div class="bar-row"><div class="bar-lbl">Transporte</div><div class="bar-track"><div class="bar-fill" style="width:38%;background:var(--amber)"></div></div><div class="bar-val">$88.440</div></div>
+      <div class="bar-row"><div class="bar-lbl">Salud</div><div class="bar-track"><div class="bar-fill" style="width:28%;background:var(--coral)"></div></div><div class="bar-val">$65.000</div></div>
+      <div class="bar-row"><div class="bar-lbl">Otros</div><div class="bar-track"><div class="bar-fill" style="width:14%;background:var(--border-strong)"></div></div><div class="bar-val">$31.680</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Últimas transacciones</div><button class="btn btn-sm" onclick="goTo('gastos',document.querySelector('[onclick*=gastos]'))">ver todas</button></div>
+      <table class="tbl">
+        <tr><td><div style="font-size:12px;font-weight:600">Jumbo Las Condes</div><div style="font-size:10px;color:var(--text-3)">hoy · María</div></td><td style="text-align:right"><div style="font-size:13px;font-weight:600;color:var(--coral)">-$42.780</div><span class="tag tag-t">super</span></td></tr>
+        <tr><td><div style="font-size:12px;font-weight:600">Metro Baquedano</div><div style="font-size:10px;color:var(--text-3)">ayer · Carlos</div></td><td style="text-align:right"><div style="font-size:13px;font-weight:600;color:var(--coral)">-$1.560</div><span class="tag tag-b">transporte</span></td></tr>
+        <tr><td><div style="font-size:12px;font-weight:600">Cruz Verde</div><div style="font-size:10px;color:var(--text-3)">ayer · Ana</div></td><td style="text-align:right"><div style="font-size:13px;font-weight:600;color:var(--coral)">-$8.990</div><span class="tag tag-c">salud</span></td></tr>
+        <tr><td><div style="font-size:12px;font-weight:600">Sueldo María</div><div style="font-size:10px;color:var(--text-3)">01 jun · ingreso</div></td><td style="text-align:right"><div style="font-size:13px;font-weight:600;color:var(--teal)">+$750.000</div><span class="tag tag-g">ingreso</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><div class="card-title"><i class="ti ti-sparkles" style="color:var(--amber);margin-right:5px"></i>Alertas IA — Oportunidades de ahorro</div><button class="btn btn-sm" onclick="goTo('ahorros',document.querySelector('[onclick*=ahorros]'))">ver todas</button></div>
+    <div class="tip-item">
+      <div class="tip-icon" style="background:var(--amber-l)"><i class="ti ti-bulb" style="color:var(--amber)"></i></div>
+      <div><div class="tip-title">Aceite de oliva 25% más barato en Lider vs Jumbo</div><div class="tip-desc">Basado en tus últimas 3 boletas escaneadas. Esta semana está $1.800 más barato.</div><div class="tip-saving">Ahorro potencial: $3.600/mes</div></div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-icon" style="background:var(--teal-l)"><i class="ti ti-package" style="color:var(--teal)"></i></div>
+      <div><div class="tip-title">Arroz en formato mayor: 32% menos por kilo</div><div class="tip-desc">Comprando pack 5 kg en vez de bolsas de 1 kg en tu supermercado habitual.</div><div class="tip-saving">Ahorro potencial: $8.400/mes</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ GASTOS ════════════════════════════════ -->
+<div class="panel" id="panel-gastos">
+  <div class="g3">
+    <div class="metric"><div class="m-label">Total este mes</div><div class="m-val">$487.320</div></div>
+    <div class="metric"><div class="m-label">Transacciones</div><div class="m-val">38</div><div class="m-sub">por 4 miembros</div></div>
+    <div class="metric"><div class="m-label">Promedio diario</div><div class="m-val">$24.366</div></div>
+  </div>
+  <div class="card" style="margin-bottom:.875rem">
+    <div class="card-hd">
+      <div class="card-title">Registrar nuevo gasto</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end">
+      <div><label class="form-label">Descripción</label><input type="text" id="g-desc" placeholder="ej: Jumbo"></div>
+      <div><label class="form-label">Monto ($)</label><input type="number" id="g-monto" placeholder="0"></div>
+      <div><label class="form-label">Categoría</label>
+        <select id="g-cat">
+          <option value="supermercado">Supermercado</option>
+          <option value="transporte">Transporte</option>
+          <option value="salud">Salud</option>
+          <option value="servicios">Servicios</option>
+          <option value="entretenimiento">Entretenimiento</option>
+          <option value="otros">Otros</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="addGasto()"><i class="ti ti-plus"></i> Agregar</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><div class="card-title">Historial de gastos</div></div>
+    <table class="tbl">
+      <thead><tr><th>Descripción</th><th>Categoría</th><th>Miembro</th><th>Fecha</th><th style="text-align:right">Monto</th></tr></thead>
+      <tbody id="gastos-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SCAN ════════════════════════════════ -->
+<div class="panel" id="panel-scan">
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title"><i class="ti ti-scan" style="color:var(--amber);margin-right:5px"></i>Escanear boleta con IA</div></div>
+        <div class="scan-zone" onclick="startScan()">
+          <i class="ti ti-camera"></i>
+          <p>Toca para tomar foto o subir imagen</p>
+          <small>Compatible con Jumbo, Lider, Unimarc, SMU y más</small>
+        </div>
+        <div id="scan-status" style="display:none" class="scan-result">
+          <div style="font-size:12px;font-weight:600;color:var(--teal-d);margin-bottom:4px;display:flex;align-items:center;gap:6px"><span class="pulse"></span> IA procesando boleta...</div>
+          <div id="scan-prog" style="font-size:11px;color:var(--teal-m)">Reconociendo texto...</div>
+        </div>
+        <div id="scan-done" style="display:none;margin-top:.875rem">
+          <div class="scan-result" style="margin-bottom:.875rem">
+            <div style="font-size:12px;font-weight:600;color:var(--teal-d)"><i class="ti ti-circle-check" style="margin-right:5px"></i>Boleta procesada — 11 productos detectados</div>
+            <div style="font-size:11px;color:var(--teal-m)">Jumbo Las Condes · hoy</div>
+          </div>
+          <table class="tbl" id="scan-tbl">
+            <thead><tr><th>Producto</th><th style="text-align:right">Cant.</th><th style="text-align:right">Unit.</th><th style="text-align:right">Total</th></tr></thead>
+            <tbody id="scan-tbody"></tbody>
+          </table>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+            <span style="font-size:13px;font-weight:600">Total boleta</span><span style="font-size:16px;font-weight:700;color:var(--coral)">$42.780</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:.875rem">
+            <button class="btn btn-primary" style="flex:1" onclick="goTo('alacena',document.querySelector('[onclick*=alacena]'))"><i class="ti ti-package"></i> Ver alacena actualizada</button>
+            <button class="btn" style="flex:1" onclick="goTo('asistente',document.querySelector('[onclick*=asistente]'));setAIContext('Acabo de escanear una boleta de Jumbo por $42.780. ¿Qué productos podrían haberse comprado más baratos?')"><i class="ti ti-sparkles"></i> Analizar con IA</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:10px">
+        <div class="card-hd"><div class="card-title">Historial de escaneos</div></div>
+        <div class="shop-item"><div style="flex:1"><div style="font-size:12px;font-weight:600">Jumbo Las Condes</div><div style="font-size:10px;color:var(--text-3)">hoy · 11 prod.</div></div><div style="font-size:12px;font-weight:600;color:var(--coral)">-$42.780</div></div>
+        <div class="shop-item"><div style="flex:1"><div style="font-size:12px;font-weight:600">Unimarc Providencia</div><div style="font-size:10px;color:var(--text-3)">hace 2d · 8 prod.</div></div><div style="font-size:12px;font-weight:600;color:var(--coral)">-$29.450</div></div>
+        <div class="shop-item"><div style="flex:1"><div style="font-size:12px;font-weight:600">Lider Maipú</div><div style="font-size:10px;color:var(--text-3)">hace 5d · 15 prod.</div></div><div style="font-size:12px;font-weight:600;color:var(--coral)">-$65.320</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Precios históricos detectados</div></div>
+      <table class="tbl">
+        <thead><tr><th>Producto</th><th style="text-align:right">Precio actual</th><th style="text-align:right">Variación</th></tr></thead>
+        <tbody>
+          <tr><td>Leche Colún 1L</td><td style="text-align:right;font-weight:600">$1.290</td><td style="text-align:right"><span style="color:var(--coral);font-size:11px">↑ +$50</span></td></tr>
+          <tr><td>Arroz Tucapel 1kg</td><td style="text-align:right;font-weight:600">$1.890</td><td style="text-align:right"><span style="color:var(--teal);font-size:11px">↓ -$100</span></td></tr>
+          <tr><td>Aceite Carbonell 900ml</td><td style="text-align:right;font-weight:600">$4.990</td><td style="text-align:right"><span style="color:var(--coral);font-size:11px">↑ +$300</span></td></tr>
+          <tr><td>Pan molde Ideal</td><td style="text-align:right;font-weight:600">$2.190</td><td style="text-align:right"><span style="color:var(--text-3);font-size:11px">— sin cambio</span></td></tr>
+          <tr><td>Detergente Bold 3kg</td><td style="text-align:right;font-weight:600">$8.990</td><td style="text-align:right"><span style="color:var(--teal);font-size:11px">↓ -$500</span></td></tr>
+          <tr><td>Yogur Soprole 6un</td><td style="text-align:right;font-weight:600">$3.490</td><td style="text-align:right"><span style="color:var(--coral);font-size:11px">↑ +$200</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ ALACENA ════════════════════════════════ -->
+<div class="panel" id="panel-alacena">
+  <div class="g3">
+    <div class="metric"><div class="m-label">Total productos</div><div class="m-val" id="pantry-count">12</div></div>
+    <div class="metric"><div class="m-label">Por agotarse</div><div class="m-val m-bad" id="pantry-low">3</div></div>
+    <div class="metric"><div class="m-label">Última actualización</div><div class="m-val" style="font-size:16px">hoy 11:24</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">Inventario alacena</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="openAddPantry()"><i class="ti ti-plus"></i> Agregar</button>
+        <button class="btn btn-sm btn-primary" onclick="goTo('scan',document.querySelector('[onclick*=scan]'))"><i class="ti ti-scan"></i> Actualizar por boleta</button>
+      </div>
+    </div>
+    <div class="pantry-grid" id="pantry-grid"></div>
+  </div>
+  <div id="add-pantry-modal"></div>
+</div>
+
+<!-- ════════════════════════════════ COMPRAS ════════════════════════════════ -->
+<div class="panel" id="panel-compras">
+  <div class="g2">
+    <div class="metric"><div class="m-label">Artículos pendientes</div><div class="m-val" id="shop-pending">9</div></div>
+    <div class="metric"><div class="m-label">Estimado total</div><div class="m-val">$32.480</div><div class="m-sub">según precios históricos</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Lista de compras</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="openAddShop()"><i class="ti ti-plus"></i> Agregar</button>
+          <button class="btn btn-sm btn-primary" onclick="generateShopFromCalendar()"><i class="ti ti-calendar"></i> Desde menú</button>
+        </div>
+      </div>
+      <div id="shop-list"></div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title"><i class="ti ti-sparkles" style="color:var(--amber);margin-right:5px"></i>Sugerencia IA — próxima compra</div></div>
+        <div class="tip-item"><div class="tip-icon" style="background:var(--teal-l)"><i class="ti ti-calendar" style="color:var(--teal)"></i></div><div><div class="tip-title">Comprar este jueves</div><div class="tip-desc">Jumbo tiene descuentos del 20% en lácteos los jueves.</div></div></div>
+        <div class="tip-item"><div class="tip-icon" style="background:var(--amber-l)"><i class="ti ti-map-pin" style="color:var(--amber)"></i></div><div><div class="tip-title">Mejor precio esta semana: Lider</div><div class="tip-desc">Con tu lista actual ahorra $3.580 vs Jumbo.</div><div class="tip-saving">Ahorro estimado: $3.580</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div id="add-shop-modal"></div>
+</div>
+
+<!-- ════════════════════════════════ PRESUPUESTO ════════════════════════════════ -->
+<div class="panel" id="panel-presupuesto">
+  <div class="g4">
+    <div class="metric"><div class="m-label">Presupuesto mensual</div><div class="m-val">$650.000</div></div>
+    <div class="metric"><div class="m-label">Gastado</div><div class="m-val">$487.320</div><div class="m-sub m-bad">74,9%</div></div>
+    <div class="metric"><div class="m-label">Disponible</div><div class="m-val">$162.680</div></div>
+    <div class="metric"><div class="m-label">Proyección fin mes</div><div class="m-val">$638.000</div><div class="m-sub m-good">dentro del presupuesto</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><div class="card-title">Seguimiento por categoría</div></div>
+    <div id="budget-list"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ RECETARIO ════════════════════════════════ -->
+<div class="panel" id="panel-recetario">
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-hd">
+      <div class="chips" style="margin-bottom:0">
+        <button class="chip on" onclick="filterRecipes('all',this)">Todas</button>
+        <button class="chip" onclick="filterRecipes('almuerzo',this)">Almuerzos</button>
+        <button class="chip" onclick="filterRecipes('cena',this)">Cenas</button>
+        <button class="chip" onclick="filterRecipes('desayuno',this)">Desayunos</button>
+        <button class="chip" onclick="filterRecipes('rapido',this)"><i class="ti ti-bolt"></i> Rápidas</button>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="openAddRecipe()"><i class="ti ti-plus"></i> Nueva receta</button>
+        <button class="btn btn-sm btn-primary" onclick="askAIRecipes()"><i class="ti ti-sparkles"></i> Sugerir con IA</button>
+      </div>
+    </div>
+    <div class="recipe-grid" id="recipe-grid"></div>
+    <div id="recipe-detail"></div>
+  </div>
+  <div id="recipe-modal"></div>
+</div>
+
+<!-- ════════════════════════════════ CALENDARIO ════════════════════════════════ -->
+<div class="panel" id="panel-calendario">
+  <div class="card">
+    <div class="card-hd">
+      <div>
+        <div class="card-title" id="cal-title">Junio 2025</div>
+        <div class="card-sub">Planifica almuerzos, cenas y desayunos. Toca un día para agregar.</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn btn-icon" onclick="changeMonth(-1)"><i class="ti ti-chevron-left"></i></button>
+        <button class="btn btn-icon" onclick="changeMonth(1)"><i class="ti ti-chevron-right"></i></button>
+        <button class="btn btn-sm btn-primary" onclick="generateShopFromCalendar();goTo('compras',document.querySelector('[onclick*=compras]'))"><i class="ti ti-shopping-cart"></i> Generar lista</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;margin-bottom:.75rem;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-2)"><span style="width:10px;height:10px;border-radius:2px;background:var(--teal-l);display:inline-block"></span>Almuerzo</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-2)"><span style="width:10px;height:10px;border-radius:2px;background:var(--amber-l);display:inline-block"></span>Cena</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-2)"><span style="width:10px;height:10px;border-radius:2px;background:var(--purple-l);display:inline-block"></span>Desayuno</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
+      <div class="cal-dow">Lun</div><div class="cal-dow">Mar</div><div class="cal-dow">Mié</div>
+      <div class="cal-dow">Jue</div><div class="cal-dow">Vie</div><div class="cal-dow">Sáb</div><div class="cal-dow">Dom</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+  <div id="cal-modal"></div>
+</div>
+
+<!-- ════════════════════════════════ AHORROS ════════════════════════════════ -->
+<div class="panel" id="panel-ahorros">
+  <div class="g3">
+    <div class="metric"><div class="m-label">Ahorro potencial mensual</div><div class="m-val m-good">$67.800</div></div>
+    <div class="metric"><div class="m-label">Tips activos</div><div class="m-val">8</div></div>
+    <div class="metric"><div class="m-label">Ahorro implementado</div><div class="m-val m-good">$12.400</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><div class="card-title"><i class="ti ti-sparkles" style="color:var(--amber);margin-right:5px"></i>Oportunidades detectadas por IA</div><button class="btn btn-sm btn-primary" onclick="askAISavings()"><i class="ti ti-refresh"></i> Actualizar</button></div>
+    <div class="tip-item"><div class="tip-icon" style="background:var(--amber-l)"><i class="ti ti-shopping-bag" style="color:var(--amber)"></i></div><div><div class="tip-title">Cambiar supermercado para productos básicos</div><div class="tip-desc">Para tus 12 productos más frecuentes, Lider es 18% más barato en promedio.</div><div class="tip-saving">Ahorro estimado: $28.000/mes</div></div></div>
+    <div class="tip-item"><div class="tip-icon" style="background:var(--teal-l)"><i class="ti ti-calendar-repeat" style="color:var(--teal)"></i></div><div><div class="tip-title">Compra mensual de no perecederos</div><div class="tip-desc">Arroz, aceite, fideos, papel: comprar el mes completo reduce costo 22%.</div><div class="tip-saving">Ahorro estimado: $15.400/mes</div></div></div>
+    <div class="tip-item"><div class="tip-icon" style="background:var(--blue-l)"><i class="ti ti-bolt" style="color:var(--blue)"></i></div><div><div class="tip-title">Reducir consumo eléctrico en horario punta</div><div class="tip-desc">El horno y lavarropas entre 18–22h encarecen la tarifa. Cambiar al horario nocturno.</div><div class="tip-saving">Ahorro estimado: $9.800/mes</div></div></div>
+    <div class="tip-item"><div class="tip-icon" style="background:var(--coral-l)"><i class="ti ti-device-tv" style="color:var(--coral)"></i></div><div><div class="tip-title">Servicios de streaming duplicados</div><div class="tip-desc">Netflix + Disney+ + Prime Video. Dos plataformas cubren el 94% del contenido.</div><div class="tip-saving">Ahorro estimado: $7.990/mes</div></div></div>
+    <div style="margin-top:.75rem">
+      <button class="btn btn-primary" onclick="goTo('asistente',document.querySelector('[onclick*=asistente]'));setAIContext('Dame más ideas de ahorro personalizadas para una familia de 4 personas en Chile con un presupuesto mensual de $650.000')"><i class="ti ti-sparkles"></i> Más tips personalizados con IA</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SEGMENTACIÓN ════════════════════════════════ -->
+<div class="panel" id="panel-segmentacion">
+  <div class="g3">
+    <div class="metric"><div class="m-label">1ª categoría — esenciales</div><div class="m-val" id="s-cnt1">0</div><div class="m-sub m-good" id="s-tot1"></div></div>
+    <div class="metric"><div class="m-label">2ª categoría — complementarios</div><div class="m-val" id="s-cnt2">0</div><div class="m-sub" style="color:var(--amber)" id="s-tot2"></div></div>
+    <div class="metric"><div class="m-label">Prescindibles — ahorro potencial</div><div class="m-val m-bad" id="s-cnts">0</div><div class="m-sub m-bad" id="s-tots"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">
+      <div class="chips" style="margin-bottom:0">
+        <button class="chip on" onclick="filterSeg('all',this)">Todos</button>
+        <button class="chip" onclick="filterSeg('cat1',this)">1ª categoría</button>
+        <button class="chip chip-amber" onclick="filterSeg('cat2',this)">2ª categoría</button>
+        <button class="chip chip-coral" onclick="filterSeg('saving',this)">Prescindibles</button>
+      </div>
+      <div class="search-wrap" style="max-width:160px"><i class="ti ti-search"></i><input type="text" id="seg-search" placeholder="buscar..." oninput="renderSeg()"></div>
+    </div>
+    <div id="seg-sections"></div>
+  </div>
+  <div class="card" id="savings-summary">
+    <div class="card-hd"><div class="card-title"><i class="ti ti-pig-money" style="color:var(--green);margin-right:5px"></i>Resumen de ahorros potenciales</div></div>
+    <div id="savings-rows"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ FAMILIA ════════════════════════════════ -->
+<div class="panel" id="panel-familia">
+  <div class="g2" style="margin-bottom:10px">
+    <div class="metric"><div class="m-label">Miembros activos</div><div class="m-val">4</div></div>
+    <div class="metric"><div class="m-label">Código de familia</div><div class="m-val" style="font-size:18px;letter-spacing:.1em">GARC-8842</div><div class="m-sub">compartir para unirse</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Miembros</div><button class="btn btn-sm btn-primary"><i class="ti ti-plus"></i> Invitar</button></div>
+      <div class="member-card"><div class="mem-av av-t">MG</div><div style="flex:1"><div class="mem-name">María García</div><div class="mem-role"><span class="tag tag-t">Administradora</span></div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600">$312.400</div><div style="font-size:10px;color:var(--text-3)">22 transacciones</div></div></div>
+      <div class="member-card"><div class="mem-av av-a">CG</div><div style="flex:1"><div class="mem-name">Carlos García</div><div class="mem-role"><span class="tag tag-a">Miembro</span></div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600">$98.320</div><div style="font-size:10px;color:var(--text-3)">9 transacciones</div></div></div>
+      <div class="member-card"><div class="mem-av av-b">AG</div><div style="flex:1"><div class="mem-name">Ana García</div><div class="mem-role"><span class="tag tag-b">Miembro</span></div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600">$54.400</div><div style="font-size:10px;color:var(--text-3)">5 transacciones</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Gastos por miembro</div></div>
+      <div class="bar-row"><div class="bar-lbl">María</div><div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--teal)"></div></div><div class="bar-val">$312.400</div></div>
+      <div class="bar-row"><div class="bar-lbl">Carlos</div><div class="bar-track"><div class="bar-fill" style="width:21%;background:var(--amber)"></div></div><div class="bar-val">$98.320</div></div>
+      <div class="bar-row"><div class="bar-lbl">Ana</div><div class="bar-track"><div class="bar-fill" style="width:11%;background:var(--blue)"></div></div><div class="bar-val">$54.400</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ ASISTENTE IA ════════════════════════════════ -->
+<div class="panel" id="panel-asistente">
+  <div class="g2">
+    <div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="card-hd"><div class="card-title"><i class="ti ti-sparkles" style="color:var(--amber);margin-right:5px"></i>Asistente IA — FamilyFinance</div></div>
+        <div class="ai-panel">
+          <div class="ai-msgs" id="ai-msgs">
+            <div class="ai-msg bot">¡Hola! Soy el asistente de FamilyFinance. Puedo ayudarte con análisis de gastos, sugerencias de ahorro, recetas con lo que tienes en la alacena, y mucho más. ¿En qué te ayudo?</div>
+          </div>
+          <div class="ai-input-row">
+            <input type="text" id="ai-input" placeholder="Pregúntame algo..." onkeydown="if(event.key==='Enter')sendAI()">
+            <button class="btn btn-primary" onclick="sendAI()"><i class="ti ti-send"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Preguntas rápidas</div></div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn" style="justify-content:flex-start;text-align:left;font-size:12px" onclick="setAIAndSend('¿Qué recetas puedo hacer con leche, arroz, tomates, fideos y huevos?')"><i class="ti ti-chef-hat" style="color:var(--teal)"></i> Recetas con lo que tengo</button>
+          <button class="btn" style="justify-content:flex-start;text-align:left;font-size:12px" onclick="setAIAndSend('Analiza mis gastos de este mes y dime dónde puedo ahorrar más. Gasto $487.320 al mes, el mayor es supermercado $181.200.')"><i class="ti ti-chart-bar" style="color:var(--amber)"></i> Analizar mis gastos</button>
+          <button class="btn" style="justify-content:flex-start;text-align:left;font-size:12px" onclick="setAIAndSend('Crea un menú semanal económico y nutritivo para una familia de 4 personas en Chile con presupuesto de $50.000 para la semana')"><i class="ti ti-calendar" style="color:var(--blue)"></i> Menú semanal económico</button>
+          <button class="btn" style="justify-content:flex-start;text-align:left;font-size:12px" onclick="setAIAndSend('Dame 5 estrategias para reducir el gasto en supermercado de una familia chilena de 4 personas')"><i class="ti ti-pig-money" style="color:var(--green)"></i> Estrategias de ahorro</button>
+          <button class="btn" style="justify-content:flex-start;text-align:left;font-size:12px" onclick="setAIAndSend('¿Cómo organizo mejor el presupuesto familiar mensual de $650.000 para una familia de 4 en Santiago de Chile?')"><i class="ti ti-wallet" style="color:var(--purple)"></i> Organizar presupuesto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav">
+  <button onclick="goTo('dashboard',this)" class="active"><i class="ti ti-layout-dashboard"></i>Resumen</button>
+  <button onclick="goTo('gastos',this)"><i class="ti ti-receipt"></i>Gastos</button>
+  <button onclick="goTo('scan',this)"><i class="ti ti-scan"></i>Boleta</button>
+  <button onclick="goTo('compras',this)"><i class="ti ti-shopping-cart"></i>Compras</button>
+  <button onclick="goTo('asistente',this)"><i class="ti ti-sparkles"></i>IA</button>
+</div>
+
+<script>
+// ═══════════════════════ DATA ═══════════════════════
+const PAGES = {
+  dashboard:{title:'Resumen financiero',sub:'Junio 2025 · semana 2'},
+  gastos:{title:'Gestión de gastos',sub:'Todos los gastos familiares'},
+  scan:{title:'Escanear boleta',sub:'Procesamiento con IA'},
+  alacena:{title:'Inventario alacena',sub:'Stock del hogar en tiempo real'},
+  compras:{title:'Lista de compras',sub:'Generada automáticamente'},
+  presupuesto:{title:'Presupuesto familiar',sub:'Control por categoría'},
+  recetario:{title:'Recetario familiar',sub:'Todas las recetas de la familia'},
+  calendario:{title:'Menú del mes',sub:'Calendario de comidas'},
+  ahorros:{title:'Tips de ahorro',sub:'Oportunidades detectadas por IA'},
+  segmentacion:{title:'Segmentación de productos',sub:'1ª categoría, 2ª categoría y prescindibles'},
+  familia:{title:'Mi familia',sub:'Comunidad y miembros'},
+  asistente:{title:'Asistente IA',sub:'Consulta sobre finanzas, recetas y ahorro'},
+};
+
+let gastos = [
+  {id:1,desc:'Jumbo Las Condes',cat:'supermercado',miembro:'María',fecha:'hoy',monto:42780},
+  {id:2,desc:'Bip! Metro',cat:'transporte',miembro:'Carlos',fecha:'ayer',monto:5000},
+  {id:3,desc:'Cruz Verde',cat:'salud',miembro:'Ana',fecha:'ayer',monto:8990},
+  {id:4,desc:'Cuenta de luz',cat:'servicios',miembro:'María',fecha:'hace 5d',monto:43800},
+  {id:5,desc:'Netflix',cat:'entretenimiento',miembro:'Carlos',fecha:'hace 3d',monto:7990},
+  {id:6,desc:'Unimarc Providencia',cat:'supermercado',miembro:'María',fecha:'hace 2d',monto:29450},
+];
+
+let pantry = [
+  {id:1,icon:'🥛',name:'Leche',qty:'3 unidades',low:false},
+  {id:2,icon:'🍚',name:'Arroz',qty:'2 kg restantes',low:false},
+  {id:3,icon:'🥚',name:'Huevos',qty:'Solo 2',low:true},
+  {id:4,icon:'🫒',name:'Aceite oliva',qty:'1 litro',low:false},
+  {id:5,icon:'🍞',name:'Pan molde',qty:'Último paquete',low:true},
+  {id:6,icon:'☕',name:'Café',qty:'250g',low:false},
+  {id:7,icon:'🍝',name:'Fideos',qty:'3 paquetes',low:false},
+  {id:8,icon:'🧂',name:'Sal',qty:'Casi vacío',low:true},
+  {id:9,icon:'🧴',name:'Detergente',qty:'1 bolsa',low:false},
+  {id:10,icon:'🍅',name:'Tomates',qty:'4 unidades',low:false},
+  {id:11,icon:'🧻',name:'Papel higiénico',qty:'3 rollos',low:false},
+  {id:12,icon:'🫙',name:'Salsa tomate',qty:'2 latas',low:false},
+];
+
+let shopItems = [
+  {id:1,name:'Huevos (malla 12)',price:2490,checked:true},
+  {id:2,name:'Pan molde integral',price:2190,checked:true},
+  {id:3,name:'Sal fina 1kg',price:490,checked:false},
+  {id:4,name:'Papel higiénico x12',price:5990,checked:false},
+  {id:5,name:'Leche entera x3',price:3870,checked:false},
+  {id:6,name:'Manzanas (kg)',price:1290,checked:false},
+  {id:7,name:'Tomates cherry',price:2190,checked:false},
+  {id:8,name:'Yogur Soprole x6',price:3490,checked:false},
+  {id:9,name:'Café Nescafé 200g',price:4290,checked:false},
+];
+
+const budgets = [
+  {name:'Supermercado',icon:'ti-shopping-cart',spent:181200,total:200000,color:'var(--teal)'},
+  {name:'Servicios',icon:'ti-bolt',spent:121000,total:150000,color:'var(--blue)'},
+  {name:'Transporte',icon:'ti-car',spent:88440,total:100000,color:'var(--amber)'},
+  {name:'Salud',icon:'ti-heart',spent:65000,total:80000,color:'var(--teal)'},
+  {name:'Entretenimiento',icon:'ti-device-tv',spent:31680,total:50000,color:'var(--purple)'},
+];
+
+let recipes = [
+  {id:1,name:'Fideos con salsa de tomate',type:['almuerzo','cena'],time:20,servings:4,tags:['rápido','económico'],ingredients:[{n:'Fideos 400g',cat:'abarrotes'},{n:'Salsa de tomate 400g',cat:'abarrotes'},{n:'Tomates 2 un',cat:'verduras'},{n:'Aceite de oliva 3 cdas',cat:'abarrotes'}],steps:['Hervir agua con sal','Cocinar fideos al dente 9 min','Sofreír tomate fresco, agregar salsa','Mezclar y servir']},
+  {id:2,name:'Arroz rojo con tomate',type:['almuerzo'],time:25,servings:4,tags:['económico','rendidor'],ingredients:[{n:'Arroz 2 tazas',cat:'abarrotes'},{n:'Salsa de tomate 400g',cat:'abarrotes'},{n:'Tomates 2 un',cat:'verduras'},{n:'Aceite de oliva 2 cdas',cat:'abarrotes'}],steps:['Sofreír tomate en aceite','Agregar arroz, nacar 2 min','Incorporar salsa y agua, tapar','Cocinar 18 min a fuego bajo']},
+  {id:3,name:'Arroz con leche',type:['desayuno','cena'],time:30,servings:4,tags:['postre','fácil'],ingredients:[{n:'Arroz ½ taza',cat:'abarrotes'},{n:'Leche 500ml',cat:'lácteos'},{n:'Azúcar 3 cdas',cat:'abarrotes'},{n:'Canela al gusto',cat:'abarrotes'}],steps:['Pre-cocer arroz en agua 8 min','Agregar leche y azúcar','Cocinar a fuego bajo 20 min revolviendo','Servir con canela']},
+  {id:4,name:'Huevos revueltos con tomate',type:['desayuno'],time:10,servings:2,tags:['rápido','proteico'],ingredients:[{n:'Huevos 4 un',cat:'proteína'},{n:'Tomates 1 un',cat:'verduras'},{n:'Aceite de oliva 1 cda',cat:'abarrotes'},{n:'Sal al gusto',cat:'abarrotes'}],steps:['Batir huevos con sal','Sofreír tomate picado 2 min','Agregar huevos, revolver suave','Servir caliente']},
+  {id:5,name:'Sopa de fideos',type:['cena','almuerzo'],time:25,servings:4,tags:['reconfortante','rápido'],ingredients:[{n:'Fideos cabello ángel 150g',cat:'abarrotes'},{n:'Caldo de verduras 1L',cat:'abarrotes'},{n:'Tomates 2 un',cat:'verduras'},{n:'Sal al gusto',cat:'abarrotes'}],steps:['Calentar caldo','Agregar tomate picado 5 min','Incorporar fideos','Cocinar 8 min, rectificar sal']},
+  {id:6,name:'Tostadas con huevo frito',type:['desayuno'],time:10,servings:2,tags:['rápido','clásico'],ingredients:[{n:'Pan molde 4 rebanadas',cat:'panadería'},{n:'Huevos 2 un',cat:'proteína'},{n:'Aceite de oliva 1 cda',cat:'abarrotes'}],steps:['Tostar el pan','Freír huevos en aceite','Armar tostadas','Servir con sal al gusto']},
+  {id:7,name:'Cazuela de vacuno',type:['almuerzo'],time:60,servings:4,tags:['tradicional'],ingredients:[{n:'Carne vacuno 600g',cat:'carnes'},{n:'Papas 4 un',cat:'verduras'},{n:'Zanahoria 2 un',cat:'verduras'},{n:'Choclo 2 un',cat:'verduras'}],steps:['Sellar carne en olla','Agregar agua y hervir','Incorporar verduras por dureza','Cocinar 45 min']},
+  {id:8,name:'Porotos con riendas',type:['almuerzo'],time:50,servings:6,tags:['económico','rendidor'],ingredients:[{n:'Porotos 500g',cat:'legumbres'},{n:'Fideos 200g',cat:'abarrotes'},{n:'Cebolla 1 un',cat:'verduras'},{n:'Tocino 100g',cat:'carnes'}],steps:['Remojar porotos noche anterior','Hervir porotos 40 min','Sofreír cebolla y tocino','Agregar fideos y porotos juntos']},
+];
+
+let recipeFilter = 'all';
+let openRecipeId = null;
+const calendarData = {};
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+const segProducts = [
+  {id:1,name:'Leche Colún 1L x3',cat:'lácteos',freq:'semanal',unit:1290,qty:3,total:3870,seg:'cat1',why:'Nutrición básica'},
+  {id:2,name:'Huevos Agrosuper x12',cat:'proteína',freq:'semanal',unit:2990,qty:1,total:2990,seg:'cat1',why:'Proteína esencial'},
+  {id:3,name:'Arroz Tucapel 1kg',cat:'abarrotes',freq:'quincenal',unit:1890,qty:2,total:3780,seg:'cat1',why:'Base alimentaria'},
+  {id:4,name:'Aceite oliva 900ml',cat:'abarrotes',freq:'mensual',unit:4990,qty:1,total:4990,seg:'cat1',why:'Grasa cocina'},
+  {id:5,name:'Pan molde Ideal',cat:'panadería',freq:'semanal',unit:2190,qty:2,total:4380,seg:'cat1',why:'Consumo diario'},
+  {id:6,name:'Tomates kg',cat:'verduras',freq:'semanal',unit:1290,qty:1,total:1290,seg:'cat1',why:'Verdura base'},
+  {id:7,name:'Sal fina 1kg',cat:'abarrotes',freq:'mensual',unit:490,qty:1,total:490,seg:'cat1',why:'Condimento esencial'},
+  {id:8,name:'Papel higiénico x12',cat:'aseo',freq:'mensual',unit:5990,qty:1,total:5990,seg:'cat1',why:'Higiene básica'},
+  {id:9,name:'Detergente Bold 3kg',cat:'aseo',freq:'mensual',unit:8990,qty:1,total:8990,seg:'cat1',why:'Limpieza ropa'},
+  {id:10,name:'Fideos espagueti 400g',cat:'abarrotes',freq:'quincenal',unit:890,qty:2,total:1780,seg:'cat1',why:'Carbohidrato base'},
+  {id:11,name:'Café Nescafé 200g',cat:'infusiones',freq:'mensual',unit:4290,qty:1,total:4290,seg:'cat2',why:'Frecuente, no esencial'},
+  {id:12,name:'Yogur Soprole x6',cat:'lácteos',freq:'semanal',unit:3490,qty:2,total:6980,seg:'cat2',why:'Complemento nutricional'},
+  {id:13,name:'Manzanas kg',cat:'frutas',freq:'semanal',unit:1290,qty:1,total:1290,seg:'cat2',why:'Fruta temporada'},
+  {id:14,name:'Galletas Oreo 154g',cat:'snacks',freq:'semanal',unit:1490,qty:3,total:4470,seg:'saving',why:'Snack prescindible'},
+  {id:15,name:'Coca-Cola 1.5L x3',cat:'bebidas',freq:'semanal',unit:2290,qty:3,total:6870,seg:'saving',why:'Bebida azucarada'},
+  {id:16,name:'Papas fritas Lay\'s',cat:'snacks',freq:'semanal',unit:1790,qty:2,total:3580,seg:'saving',why:'Snack procesado'},
+  {id:17,name:'Chocolates Sahne',cat:'dulces',freq:'semanal',unit:2190,qty:3,total:6570,seg:'saving',why:'Antojo recurrente'},
+  {id:18,name:'Agua mineral 6x1.5L',cat:'bebidas',freq:'semanal',unit:3490,qty:2,total:6980,seg:'saving',why:'Agua llave filtrada ahorra $13.960/mes'},
+];
+let segFilter = 'all';
+
+// ═══════════════════════ NAVIGATION ═══════════════════════
+function goTo(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.mobile-nav button').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById('panel-' + id);
+  if (panel) panel.classList.add('on');
+  if (btn) {
+    btn.classList.add('active');
+    const mobileBtn = document.querySelector(`.mobile-nav button[onclick*="${id}"]`);
+    if (mobileBtn) mobileBtn.classList.add('active');
+  }
+  const info = PAGES[id];
+  if (info) {
+    document.getElementById('page-title').textContent = info.title;
+    document.getElementById('page-sub').textContent = info.sub;
+  }
+  if (id === 'presupuesto') renderBudget();
+  if (id === 'alacena') renderPantry();
+  if (id === 'compras') renderShopList();
+  if (id === 'gastos') renderGastos();
+  if (id === 'recetario') renderRecipes();
+  if (id === 'calendario') renderCalendar();
+  if (id === 'segmentacion') renderSeg();
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════ TOAST ═══════════════════════
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<i class="ti ti-check"></i> ${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString('es-CL'); }
+
+// ═══════════════════════ GASTOS ═══════════════════════
+function renderGastos() {
+  const tbody = document.getElementById('gastos-tbody');
+  if (!tbody) return;
+  const catTag = {supermercado:'tag-t',transporte:'tag-b',salud:'tag-c',servicios:'tag-a',entretenimiento:'tag-p',otros:''};
+  tbody.innerHTML = gastos.map(g => `
+    <tr>
+      <td><div style="font-size:12px;font-weight:600">${g.desc}</div></td>
+      <td><span class="tag ${catTag[g.cat]||''}">${g.cat}</span></td>
+      <td><div style="display:flex;align-items:center;gap:5px"><div class="av av-t" style="width:22px;height:22px;font-size:9px">${g.miembro.slice(0,2).toUpperCase()}</div><span style="font-size:12px">${g.miembro}</span></div></td>
+      <td style="font-size:11px;color:var(--text-3)">${g.fecha}</td>
+      <td style="text-align:right;font-size:13px;font-weight:600;color:var(--coral)">${fmt(g.monto)}</td>
+    </tr>`).join('');
+}
+
+function addGasto() {
+  const desc = document.getElementById('g-desc').value.trim();
+  const monto = parseFloat(document.getElementById('g-monto').value);
+  const cat = document.getElementById('g-cat').value;
+  if (!desc || !monto) return;
+  gastos.unshift({id: Date.now(), desc, cat, miembro: 'María', fecha: 'ahora', monto});
+  document.getElementById('g-desc').value = '';
+  document.getElementById('g-monto').value = '';
+  renderGastos();
+  toast('Gasto agregado correctamente');
+}
+
+// ═══════════════════════ SCAN ═══════════════════════
+const scanData = [
+  ['Leche Colún 1L',2,1290,2580],['Huevos Agrosuper x12',1,2990,2990],
+  ['Pan molde Ideal 500g',1,2190,2190],['Yogur Soprole 6un',2,3490,6980],
+  ['Aceite Olivetto 900ml',1,4490,4490],['Manzanas x kg',1,1290,1290],
+  ['Detergente Bold 3kg',1,8990,8990],['Tomates cherry 500g',1,2190,2190],
+  ['Café Nescafé 200g',1,4290,4290],['Sal fina 1kg',1,490,490],['Papel hig. x4',1,1990,1990],
+];
+
+function startScan() {
+  const status = document.getElementById('scan-status');
+  const done = document.getElementById('scan-done');
+  const prog = document.getElementById('scan-prog');
+  status.style.display = 'block';
+  done.style.display = 'none';
+  const steps = ['Reconociendo texto...','Identificando productos...','Validando precios históricos...','Actualizando alacena...'];
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i < steps.length) { prog.textContent = steps[i]; i++; }
+    else {
+      clearInterval(iv);
+      status.style.display = 'none';
+      const tbody = document.getElementById('scan-tbody');
+      tbody.innerHTML = scanData.map(([name,qty,unit,total]) =>
+        `<tr><td style="font-size:12px">${name}</td><td style="text-align:right;font-size:12px">${qty}</td><td style="text-align:right;font-size:12px">${fmt(unit)}</td><td style="text-align:right;font-size:12px;font-weight:600">${fmt(total)}</td></tr>`
+      ).join('');
+      done.style.display = 'block';
+      toast('Boleta procesada — 11 productos detectados');
+    }
+  }, 700);
+}
+
+// ═══════════════════════ PANTRY ═══════════════════════
+function renderPantry() {
+  const grid = document.getElementById('pantry-grid');
+  if (!grid) return;
+  grid.innerHTML = pantry.map(p => `
+    <div class="pantry-card ${p.low ? 'low' : ''}">
+      <span class="p-icon">${p.icon}</span>
+      <div class="p-name">${p.name}</div>
+      <div class="p-qty ${p.low ? 'low-txt' : ''}">${p.qty}</div>
+    </div>`).join('');
+  document.getElementById('pantry-count').textContent = pantry.length;
+  document.getElementById('pantry-low').textContent = pantry.filter(p => p.low).length;
+}
+
+function openAddPantry() {
+  document.getElementById('add-pantry-modal').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.parentElement.innerHTML=''">
+      <div class="modal">
+        <div class="modal-title"><i class="ti ti-package"></i> Agregar a la alacena</div>
+        <div class="form-row"><label class="form-label">Nombre del producto</label><input type="text" id="ap-name" placeholder="ej: Aceite de maravilla"></div>
+        <div class="form-row"><label class="form-label">Cantidad / descripción</label><input type="text" id="ap-qty" placeholder="ej: 1 litro"></div>
+        <div class="form-row"><label class="form-label">Ícono (emoji)</label><input type="text" id="ap-icon" placeholder="🫙" maxlength="2"></div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" style="flex:1" onclick="saveAddPantry()"><i class="ti ti-check"></i> Agregar</button>
+          <button class="btn" onclick="document.getElementById('add-pantry-modal').innerHTML=''">Cancelar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function saveAddPantry() {
+  const name = document.getElementById('ap-name').value.trim();
+  const qty = document.getElementById('ap-qty').value.trim();
+  const icon = document.getElementById('ap-icon').value.trim() || '📦';
+  if (!name) return;
+  pantry.push({id: Date.now(), icon, name, qty: qty || '1 unidad', low: false});
+  document.getElementById('add-pantry-modal').innerHTML = '';
+  renderPantry();
+  toast('Producto agregado a la alacena');
+}
+
+// ═══════════════════════ SHOP LIST ═══════════════════════
+function renderShopList() {
+  const el = document.getElementById('shop-list');
+  if (!el) return;
+  el.innerHTML = shopItems.map(i => `
+    <div class="shop-item">
+      <div class="shop-check ${i.checked ? 'checked' : ''}" onclick="toggleShopItem(${i.id})">
+        ${i.checked ? '<i class="ti ti-check" style="font-size:10px;color:#fff"></i>' : ''}
+      </div>
+      <div class="shop-name ${i.checked ? 'done' : ''}">${i.name}</div>
+      <div class="shop-price">${fmt(i.price)}</div>
+    </div>`).join('');
+  document.getElementById('shop-pending').textContent = shopItems.filter(i => !i.checked).length;
+}
+
+function toggleShopItem(id) {
+  const item = shopItems.find(i => i.id === id);
+  if (item) item.checked = !item.checked;
+  renderShopList();
+}
+
+function openAddShop() {
+  document.getElementById('add-shop-modal').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.parentElement.innerHTML=''">
+      <div class="modal">
+        <div class="modal-title"><i class="ti ti-shopping-cart"></i> Agregar a la lista</div>
+        <div class="form-row"><label class="form-label">Producto</label><input type="text" id="as-name" placeholder="ej: Mantequilla"></div>
+        <div class="form-row"><label class="form-label">Precio estimado ($)</label><input type="number" id="as-price" placeholder="0"></div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" style="flex:1" onclick="saveAddShop()"><i class="ti ti-check"></i> Agregar</button>
+          <button class="btn" onclick="document.getElementById('add-shop-modal').innerHTML=''">Cancelar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function saveAddShop() {
+  const name = document.getElementById('as-name').value.trim();
+  const price = parseFloat(document.getElementById('as-price').value) || 0;
+  if (!name) return;
+  shopItems.push({id: Date.now(), name, price, checked: false});
+  document.getElementById('add-shop-modal').innerHTML = '';
+  renderShopList();
+  toast('Producto agregado a la lista');
+}
+
+function generateShopFromCalendar() {
+  const allMeals = [];
+  Object.values(calendarData).forEach(meals => meals.forEach(m => allMeals.push(m)));
+  if (allMeals.length === 0) { toast('Agrega recetas al calendario primero'); return; }
+  const ingMap = {};
+  allMeals.forEach(m => {
+    const r = recipes.find(x => x.id === m.recipeId);
+    if (!r) return;
+    r.ingredients.forEach(i => {
+      if (!ingMap[i.n]) ingMap[i.n] = {name: i.n, count: 0};
+      ingMap[i.n].count++;
+    });
+  });
+  const calItems = Object.values(ingMap).map(i => ({id: Date.now() + Math.random(), name: i.n + ` (${i.count}x uso)`, price: 0, checked: false}));
+  shopItems = [...shopItems, ...calItems.filter(ci => !shopItems.some(s => s.name.startsWith(ci.name.split(' (')[0])))];
+  renderShopList();
+  toast(`${calItems.length} ingredientes agregados desde el menú`);
+}
+
+// ═══════════════════════ BUDGET ═══════════════════════
+function renderBudget() {
+  const el = document.getElementById('budget-list');
+  if (!el) return;
+  el.innerHTML = budgets.map(b => {
+    const pct = Math.min(100, Math.round(b.spent / b.total * 100));
+    const over = b.spent > b.total;
+    return `<div class="bud-item">
+      <div class="bud-name"><i class="ti ${b.icon}" style="font-size:14px"></i>${b.name}</div>
+      <div class="bud-track">
+        <div style="font-size:11px;color:${over ? 'var(--coral)' : 'var(--text-3)'}">${fmt(b.spent)} / ${fmt(b.total)}</div>
+        <div class="prog"><div class="prog-fill" style="width:${pct}%;background:${over ? 'var(--coral)' : b.color}"></div></div>
+      </div>
+      <div class="bud-nums" style="color:${over ? 'var(--coral)' : 'var(--text-2)'}">${over ? '-'+fmt(b.spent-b.total) : fmt(b.total-b.spent)+" rest."}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════ RECIPES ═══════════════════════
+function filterRecipes(f, btn) {
+  recipeFilter = f;
+  document.querySelectorAll('#panel-recetario .chip').forEach(c => c.classList.remove('on'));
+  btn.classList.add('on');
+  renderRecipes();
+}
+
+function renderRecipes() {
+  const q = '';
+  let list = recipes.filter(r => {
+    if (recipeFilter === 'rapido' && r.time > 15) return false;
+    if (['almuerzo','cena','desayuno'].includes(recipeFilter) && !r.type.includes(recipeFilter)) return false;
+    return true;
+  });
+  const grid = document.getElementById('recipe-grid');
+  if (!grid) return;
+  grid.innerHTML = list.map(r => `
+    <div class="recipe-card ${openRecipeId === r.id ? 'sel' : ''}" onclick="toggleRecipeDetail(${r.id})">
+      <button class="rc-add" onclick="event.stopPropagation();quickAddRecipeToCalendar(${r.id})" title="agregar al calendario">+</button>
+      <div class="rc-name">${r.name}</div>
+      <div class="rc-meta"><span><i class="ti ti-clock" style="font-size:11px"></i> ${r.time} min</span><span><i class="ti ti-users" style="font-size:11px"></i> ${r.servings} pers.</span></div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">${r.tags.map(t => `<span class="tag tag-t">${t}</span>`).join('')}</div>
+      <div class="rc-ingr" style="margin-top:5px">${r.ingredients.map(i => i.n).join(' · ')}</div>
+    </div>`).join('');
+  renderRecipeDetail();
+}
+
+function toggleRecipeDetail(id) {
+  openRecipeId = openRecipeId === id ? null : id;
+  renderRecipes();
+}
+
+function renderRecipeDetail() {
+  const area = document.getElementById('recipe-detail');
+  if (!openRecipeId) { area.innerHTML = ''; return; }
+  const r = recipes.find(x => x.id === openRecipeId);
+  if (!r) { area.innerHTML = ''; return; }
+  area.innerHTML = `
+    <div style="background:var(--bg);border-radius:var(--r-lg);padding:1rem;margin-top:.75rem;border:1px solid var(--border)">
+      <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:.75rem">${r.name} <span style="font-size:11px;font-weight:400;color:var(--text-3)">· ${r.time} min · ${r.servings} personas</span></div>
+      <div style="font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:6px">Ingredientes</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.75rem">${r.ingredients.map(i => `<span style="font-size:11px;padding:3px 9px;background:var(--surface);border:1px solid var(--border);border-radius:20px">${i.n}</span>`).join('')}</div>
+      <div style="font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:6px">Preparación</div>
+      <div class="rc-steps">${r.steps.map((s,i) => `<div class="rc-step"><div class="rc-num">${i+1}</div><div>${s}</div></div>`).join('')}</div>
+      <div style="margin-top:.875rem;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-primary" onclick="quickAddRecipeToCalendar(${r.id})"><i class="ti ti-calendar-plus"></i> Agregar al calendario</button>
+        <button class="btn btn-sm" onclick="askAIRecipeVariations(${r.id})"><i class="ti ti-sparkles"></i> Variaciones con IA</button>
+      </div>
+    </div>`;
+}
+
+function openAddRecipe() {
+  document.getElementById('recipe-modal').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.parentElement.innerHTML=''">
+      <div class="modal">
+        <div class="modal-title"><i class="ti ti-chef-hat"></i> Nueva receta</div>
+        <div class="form-row"><label class="form-label">Nombre</label><input type="text" id="nr-name" placeholder="ej: Pollo al horno"></div>
+        <div class="form-row"><label class="form-label">Tipo</label>
+          <select id="nr-type"><option value="almuerzo">Almuerzo</option><option value="cena">Cena</option><option value="desayuno">Desayuno</option></select>
+        </div>
+        <div class="form-row"><label class="form-label">Tiempo (min)</label><input type="number" id="nr-time" value="30"></div>
+        <div class="form-row"><label class="form-label">Ingredientes (separados por coma)</label><input type="text" id="nr-ingr" placeholder="pollo, papas, cebolla..."></div>
+        <div class="form-row"><label class="form-label">Pasos (separados por punto)</label><textarea id="nr-steps" placeholder="Preparar ingredientes. Cocinar a fuego medio. Servir."></textarea></div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" style="flex:1" onclick="saveNewRecipe()"><i class="ti ti-check"></i> Guardar receta</button>
+          <button class="btn" onclick="document.getElementById('recipe-modal').innerHTML=''">Cancelar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function saveNewRecipe() {
+  const name = document.getElementById('nr-name').value.trim();
+  const type = document.getElementById('nr-type').value;
+  const time = parseInt(document.getElementById('nr-time').value) || 30;
+  const ingrRaw = document.getElementById('nr-ingr').value.split(',').map(s => s.trim()).filter(Boolean);
+  const stepsRaw = document.getElementById('nr-steps').value.split('.').map(s => s.trim()).filter(Boolean);
+  if (!name) return;
+  recipes.push({id: Date.now(), name, type: [type], time, servings: 4, tags: ['personalizada'], ingredients: ingrRaw.map(n => ({n, cat: 'abarrotes'})), steps: stepsRaw.length ? stepsRaw : ['Preparar y cocinar']});
+  document.getElementById('recipe-modal').innerHTML = '';
+  renderRecipes();
+  toast('Receta guardada en el recetario');
+}
+
+function askAIRecipes() {
+  goTo('asistente', document.querySelector('[onclick*="asistente"]'));
+  setAIAndSend('Sugiere 5 recetas económicas y nutritivas para una familia de 4 personas en Chile. Usa ingredientes comunes de supermercado.');
+}
+
+function askAIRecipeVariations(recipeId) {
+  const r = recipes.find(x => x.id === recipeId);
+  if (!r) return;
+  goTo('asistente', document.querySelector('[onclick*="asistente"]'));
+  setAIAndSend(`Dame 3 variaciones de la receta "${r.name}" para hacerla más económica o con ingredientes sustitutos accesibles en Chile.`);
+}
+
+function quickAddRecipeToCalendar(recipeId) {
+  const r = recipes.find(x => x.id === recipeId);
+  if (!r) return;
+  document.getElementById('recipe-modal').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.parentElement.innerHTML=''">
+      <div class="modal">
+        <div class="modal-title"><i class="ti ti-calendar-plus"></i> Agregar "${r.name}" al menú</div>
+        <div class="form-row"><label class="form-label">Día del mes</label><input type="number" id="qac-day" min="1" max="31" value="${new Date().getDate()}"></div>
+        <div class="form-row"><label class="form-label">Tipo de comida</label>
+          <select id="qac-type">${r.type.map(t => `<option value="${t}">${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}</select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" style="flex:1" onclick="confirmAddToCalendar(${recipeId})"><i class="ti ti-check"></i> Agregar al calendario</button>
+          <button class="btn" onclick="document.getElementById('recipe-modal').innerHTML=''">Cancelar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function confirmAddToCalendar(recipeId) {
+  const day = parseInt(document.getElementById('qac-day').value) || 1;
+  const type = document.getElementById('qac-type').value;
+  const key = `${calYear}-${calMonth}-${day}`;
+  if (!calendarData[key]) calendarData[key] = [];
+  calendarData[key].push({recipeId, type});
+  document.getElementById('recipe-modal').innerHTML = '';
+  toast('Receta agregada al calendario del día ' + day);
+}
+
+// ═══════════════════════ CALENDAR ═══════════════════════
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function changeMonth(d) {
+  calMonth += d;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('cal-title').textContent = `${MONTHS[calMonth]} ${calYear}`;
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const offset = firstDay === 0 ? 6 : firstDay - 1;
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const today = new Date();
+  const grid = document.getElementById('cal-grid');
+  let html = '';
+  for (let i = 0; i < offset; i++) html += `<div class="cal-day other"><div class="day-num">${new Date(calYear, calMonth, 1 - offset + i).getDate()}</div></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === d;
+    const key = `${calYear}-${calMonth}-${d}`;
+    const meals = calendarData[key] || [];
+    const mealHtml = meals.map(m => {
+      const r = recipes.find(x => x.id === m.recipeId);
+      const cls = m.type === 'almuerzo' ? 'mp-a' : m.type === 'cena' ? 'mp-c' : 'mp-d';
+      return `<span class="meal-pill ${cls}" onclick="event.stopPropagation();removeMealCal('${key}',${m.recipeId})" title="clic para eliminar">${r ? r.name.split(' ').slice(0,2).join(' ') : '?'}</span>`;
+    }).join('');
+    html += `<div class="cal-day${isToday ? ' today' : ''}" onclick="openDayModal(${d})">
+      <div class="day-num">${d}</div>${mealHtml}
+      <button class="day-add" onclick="event.stopPropagation();openDayModal(${d})" aria-label="agregar">+</button>
+    </div>`;
+  }
+  const remaining = (7 - ((offset + daysInMonth) % 7)) % 7;
+  for (let i = 1; i <= remaining; i++) html += `<div class="cal-day other"><div class="day-num">${i}</div></div>`;
+  grid.innerHTML = html;
+}
+
+function removeMealCal(key, recipeId) {
+  if (!calendarData[key]) return;
+  const idx = calendarData[key].findIndex(m => m.recipeId === recipeId);
+  if (idx > -1) calendarData[key].splice(idx, 1);
+  renderCalendar();
+  toast('Receta eliminada del calendario');
+}
+
+function openDayModal(day) {
+  const key = `${calYear}-${calMonth}-${day}`;
+  const existing = calendarData[key] || [];
+  const recOpts = recipes.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+  const typeOpts = '<option value="almuerzo">Almuerzo</option><option value="cena">Cena</option><option value="desayuno">Desayuno</option>';
+  const existingHtml = existing.length ? `<div style="margin-bottom:.875rem"><div class="form-label" style="margin-bottom:5px">Planificado:</div>${existing.map((m,i) => {
+    const r = recipes.find(x => x.id === m.recipeId);
+    const cls = m.type === 'almuerzo' ? 'mp-a' : m.type === 'cena' ? 'mp-c' : 'mp-d';
+    return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span class="meal-pill ${cls}" style="padding:3px 8px;font-size:11px;flex:1">${m.type}: ${r ? r.name : '?'}</span><button onclick="removeMealModal('${key}',${i})" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:16px;padding:0 4px">×</button></div>`;
+  }).join('')}</div>` : '';
+  document.getElementById('cal-modal').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.parentElement.innerHTML=''">
+      <div class="modal">
+        <div class="modal-title"><i class="ti ti-calendar-event"></i> Día ${day} de ${MONTHS[calMonth]}</div>
+        ${existingHtml}
+        <div class="form-row"><label class="form-label">Tipo de comida</label><select id="dm-type">${typeOpts}</select></div>
+        <div class="form-row"><label class="form-label">Receta</label><select id="dm-rec">${recOpts}</select></div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" style="flex:1" onclick="addMealFromModal('${key}',${day})"><i class="ti ti-plus"></i> Agregar</button>
+          <button class="btn" onclick="document.getElementById('cal-modal').innerHTML=''">Cerrar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function addMealFromModal(key, day) {
+  const type = document.getElementById('dm-type').value;
+  const recipeId = parseInt(document.getElementById('dm-rec').value);
+  if (!calendarData[key]) calendarData[key] = [];
+  calendarData[key].push({recipeId, type});
+  renderCalendar();
+  openDayModal(day);
+  toast('Comida agregada al día ' + day);
+}
+
+function removeMealModal(key, idx) {
+  if (calendarData[key]) calendarData[key].splice(idx, 1);
+  const day = parseInt(key.split('-')[2]);
+  renderCalendar();
+  openDayModal(day);
+}
+
+// ═══════════════════════ SEGMENTACIÓN ═══════════════════════
+function filterSeg(f, btn) {
+  segFilter = f;
+  document.querySelectorAll('#panel-segmentacion .chip').forEach(c => c.classList.remove('on'));
+  btn.classList.add('on');
+  renderSeg();
+}
+
+function renderSeg() {
+  const q = (document.getElementById('seg-search') || {}).value?.toLowerCase() || '';
+  let c1=0,c2=0,cs=0,t1=0,t2=0,ts=0;
+  segProducts.forEach(p => {
+    if(p.seg==='cat1'){c1++;t1+=p.total}
+    else if(p.seg==='cat2'){c2++;t2+=p.total}
+    else{cs++;ts+=p.total}
+  });
+  document.getElementById('s-cnt1').textContent = c1;
+  document.getElementById('s-cnt2').textContent = c2;
+  document.getElementById('s-cnts').textContent = cs;
+  document.getElementById('s-tot1').textContent = fmt(t1) + ' este mes';
+  document.getElementById('s-tot2').textContent = fmt(t2) + ' este mes';
+  document.getElementById('s-tots').textContent = fmt(ts) + ' este mes';
+
+  const groups = [
+    {key:'cat1',label:'1ª categoría — esenciales del hogar',desc:'Alimentación, higiene y limpieza básica. No deben faltar.',color:'var(--teal)'},
+    {key:'cat2',label:'2ª categoría — complementarios',desc:'Mejoran la calidad de vida pero pueden reducirse.',color:'var(--amber)'},
+    {key:'saving',label:'Prescindibles — ahorros potenciales',desc:'Gastos que la familia puede eliminar o reemplazar fácilmente.',color:'var(--coral)'},
+  ];
+  const container = document.getElementById('seg-sections');
+  container.innerHTML = '';
+  groups.forEach(g => {
+    const items = segProducts.filter(p => {
+      if (segFilter !== 'all' && p.seg !== segFilter) return false;
+      if (p.seg !== g.key) return false;
+      if (q && !p.name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+    if (items.length === 0) return;
+    const total = items.reduce((a,p) => a+p.total, 0);
+    const div = document.createElement('div');
+    div.style.cssText = 'margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden';
+    div.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:.875rem 1.25rem;cursor:pointer;background:var(--bg)" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'">
+      <div style="width:10px;height:10px;border-radius:50%;background:${g.color};flex-shrink:0"></div>
+      <div style="flex:1;font-size:13px;font-weight:600;color:var(--text)">${g.label}</div>
+      <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:${g.color}22;color:${g.color}">${items.length} prod. · ${fmt(total)}</span>
+      <i class="ti ti-chevron-down" style="font-size:14px;color:var(--text-3)"></i>
+    </div>
+    <div style="padding:0 1.25rem 1rem">
+      <div style="font-size:11px;color:var(--text-3);padding:.5rem 0 .75rem">${g.desc}</div>
+      <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead><tr><th>Producto</th><th>Categoría</th><th>Frecuencia</th><th style="text-align:right">Unit.</th><th style="text-align:right">Total mes</th><th>Segmento</th><th>Cambiar</th></tr></thead>
+        <tbody>${items.map(p => `
+          <tr>
+            <td style="font-size:12px;font-weight:600">${p.name}${p.seg==='saving'?'<div style="font-size:10px;color:var(--coral);font-weight:400">'+p.why+'</div>':''}</td>
+            <td><span style="font-size:10px;color:var(--text-3)">${p.cat}</span></td>
+            <td><span style="font-size:10px;color:var(--text-3)">${p.freq}</span></td>
+            <td style="text-align:right;font-size:12px">${fmt(p.unit)}</td>
+            <td style="text-align:right;font-size:12px;font-weight:600;color:${p.seg==='saving'?'var(--coral)':'var(--text)'}">${fmt(p.total)}</td>
+            <td><span class="seg-pill ${p.seg==='cat1'?'sp-1':p.seg==='cat2'?'sp-2':'sp-s'}">${p.seg==='cat1'?'1ª cat.':p.seg==='cat2'?'2ª cat.':'Prescindible'}</span></td>
+            <td><select style="font-size:11px;padding:2px 4px;border-radius:4px;border:1px solid var(--border-strong);width:90px" onchange="changeSegProduct(${p.id},this.value)">
+              <option value="cat1" ${p.seg==='cat1'?'selected':''}>1ª cat.</option>
+              <option value="cat2" ${p.seg==='cat2'?'selected':''}>2ª cat.</option>
+              <option value="saving" ${p.seg==='saving'?'selected':''}>Prescind.</option>
+            </select></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      </div>
+    </div>`;
+    container.appendChild(div);
+  });
+
+  const savingProds = segProducts.filter(p => p.seg === 'saving');
+  document.getElementById('savings-rows').innerHTML = savingProds.map(p => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="width:28px;height:28px;border-radius:7px;background:var(--coral-l);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-alert-triangle" style="font-size:14px;color:var(--coral)"></i></div>
+      <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">${p.name}</div><div style="font-size:11px;color:var(--text-2)">${p.why}</div></div>
+      <span style="font-size:10px;padding:1px 7px;border-radius:20px;background:var(--coral-l);color:var(--coral);font-weight:600">${p.freq}</span>
+      <span style="font-size:13px;font-weight:700;color:var(--green)">${fmt(p.total)}/mes</span>
+    </div>`).join('') + (savingProds.length === 0 ? '<div style="text-align:center;padding:1rem;color:var(--text-3);font-size:12px">No hay productos prescindibles</div>' : '');
+}
+
+function changeSegProduct(id, newSeg) {
+  const p = segProducts.find(x => x.id === id);
+  if (p) p.seg = newSeg;
+  renderSeg();
+  toast('Clasificación actualizada');
+}
+
+function askAISavings() {
+  goTo('asistente', document.querySelector('[onclick*="asistente"]'));
+  setAIAndSend('Analiza los gastos de mi familia y dame 5 nuevas estrategias de ahorro específicas para Chile, considerando supermercado, servicios y entretenimiento.');
+}
+
+// ═══════════════════════ AI ASSISTANT ═══════════════════════
+const AI_KEY = '';
+let aiMessages = [];
+
+function setAIContext(text) {
+  document.getElementById('ai-input').value = text;
+}
+
+function setAIAndSend(text) {
+  document.getElementById('ai-input').value = text;
+  sendAI();
+}
+
+async function sendAI() {
+  const input = document.getElementById('ai-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  const msgs = document.getElementById('ai-msgs');
+  msgs.innerHTML += `<div class="ai-msg user">${text}</div>`;
+  msgs.innerHTML += `<div class="ai-msg bot loading" id="ai-loading"><span class="pulse"></span> Pensando...</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+
+  aiMessages.push({role: 'user', content: text});
+
+  const systemPrompt = `Eres el asistente de FamilyFinance, una app de gestión financiera para familias chilenas. Ayudas con: análisis de gastos, consejos de ahorro en Chile, recetas económicas con ingredientes locales, planificación de menú mensual, gestión de alacena, presupuesto familiar. Responde siempre en español, de forma concisa y práctica. Usa montos en pesos chilenos ($). Cuando des recetas, incluye ingredientes con cantidades. Cuando des consejos de ahorro, incluye el ahorro estimado en pesos.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: aiMessages
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'No pude obtener respuesta.';
+    aiMessages.push({role: 'assistant', content: reply});
+    document.getElementById('ai-loading').outerHTML = `<div class="ai-msg bot">${reply.replace(/\n/g,'<br>')}</div>`;
+  } catch (e) {
+    document.getElementById('ai-loading').outerHTML = `<div class="ai-msg bot" style="color:var(--coral)">Error de conexión. Verifica tu API key de Anthropic en la configuración.</div>`;
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ═══════════════════════ INIT ═══════════════════════
+renderGastos();
+renderPantry();
+renderShopList();
+renderBudget();
+renderRecipes();
+renderCalendar();
+renderSeg();
+
+// Preload demo calendar data
+const today = new Date();
+const dm = today.getMonth(), dy = today.getFullYear();
+[[1,1,'almuerzo'],[1,4,'desayuno'],[2,4,'almuerzo'],[3,5,'cena'],[4,7,'desayuno'],[1,8,'almuerzo'],[5,10,'cena'],[6,12,'desayuno']].forEach(([rid,day,type]) => {
+  const key = `${dy}-${dm}-${day}`;
+  if (!calendarData[key]) calendarData[key] = [];
+  calendarData[key].push({recipeId: rid, type});
+});
+renderCalendar();
+</script>
+</body>
+</html>
