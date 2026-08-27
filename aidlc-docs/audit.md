@@ -119,3 +119,11 @@
 **Context**: Etapa Workflow Planning (SIEMPRE), inception/workflow-planning.md Steps 1-9.
 
 ---
+
+## Aprobación de Workflow Planning — Inicio de Application Design
+**Timestamp**: 2026-08-27T03:30:00Z
+**User Input**: "si"
+**AI Response**: "Se aprueba execution-plan.md. Se inicia Application Design: análisis de contexto (requirements.md + stories.md) y creación de application-design-plan.md con checklist de artefactos obligatorios (components.md, component-methods.md, services.md, component-dependency.md) y 5 preguntas de planificación con recomendaciones inline (identificación de componentes, estilo arquitectónico, estilo de API, orquestación entre componentes, patrón de capas). El patrón de autorización multi-tenant no se pregunta como decisión abierta porque ya está dictado como regla bloqueante por SECURITY-08 (Security Baseline habilitado) — se documenta directamente como restricción de diseño."
+**Context**: Etapa Application Design, inception/application-design.md Steps 1-6.
+
+---
