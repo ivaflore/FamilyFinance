@@ -16,9 +16,11 @@
 - **Patrones de Estructura**: Ver code-generation.md (fase de Construcción, aún no ejecutada)
 
 ## Configuración de Extensiones
-- **security-baseline**: Pendiente de decisión del usuario (se preguntará en Requirements Analysis)
-- **property-based-testing**: Pendiente de decisión del usuario (se preguntará en Requirements Analysis)
-- **resiliency-baseline**: Pendiente de decisión del usuario (se preguntará en Requirements Analysis)
+| Extensión | Habilitada | Decidida en |
+|---|---|---|
+| security-baseline | Sí | Requirements Analysis |
+| property-based-testing | Sí | Requirements Analysis |
+| resiliency-baseline | Sí | Requirements Analysis |
 
 ## Progreso de Etapas
 

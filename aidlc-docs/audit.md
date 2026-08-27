@@ -55,3 +55,11 @@
 **Context**: Requirements Analysis Step 6 — recopilando respuestas, aún incompleto (faltan preguntas 2-6).
 
 ---
+
+## Respuestas a Preguntas 2, 4, 5 y 6
+**Timestamp**: 2026-08-27T02:30:00Z
+**User Input**: "2. Amplio — cubrir varias mejoras relacionadas (por ejemplo, backend + autenticación + sincronización) en un mismo ciclo\n3. Hay que generar el modulo de registro con la cuenta de google, tambien se debe generar todo lo relacionado con seguridad y que sea app para android\n4. Sí — aplicar todas las reglas de SEGURIDAD como restricciones bloqueantes (recomendado para apps de producción)\n5. Sí — aplicar todas las reglas de PBT como restricciones bloqueantes (recomendado si hay lógica de negocio, transformaciones de datos o componentes con estado)\n6. Sí — aplicar el baseline de resiliencia como guía de diseño (recomendado si se construye un backend real para la app)"
+**AI Response**: "Se registran: Q2=B (Amplio), Q3=X/Other (agrega alcance nuevo: login con Google, seguridad, app Android — no una prioridad simple), Q4=A (Security Baseline habilitado), Q5=A (PBT habilitado, enforcement completo), Q6=A (Resiliency Baseline habilitado). Se cargan las 3 reglas completas de extensión (security-baseline.md, property-based-testing.md, resiliency-baseline.md) por Deferred Rule Loading. Se detecta ambigüedad en Q3 (qué significa técnicamente 'app para Android' y qué pasa con el prototipo actual) y se identifican 2 preguntas obligatorias de la extensión de Resiliencia que deben hacerse en esta etapa (RESILIENCY-02 RTO/RPO y RESILIENCY-03 Change Management). Se crea requirement-verification-clarification-questions.md con 5 preguntas (3 de aclaración propias + 2 obligatorias de RESILIENCY) y se espera respuesta del usuario."
+**Context**: Requirements Analysis Step 5.1 (extension opt-in) y Step 6 (ambiguity detection / clarification round), según question-format-guide.md y resiliency-baseline.md.
+
+---

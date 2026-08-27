@@ -28,7 +28,7 @@ C) Solo quiero un plan/roadmap por ahora, sin generar código todavía
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: B
 
 ## Pregunta 3: Prioridad de calidad para este ciclo
 De los hallazgos de la ingeniería inversa, ¿cuál debería priorizarse primero?
@@ -43,7 +43,7 @@ D) Ninguna en particular — priorizar según lo que decidas tú como responsabl
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: X — "Hay que generar el modulo de registro con la cuenta de google, tambien se debe generar todo lo relacionado con seguridad y que sea app para android." Esto agrega alcance funcional/técnico nuevo (no solo prioridad): (1) módulo de registro/login con cuenta de Google (OAuth), (2) trabajo de seguridad en general, y (3) disponibilidad como app para Android. Requiere pregunta de aclaración sobre el enfoque técnico de "app para Android" — ver requirement-verification-clarification-questions.md.
 
 ## Pregunta 4: Extensión — Seguridad
 ¿Deberían aplicarse las reglas de la extensión "Security Baseline" como restricciones obligatorias durante el resto del flujo (Construction incluido)?
@@ -54,7 +54,7 @@ B) No — omitir las reglas de SEGURIDAD (adecuado para prototipos y proyectos e
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ## Pregunta 5: Extensión — Pruebas basadas en propiedades (Property-Based Testing)
 ¿Deberían aplicarse las reglas de "Property-Based Testing" como restricciones obligatorias?
@@ -67,7 +67,7 @@ C) No — omitir las reglas de PBT (adecuado para apps CRUD simples o interfaces
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ## Pregunta 6: Extensión — Resiliencia
 ¿Debería aplicarse el "Resiliency Baseline" (buenas prácticas de diseño orientadas a tolerancia a fallos, disponibilidad y recuperación, basadas en el AWS Well-Architected Framework) durante el resto del flujo?
@@ -78,4 +78,4 @@ B) No — omitir el baseline de resiliencia (adecuado para prototipos donde iter
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
