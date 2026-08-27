@@ -175,3 +175,11 @@
 **Context**: Cierre de INCEPCIÓN; inicio de CONSTRUCCIÓN, Unidad 1, Functional Design, construction/functional-design.md Steps 1-4.
 
 ---
+
+## Functional Design Unidad 1 — Respuestas y Generación de Artefactos
+**Timestamp**: 2026-08-27T04:25:00Z
+**User Input**: "cuales son las recomendaciones tuyas?" seguido de "si"
+**AI Response**: "Se reiteran las 3 recomendaciones (B, A, A: sesión de 24h con renovación silenciosa, conservar datos ante revocación de Google, googleSub como identificador único). El usuario confirma. Se generan domain-entities.md (entidades Usuario y Sesion con diagrama ER), business-rules.md (7 reglas BR-01 a BR-07, con trazabilidad a SECURITY-09/12), y business-logic-model.md (5 flujos con diagramas Mermaid + sección obligatoria de Propiedades Testeables PBT-01: 6 propiedades PROP-01 a PROP-06 cubriendo invariantes, idempotencia, round-trip e invariante temporal stateful). Cumplimiento de Seguridad y PBT evaluado y documentado en el mensaje de finalización."
+**Context**: Etapa Functional Design, Unidad 1, construction/functional-design.md Steps 5-7.
+
+---

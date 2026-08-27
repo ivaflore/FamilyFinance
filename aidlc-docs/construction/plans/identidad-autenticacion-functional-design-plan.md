@@ -37,7 +37,7 @@ C) Larga (≈30 días, con renovación automática mientras haya actividad) — 
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: B
 
 ### Pregunta 2: Revocación de Acceso en Google / Eliminación de Cuenta de Google
 ¿Qué debe pasar si un usuario revoca el acceso de FamilyFinance desde su cuenta de Google, o elimina su cuenta de Google?
@@ -48,7 +48,7 @@ B) Se elimina automáticamente su perfil y su membresía a los grupos familiares
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 3: Identificador Único de Usuario
 Si Google reporta un identificador de cuenta distinto para el mismo correo (caso raro: cuenta de Google eliminada y recreada con el mismo correo), ¿cómo lo tratamos?
@@ -59,4 +59,4 @@ B) Se intenta fusionar automáticamente con el perfil anterior que tenía el mis
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
