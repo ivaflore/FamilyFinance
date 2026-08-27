@@ -63,3 +63,11 @@
 **Context**: Requirements Analysis Step 5.1 (extension opt-in) y Step 6 (ambiguity detection / clarification round), según question-format-guide.md y resiliency-baseline.md.
 
 ---
+
+## Respuestas a Aclaraciones 1-3 y Preguntas de Resiliencia
+**Timestamp**: 2026-08-27T02:40:00Z
+**User Input**: "1. D\n2. C\n3. A\n4. A\n5. C"
+**AI Response**: "Se registran: Aclaración1(Android)=D, Aclaración2(prototipo)=C (decide la arquitectura tú), Aclaración3(grupos familiares)=A (aislamiento total, invitación por correo/link), RESILIENCY-02(RTO/RPO)=A (Backup & Restore, horas), RESILIENCY-03(gestión de cambios)=C (no aplica, proyecto individual). La opción D de Aclaración 1 exige indicar cuál de las tres prioridades para Android elegir para este ciclo, y no se especificó — se agrega 'Aclaración 1-bis' con esa pregunta puntual y se espera respuesta antes de generar requirements.md."
+**Context**: Requirements Analysis Step 6 — ronda de aclaración, ambigüedad residual detectada en Aclaración 1 (Opción D incompleta).
+
+---

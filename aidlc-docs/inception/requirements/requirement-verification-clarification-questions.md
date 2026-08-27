@@ -15,7 +15,7 @@ D) Quiero las tres eventualmente, pero para este primer ciclo prioriza una (ind�
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: D — (pendiente: falta indicar cuál de las tres opciones priorizar para este primer ciclo; ver Aclaración 1-bis más abajo)
 
 ## Aclaración 2: Qué pasa con el prototipo actual (`index.html`)
 Para tener backend real, autenticación y datos aislados por grupo familiar, la arquitectura actual (un solo archivo estático sin servidor) no alcanza. ¿Qué debe pasar con el prototipo actual?
@@ -28,7 +28,7 @@ C) No tengo preferencia — decide tú la arquitectura más adecuada para cumpli
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: C
 
 ## Aclaración 3: Alcance del registro de familias/comunidad
 Dijiste que cualquier persona debe poder registrarse y "asociar el grupo familiar" para formar una comunidad. ¿Cómo debería funcionar la asociación a un grupo familiar?
@@ -43,7 +43,7 @@ D) Un usuario puede pertenecer a varios grupos familiares (ej. su propia familia
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ---
 
@@ -62,7 +62,7 @@ E) N/A — un despliegue en una sola región es aceptable, sin DR entre regiones
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ## Pregunta obligatoria de la extensión de Resiliencia (RESILIENCY-03): Proceso de Gestión de Cambios
 ¿Cómo deberían gobernarse los cambios a producción para este proyecto?
@@ -72,6 +72,21 @@ A) Usar un proceso organizacional existente (indica la herramienta, ej. Jira, Se
 B) No existe un proceso formal todavía — que AI-DLC proponga uno liviano (registro de cambio + aprobación + nota de rollback) para adoptar
 
 C) No aplica todavía — proyecto individual/pequeño sin proceso formal de cambios por ahora
+
+X) Other (please describe after [Answer]: tag below)
+
+[Answer]: C
+
+---
+
+## Aclaración 1-bis: ¿Cuál de las tres prioridades para Android? (falta especificar en Aclaración 1 / Opción D)
+Elegiste D) "Quiero las tres eventualmente, pero para este primer ciclo prioriza una" — pero falta indicar cuál. ¿Cuál priorizamos primero?
+
+A) App nativa/multiplataforma en Google Play Store (React Native o Flutter)
+
+B) Progressive Web App (PWA) instalable desde el navegador de Android
+
+C) Web responsive usable desde el navegador de Android, sin instalación (base para las otras dos más adelante)
 
 X) Other (please describe after [Answer]: tag below)
 
