@@ -3,7 +3,7 @@
 ## Información del Proyecto
 - **Tipo de Proyecto**: Brownfield → evolucionando a producto SaaS multi-tenant (ver requirements.md)
 - **Fecha de Inicio**: 2026-08-27T01:53:43Z
-- **Etapa Actual**: INCEPCIÓN — Units Generation completado, esperando aprobación del usuario para pasar a CONSTRUCTION
+- **Etapa Actual**: CONSTRUCCIÓN — Unidad 1 (Identidad y Autenticación) — Functional Design (Planning)
 
 ## Estado del Workspace
 - **Código Existente**: Sí (`index.html`, aplicación de una sola página)
@@ -37,10 +37,22 @@
 - [x] User Stories — Aprobado 2026-08-27T03:20:00Z: 4 personas, 20 historias en 11 épicas
 - [x] Workflow Planning — Aprobado 2026-08-27T03:30:00Z
 - [x] Application Design — Aprobado 2026-08-27T03:45:00Z: monolito modular, 6 componentes, REST, capas clásicas
-- [x] Units Generation — Completado 2026-08-27T04:10:00Z (esperando aprobación del usuario): 6 unidades (Identidad, Grupos Familiares, Núcleo Financiero, Hogar, Insights, Frontend Web), monorepo, 20/20 historias asignadas
+- [x] Units Generation — Aprobado 2026-08-27T04:15:00Z: 6 unidades (Identidad, Grupos Familiares, Núcleo Financiero, Hogar, Insights, Frontend Web), monorepo, 20/20 historias asignadas
 
 ### FASE CONSTRUCCIÓN
-- [ ] No iniciada — se ejecutará por unidad: Functional Design, NFR Requirements, NFR Design, Infrastructure Design y Code Generation (todas EJECUTAR), luego Build and Test una vez al final
+
+#### Unidad 1: Identidad y Autenticación
+- [ ] Functional Design — En curso (Planning): plan con 3 preguntas creado
+- [ ] NFR Requirements — Pendiente
+- [ ] NFR Design — Pendiente
+- [ ] Infrastructure Design — Pendiente
+- [ ] Code Generation — Pendiente
+
+#### Unidades 2-6
+- [ ] No iniciadas (Grupos Familiares, Núcleo Financiero, Hogar, Insights, Frontend Web)
+
+#### Build and Test
+- [ ] No iniciado (al completar las 6 unidades)
 
 ### FASE OPERACIONES
 - [ ] No iniciada (placeholder)
