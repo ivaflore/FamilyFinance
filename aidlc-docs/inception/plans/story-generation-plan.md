@@ -45,7 +45,7 @@ D) B y C juntas — 4 personas/estados en total
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: D
 
 ### Pregunta 2: Enfoque de Desglose de Historias
 ¿Qué enfoque de la tabla de arriba prefieres para organizar las historias?
@@ -62,7 +62,7 @@ E) Híbrido (Epics por feature, con Autenticación y Grupos familiares ordenados
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: E
 
 ### Pregunta 3: Formato de Historia y Criterios de Aceptación
 ¿Qué formato usamos?
@@ -73,7 +73,7 @@ B) Formato estándar sin Given/When/Then — criterios de aceptación como lista
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 4: Profundidad de los Criterios de Aceptación
 ¿Qué tan exhaustivos deben ser los criterios de aceptación de cada historia?
@@ -84,7 +84,7 @@ B) Básicos — solo camino feliz, sin casos de error (los casos de error se def
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 5: Criterio de Éxito / Contexto de Negocio
 ¿Cómo definimos que las historias de este ciclo "funcionan" desde el punto de vista de negocio?
@@ -97,7 +97,7 @@ C) Aún no hay métricas de negocio definidas — solo enfocarse en que el flujo
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 6: Alcance del Registro (Autenticación)
 `requirements.md` (RF-01) especifica registro con cuenta de Google. ¿Es la única forma de entrar, o también debe existir una alternativa con correo/contraseña?
@@ -108,4 +108,4 @@ B) Google + alternativa de registro con correo/contraseña
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
