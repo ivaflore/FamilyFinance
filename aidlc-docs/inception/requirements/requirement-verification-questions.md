@@ -15,7 +15,7 @@ D) Todavía no lo tengo claro — quiero que me ayudes a decidir en base a lo en
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: X — "Quiero que esta aplicación sea funcional, que la pueda comercializar y que quede disponible para que cualquier persona se pueda registrar y asociar el grupo familiar para poder hacer una comunidad donde puedan registrar y llevar sus finanzas personales." Es decir: producto SaaS multi-tenant real, con registro de usuarios, creación/asociación a grupos familiares, y cada grupo llevando sus propias finanzas — no una sola familia hardcodeada como hoy.
 
 ## Pregunta 2: Alcance de esta iteración
 ¿Qué tan grande debería ser el alcance de este ciclo de trabajo?
