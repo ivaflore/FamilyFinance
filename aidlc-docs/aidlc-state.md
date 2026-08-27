@@ -3,7 +3,7 @@
 ## Información del Proyecto
 - **Tipo de Proyecto**: Brownfield → evolucionando a producto SaaS multi-tenant (ver requirements.md)
 - **Fecha de Inicio**: 2026-08-27T01:53:43Z
-- **Etapa Actual**: CONSTRUCCIÓN — Code Generation + Build and Test completos. Aplicación operativa localmente (backend+frontend+PostgreSQL verificados end-to-end). Pendiente: credenciales reales de Google OAuth y despliegue a un hosting real (fuera del alcance de esta sesión).
+- **Etapa Actual**: CONSTRUCCIÓN completa + entregables de cierre generados (presentación de marketing y manual de usuario). Aplicación operativa localmente (backend+frontend+PostgreSQL verificados end-to-end). Pendiente: credenciales reales de Google OAuth y despliegue a un hosting real (fuera del alcance de esta sesión). FASE OPERACIONES sigue como placeholder, sin iniciar.
 
 ## Estado del Workspace
 - **Código Existente**: Sí (`index.html`, aplicación de una sola página)
@@ -71,6 +71,10 @@
 
 #### Build and Test
 - [x] Completo — ver `aidlc-docs/construction/build-and-test/build-and-test-summary.md`. 13/13 pruebas PBT/ejemplo pasando; verificación end-to-end manual contra PostgreSQL real exitosa (crear grupo, gastos, presupuesto derivado, aislamiento multi-tenant 403/401, asistente, UI responsive).
+
+## Entregables de Cierre (solicitados explícitamente por el usuario)
+- [x] Presentación de marketing — `marketing/FamilyFinance-Presentacion.pptx` (10 slides, con capturas reales de la app; validación estructural pasada; visual QA con LibreOffice no fue posible en el entorno de esta sesión — pendiente de revisión visual por el usuario).
+- [x] Manual de usuario simplificado — publicado como Artifact (`marketing/FamilyFinance-Manual.html`), con primeros pasos, guía por sección, preguntas frecuentes y glosario.
 
 ### FASE OPERACIONES
 - [ ] No iniciada (placeholder)

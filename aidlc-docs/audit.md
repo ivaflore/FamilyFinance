@@ -207,3 +207,11 @@
 **Context**: Code Generation (todas las unidades) + Build and Test, ejecutados de forma consolidada según la instrucción de modo autónomo. La aplicación queda operativa y funcional para ejecución local; el despliegue a producción real requiere credenciales de Google OAuth y cuenta de hosting que esta sesión no posee (documentado en README.md).
 
 ---
+
+## Entregables de Cierre: Presentación de Marketing y Manual de Usuario
+**Timestamp**: 2026-08-27T05:50:00Z
+**User Input**: N/A (parte de la instrucción original: "Al cerrar la generación de la aplicación crea una presentación de marketing, y un manual de usuario simplificado para que todos la entiendan")
+**AI Response**: "Se genera marketing/FamilyFinance-Presentacion.pptx (10 slides con pptxgenjs: portada, problema, solución, cómo funciona, funcionalidades, 2 slides con capturas reales de la app, seguridad/privacidad, diferenciadores, cierre), validado estructuralmente (validate.py: All validations PASSED) y de contenido (markitdown: sin texto de relleno). La conversión a PDF con LibreOffice para QA visual falló en este entorno incluso con archivos triviales (limitación del entorno, no del archivo) — se revisó manualmente el layout (dimensiones, posiciones, tamaños de fuente) contra los criterios de la guía de diseño y se corrigieron 2 posibles problemas de ajuste detectados en la revisión manual. Se entregó el archivo al usuario con esa advertencia explícita. Se genera también marketing/FamilyFinance-Manual.html: manual de usuario reutilizando el sistema de diseño de la app (paleta y tipografías DM Sans/DM Serif Display), con navegación lateral tipo sidebar de la app, primeros pasos numerados, guía por sección con capturas reales, preguntas frecuentes y glosario — publicado como Artifact."
+**Context**: Cierre de los entregables solicitados explícitamente por el usuario al inicio del modo autónomo. Con esto se completa el alcance de la instrucción "avanza con todas las etapas siguientes... hasta dejar la aplicación operativa y funcional... crea una presentación de marketing y un manual de usuario".
+
+---
