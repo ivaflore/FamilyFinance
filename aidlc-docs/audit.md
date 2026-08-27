@@ -183,3 +183,11 @@
 **Context**: Etapa Functional Design, Unidad 1, construction/functional-design.md Steps 5-7.
 
 ---
+
+## Aprobación de Functional Design — Inicio de NFR Requirements (Unidad 1)
+**Timestamp**: 2026-08-27T04:30:00Z
+**User Input**: "avancemos"
+**AI Response**: "Se aprueba Functional Design de la Unidad 1. Se inicia NFR Requirements: se crea el plan con 5 preguntas (lenguaje/framework de backend, base de datos, mecanismo de sesión, proveedor de hosting, expectativa de escala inicial), todas con recomendación inline. Se documenta explícitamente que las decisiones de lenguaje/framework/BD/hosting de esta etapa aplican a TODO el backend (monolito modular), no solo a la Unidad 1 — las Unidades 2-5 heredarán tech-stack-decisions.md sin volver a preguntarlo."
+**Context**: Etapa NFR Requirements, Unidad 1, construction/nfr-requirements.md Steps 1-4.
+
+---

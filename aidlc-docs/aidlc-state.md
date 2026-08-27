@@ -3,7 +3,7 @@
 ## Información del Proyecto
 - **Tipo de Proyecto**: Brownfield → evolucionando a producto SaaS multi-tenant (ver requirements.md)
 - **Fecha de Inicio**: 2026-08-27T01:53:43Z
-- **Etapa Actual**: CONSTRUCCIÓN — Unidad 1 (Identidad y Autenticación) — Functional Design completado, esperando aprobación
+- **Etapa Actual**: CONSTRUCCIÓN — Unidad 1 (Identidad y Autenticación) — NFR Requirements (Planning)
 
 ## Estado del Workspace
 - **Código Existente**: Sí (`index.html`, aplicación de una sola página)
@@ -42,7 +42,8 @@
 ### FASE CONSTRUCCIÓN
 
 #### Unidad 1: Identidad y Autenticación
-- [x] Functional Design — Completado 2026-08-27T04:25:00Z (esperando aprobación): 2 entidades, 7 reglas de negocio, 5 flujos, 6 propiedades PBT (PROP-01 a PROP-06)
+- [x] Functional Design — Aprobado 2026-08-27T04:30:00Z: 2 entidades, 7 reglas de negocio, 5 flujos, 6 propiedades PBT (PROP-01 a PROP-06)
+- [ ] NFR Requirements — En curso (Planning): plan con 5 preguntas creado (stack tecnológico aplica a todo el backend)
 - [ ] NFR Requirements — Pendiente
 - [ ] NFR Design — Pendiente
 - [ ] Infrastructure Design — Pendiente
