@@ -127,3 +127,19 @@
 **Context**: Etapa Application Design, inception/application-design.md Steps 1-6.
 
 ---
+
+## Application Design — Discusión de Arquitectura y Confirmación
+**Timestamp**: 2026-08-27T03:35:00Z
+**User Input**: "1. B\n2. B\n3. B\n4. B\n5. B\n\n\no recomiendas otra cosa?" seguido de "entonces volvamos a A todas, esto igual me sirve para que se suscriban varias familias"
+**AI Response**: "El usuario propuso inicialmente 11 microservicios + GraphQL + eventos/mensajería + arquitectura hexagonal (B en las 5), y pidió opinión. Se explicó el riesgo de sobre-ingeniería para un proyecto individual/pequeño sin usuarios reales aún (11 despliegues, necesidad de broker de mensajes, federación de esquemas GraphQL, boilerplate hexagonal x11) y se recomendó mantener A en las 5 (monolito modular, REST, síncrono, capas clásicas). El usuario aceptó, aclarando que el objetivo de que se suscriban varias familias (multi-tenencia) sigue cumplido: se confirma que multi-tenencia es una decisión de modelo de datos/autorización (grupoFamiliarId), no de estilo de despliegue. Se registran las 5 respuestas como A en application-design-plan.md, sin ambigüedades pendientes."
+**Context**: Etapa Application Design, inception/application-design.md Steps 7-9 (recolección de respuestas y análisis de ambigüedad — ninguna detectada).
+
+---
+
+## Generación de Artefactos de Application Design
+**Timestamp**: 2026-08-27T03:40:00Z
+**User Input**: N/A (ejecución del plan ya confirmado)
+**AI Response**: "Se generan components.md (6 componentes: Identidad y Autenticación, Grupos Familiares, Núcleo Financiero, Hogar, Insights, Frontend Web), component-methods.md (firmas de métodos de alto nivel con trazabilidad a US-XX), services.md (5 servicios de orquestación, incluyendo el Middleware de Autorización que implementa SECURITY-08), component-dependency.md (matriz + diagrama Mermaid de dependencias) y application-design.md (documento consolidado con checklist de validación). Se presenta mensaje de finalización y se espera aprobación antes de avanzar a Units Generation."
+**Context**: Etapa Application Design, inception/application-design.md Step 10.
+
+---

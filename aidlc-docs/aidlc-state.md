@@ -3,7 +3,7 @@
 ## Información del Proyecto
 - **Tipo de Proyecto**: Brownfield → evolucionando a producto SaaS multi-tenant (ver requirements.md)
 - **Fecha de Inicio**: 2026-08-27T01:53:43Z
-- **Etapa Actual**: INCEPCIÓN — Workflow Planning completado, esperando aprobación del usuario para iniciar Application Design
+- **Etapa Actual**: INCEPCIÓN — Application Design completado, esperando aprobación del usuario
 
 ## Estado del Workspace
 - **Código Existente**: Sí (`index.html`, aplicación de una sola página)
@@ -35,9 +35,9 @@
 - [x] Reverse Engineering — Completado 2026-08-27T01:54:00Z
 - [x] Requirements Analysis — Aprobado 2026-08-27T03:00:00Z, profundidad Comprehensive
 - [x] User Stories — Aprobado 2026-08-27T03:20:00Z: 4 personas, 20 historias en 11 épicas
-- [x] Workflow Planning — Completado 2026-08-27T03:25:00Z (esperando aprobación del usuario)
-- [ ] Application Design — EJECUTAR (pendiente de inicio, ver justificación en execution-plan.md)
-- [ ] Units Generation — EJECUTAR (pendiente de inicio, ver justificación en execution-plan.md)
+- [x] Workflow Planning — Aprobado 2026-08-27T03:30:00Z
+- [x] Application Design — Completado 2026-08-27T03:40:00Z (esperando aprobación del usuario): monolito modular, 6 componentes, REST, capas clásicas
+- [ ] Units Generation — EJECUTAR (siguiente etapa tras aprobación)
 
 ### FASE CONSTRUCCIÓN
 - [ ] No iniciada — se ejecutará por unidad: Functional Design, NFR Requirements, NFR Design, Infrastructure Design y Code Generation (todas EJECUTAR), luego Build and Test una vez al final

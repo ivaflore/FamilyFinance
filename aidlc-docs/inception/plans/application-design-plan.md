@@ -31,7 +31,7 @@ C) Más agregado: solo 2 componentes grandes — "Identidad y Grupos" y "Finanza
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 2: Estilo Arquitectónico del Backend
 ¿Qué estilo arquitectónico usamos para el backend?
@@ -44,7 +44,7 @@ C) **Funciones serverless** independientes por caso de uso (ej. una función por
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 3: Estilo de API entre Frontend y Backend
 ¿Cómo se comunican el frontend web y el backend?
@@ -55,7 +55,7 @@ B) **GraphQL** — más flexible para combinar datos de varios componentes en un
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 4: Orquestación entre Componentes
 Dado el estilo arquitectónico elegido en la Pregunta 2, ¿cómo se comunican los componentes/módulos entre sí?
@@ -66,7 +66,7 @@ B) **Eventos/mensajería interna** entre módulos — más desacoplado, pero má
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 5: Patrón de Capas dentro de cada Componente
 ¿Qué patrón de capas usamos dentro de cada componente del backend?
@@ -77,10 +77,14 @@ B) **Arquitectura hexagonal / puertos y adaptadores** — más flexible para tes
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ---
 
 ## Restricción de Diseño ya Definida (no es una pregunta abierta)
 
 **Autorización multi-tenant**: Dado que la extensión **Security Baseline** está habilitada con cumplimiento bloqueante (Regla **SECURITY-08**, Control de Acceso a Nivel de Aplicación), esto **no es una decisión opcional**: cada request autenticado debe llevar el `grupoFamiliarId` activo del usuario (derivado de su sesión/membresía, nunca de un parámetro que el cliente pueda manipular libremente), y **todos** los componentes de negocio deben filtrar sus consultas por ese `grupoFamiliarId`. Esto se documentará directamente en `component-dependency.md` y `application-design.md` como restricción transversal, y se verificará en cada etapa posterior (Functional Design, Code Generation) según lo exige la extensión.
+
+## Nota de Confirmación
+
+El usuario confirmó las 5 preguntas con la opción A (monolito modular, REST, llamadas síncronas, capas clásicas), tras plantear inicialmente la opción B en las 5 (microservicios/GraphQL/eventos/hexagonal) y preguntar por una recomendación. Se aclaró explícitamente que un **monolito modular multi-tenant sirve igual para que se suscriban varias familias** — la capacidad de servir a múltiples grupos familiares (multi-tenencia) es una decisión del **modelo de datos y la capa de autorización** (cada fila pertenece a un `grupoFamiliarId`), no una decisión de **estilo arquitectónico de despliegue** (monolito vs. microservicios). Ambos estilos pueden ser igualmente multi-tenant; el monolito modular simplemente es más barato y simple de operar para el tamaño actual del proyecto, sin sacrificar la capacidad de escalar a muchas familias suscritas.
