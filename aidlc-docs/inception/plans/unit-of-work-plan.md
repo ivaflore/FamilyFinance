@@ -32,7 +32,7 @@ B) **2 unidades**: "Backend" (los 5 componentes de negocio como módulos interno
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 2: Alineación de Equipo
 ¿Vas a construir esto tú solo por ahora, o ya tienes o planeas sumar más personas al equipo pronto?
@@ -43,7 +43,7 @@ B) Ya tengo o voy a sumar más personas pronto — en ese caso conviene identifi
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 3: Organización del Código (aplica — el código se escribe desde cero)
 El prototipo actual (`index.html`) se usa solo como referencia visual, no como base de código (ver Aclaración 2 de Requirements Analysis). ¿Cómo organizamos el repositorio para el código nuevo?
@@ -54,4 +54,4 @@ B) **Repositorios separados**: uno para backend, otro para frontend
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
