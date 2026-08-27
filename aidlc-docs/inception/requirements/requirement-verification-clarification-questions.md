@@ -15,7 +15,7 @@ D) Quiero las tres eventualmente, pero para este primer ciclo prioriza una (ind�
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: D — (pendiente: falta indicar cuál de las tres opciones priorizar para este primer ciclo; ver Aclaración 1-bis más abajo)
+[Answer]: D — roadmap completo deseado (nativa Play Store + PWA + web responsive); prioridad para este ciclo resuelta en Aclaración 1-bis: C) Web responsive primero
 
 ## Aclaración 2: Qué pasa con el prototipo actual (`index.html`)
 Para tener backend real, autenticación y datos aislados por grupo familiar, la arquitectura actual (un solo archivo estático sin servidor) no alcanza. ¿Qué debe pasar con el prototipo actual?
@@ -90,4 +90,4 @@ C) Web responsive usable desde el navegador de Android, sin instalación (base p
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: C
