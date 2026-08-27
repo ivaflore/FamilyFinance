@@ -143,3 +143,11 @@
 **Context**: Etapa Application Design, inception/application-design.md Step 10.
 
 ---
+
+## Aprobación de Application Design — Inicio de Units Generation
+**Timestamp**: 2026-08-27T03:45:00Z
+**User Input**: "avanza"
+**AI Response**: "Se aprueban los artefactos de Application Design. Se inicia Units Generation (Part 1 - Planning): se crea unit-of-work-plan.md con 3 preguntas (granularidad de unidades dado el monolito modular elegido, alineación de equipo, organización de repositorio). Las categorías Dependencies, Technical Considerations y Business Domain no se re-preguntan por estar ya resueltas explícitamente en Application Design (component-dependency.md y components.md); se documentan como tales en el plan."
+**Context**: Etapa Units Generation, Part 1 - Planning, Steps 1-5 de inception/units-generation.md.
+
+---
