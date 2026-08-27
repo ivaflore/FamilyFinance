@@ -39,3 +39,11 @@
 **Context**: Etapa Requirements Analysis (SIEMPRE) de la fase INCEPTION, según inception/requirements-analysis.md. Profundidad a determinar según claridad de respuestas.
 
 ---
+
+## Verificación de Respuestas — Preguntas sin Responder
+**Timestamp**: 2026-08-27T02:10:00Z
+**User Input**: "listo"
+**AI Response**: "Se leyó aidlc-docs/inception/requirements/requirement-verification-questions.md: las 6 preguntas siguen con el tag [Answer]: vacío. Según el manejo de errores de question-format-guide.md (Missing Answers), no se puede proceder al Paso 7 (generar requirements.md) hasta que todas las preguntas tengan una respuesta. Se informa al usuario y se espera de nuevo."
+**Context**: Gate obligatorio de Requirements Analysis Step 6 — no se pasa al Step 7 sin respuestas completas.
+
+---
