@@ -3,7 +3,7 @@
 ## Información del Proyecto
 - **Tipo de Proyecto**: Brownfield → evolucionando a producto SaaS multi-tenant (ver requirements.md)
 - **Fecha de Inicio**: 2026-08-27T01:53:43Z
-- **Etapa Actual**: CONSTRUCCIÓN — Modo autónomo (autorizado por el usuario) — Diseño condensado completo para las 6 unidades, iniciando Code Generation
+- **Etapa Actual**: CONSTRUCCIÓN — Code Generation + Build and Test completos. Aplicación operativa localmente (backend+frontend+PostgreSQL verificados end-to-end). Pendiente: credenciales reales de Google OAuth y despliegue a un hosting real (fuera del alcance de esta sesión).
 
 ## Estado del Workspace
 - **Código Existente**: Sí (`index.html`, aplicación de una sola página)
@@ -47,30 +47,30 @@
 - [x] Functional Design — Completo: 2 entidades, 7 reglas, 5 flujos, PROP-01 a PROP-06
 - [x] NFR Requirements — Completo: Node.js+TS+Express+Prisma+PostgreSQL, sesión opaca server-side
 - [x] NFR Design / Infrastructure Design — Completo (condensado, aplica a Unidades 1-5)
-- [ ] Code Generation — En curso
+- [x] Code Generation — Completo: `backend/src/identidad/`
 
 #### Unidad 2: Grupos Familiares
 - [x] Functional Design — Completo (condensado): 3 entidades, BR-08 a BR-13, PROP-07 a PROP-10
-- [ ] Code Generation — Pendiente
+- [x] Code Generation — Completo: `backend/src/grupos-familiares/`
 
 #### Unidad 3: Núcleo Financiero
 - [x] Functional Design — Completo (condensado): 2 entidades, BR-14 a BR-17, PROP-11 a PROP-13
-- [ ] Code Generation — Pendiente
+- [x] Code Generation — Completo: `backend/src/nucleo-financiero/`
 
 #### Unidad 4: Hogar
 - [x] Functional Design — Completo (condensado): 4 entidades, BR-18 a BR-20, PROP-14 a PROP-16
-- [ ] Code Generation — Pendiente
+- [x] Code Generation — Completo: `backend/src/hogar/`
 
 #### Unidad 5: Insights
 - [x] Functional Design — Completo (condensado): 1 entidad, BR-21 a BR-22, PROP-17 a PROP-18
-- [ ] Code Generation — Pendiente
+- [x] Code Generation — Completo: `backend/src/insights/`
 
 #### Unidad 6: Frontend Web
 - [x] Functional Design + NFR — Completo (condensado): stack Vite+TypeScript sin framework, 12 pantallas mapeadas a endpoints
-- [ ] Code Generation — Pendiente
+- [x] Code Generation — Completo: `frontend/src/`
 
 #### Build and Test
-- [ ] No iniciado (al completar las 6 unidades)
+- [x] Completo — ver `aidlc-docs/construction/build-and-test/build-and-test-summary.md`. 13/13 pruebas PBT/ejemplo pasando; verificación end-to-end manual contra PostgreSQL real exitosa (crear grupo, gastos, presupuesto derivado, aislamiento multi-tenant 403/401, asistente, UI responsive).
 
 ### FASE OPERACIONES
 - [ ] No iniciada (placeholder)
