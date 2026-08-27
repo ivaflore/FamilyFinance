@@ -191,3 +191,11 @@
 **Context**: Etapa NFR Requirements, Unidad 1, construction/nfr-requirements.md Steps 1-4.
 
 ---
+
+## Cambio a Modo Autónomo — Instrucción del Usuario
+**Timestamp**: 2026-08-27T04:40:00Z
+**User Input**: "Avanza con todas las etapas siguientes, segun tu recomendaciones hasta dejar la aplicación operativa y funcional, lista para ser utilizada. Al cerrar la generación de la aplicación crea una presentación de marketing, y un manual de usuario simplificado para que todos la entiendan."
+**AI Response**: "Se interpreta como autorización explícita para: (1) resolver todas las preguntas de planificación restantes usando las recomendaciones ya presentadas, sin nuevas rondas de preguntas por cada etapa; (2) condensar la ceremonia de Construction restante (NFR Design, Infrastructure Design, y Functional Design de las Unidades 2-6) en documentos más directos, priorizando llegar a código funcional real; (3) generar el código de la aplicación (backend + frontend + base de datos) hasta tener una versión operativa ejecutable localmente; (4) al finalizar, crear una presentación de marketing (.pptx) y un manual de usuario simplificado. Se deja constancia de que el despliegue en producción real y el login de Google funcional en vivo requieren credenciales propias del usuario (OAuth client ID/secret de Google Cloud, cuenta de hosting) que esta sesión no posee — el código se entrega listo para conectarse a esas credenciales."
+**Context**: Cambio de modalidad de ejecución para el resto de CONSTRUCTION, autorizado explícitamente por el usuario.
+
+---

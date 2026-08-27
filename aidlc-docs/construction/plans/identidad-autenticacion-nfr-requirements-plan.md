@@ -33,7 +33,7 @@ C) **Java/Kotlin + Spring Boot** — ecosistema maduro y muy usado para monolito
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 2: Motor de Base de Datos
 ¿Qué motor de base de datos usamos?
@@ -44,7 +44,7 @@ B) **NoSQL orientada a documentos** (ej. MongoDB, DynamoDB) — más flexible an
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 3: Mecanismo de Sesión
 ¿Cómo implementamos la `Sesion` definida en Functional Design?
@@ -55,7 +55,7 @@ B) **JWT autocontenido** (sin estado en el servidor) — valida más rápido sin
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
 
 ### Pregunta 4: Proveedor de Hosting / Infraestructura
 ¿Dónde se despliega el backend?
@@ -68,7 +68,7 @@ C) Otro proveedor cloud (Azure, GCP) — indícalo en Other
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: B
 
 ### Pregunta 5: Expectativa de Escala Inicial
 ¿Qué escala esperamos en los primeros meses, para dimensionar sin sobre-invertir?
@@ -79,4 +79,4 @@ B) Cientos o miles de familias desde el lanzamiento (ya existe un canal de distr
 
 X) Other (please describe after [Answer]: tag below)
 
-[Answer]: 
+[Answer]: A
