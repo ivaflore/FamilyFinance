@@ -305,7 +305,7 @@ textarea{resize:vertical;min-height:70px}
     <div class="tb-left">
       <div>
         <div class="tb-title" id="page-title">Resumen financiero</div>
-        <div class="tb-sub" id="page-sub">Junio 2025 · semana 2</div>
+        <div class="tb-sub" id="page-sub">Resumen del mes</div>
       </div>
     </div>
     <div class="tb-right">
@@ -319,19 +319,15 @@ textarea{resize:vertical;min-height:70px}
 <!-- ════════════════════════════════ DASHBOARD ════════════════════════════════ -->
 <div class="panel on" id="panel-dashboard">
   <div class="g4">
-    <div class="metric"><div class="m-label">Gasto del mes</div><div class="m-val">$487.320</div><div class="m-sub m-bad">↑ 8% vs mes anterior</div></div>
-    <div class="metric"><div class="m-label">Presupuesto restante</div><div class="m-val">$162.680</div><div class="m-sub m-good">25 días restantes</div></div>
+    <div class="metric"><div class="m-label">Gasto del mes</div><div class="m-val" id="dash-total-gasto">$0</div><div class="m-sub m-bad">↑ 8% vs mes anterior</div></div>
+    <div class="metric"><div class="m-label">Presupuesto restante</div><div class="m-val" id="dash-presu-rest">$0</div><div class="m-sub m-good">25 días restantes</div></div>
     <div class="metric"><div class="m-label">Ahorro del mes</div><div class="m-val">$38.000</div><div class="m-sub">Meta: $50.000</div></div>
-    <div class="metric"><div class="m-label">Productos alacena</div><div class="m-val">47</div><div class="m-sub m-bad">6 por agotarse</div></div>
+    <div class="metric"><div class="m-label">Productos alacena</div><div class="m-val" id="dash-pantry-count">0</div><div class="m-sub m-bad" id="dash-pantry-sub"></div></div>
   </div>
   <div class="g2">
     <div class="card">
       <div class="card-hd"><div class="card-title">Gastos por categoría</div><span class="card-sub">este mes</span></div>
-      <div class="bar-row"><div class="bar-lbl">Supermercado</div><div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--teal)"></div></div><div class="bar-val">$181.200</div></div>
-      <div class="bar-row"><div class="bar-lbl">Servicios</div><div class="bar-track"><div class="bar-fill" style="width:52%;background:var(--blue)"></div></div><div class="bar-val">$121.000</div></div>
-      <div class="bar-row"><div class="bar-lbl">Transporte</div><div class="bar-track"><div class="bar-fill" style="width:38%;background:var(--amber)"></div></div><div class="bar-val">$88.440</div></div>
-      <div class="bar-row"><div class="bar-lbl">Salud</div><div class="bar-track"><div class="bar-fill" style="width:28%;background:var(--coral)"></div></div><div class="bar-val">$65.000</div></div>
-      <div class="bar-row"><div class="bar-lbl">Otros</div><div class="bar-track"><div class="bar-fill" style="width:14%;background:var(--border-strong)"></div></div><div class="bar-val">$31.680</div></div>
+      <div id="dash-cat-bars"></div>
     </div>
     <div class="card">
       <div class="card-hd"><div class="card-title">Últimas transacciones</div><button class="btn btn-sm" onclick="goTo('gastos',document.querySelector('[onclick*=gastos]'))">ver todas</button></div>
@@ -617,12 +613,14 @@ textarea{resize:vertical;min-height:70px}
       <div class="member-card"><div class="mem-av av-t">MG</div><div style="flex:1"><div class="mem-name">María García</div><div class="mem-role"><span class="tag tag-t">Administradora</span></div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600">$312.400</div><div style="font-size:10px;color:var(--text-3)">22 transacciones</div></div></div>
       <div class="member-card"><div class="mem-av av-a">CG</div><div style="flex:1"><div class="mem-name">Carlos García</div><div class="mem-role"><span class="tag tag-a">Miembro</span></div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600">$98.320</div><div style="font-size:10px;color:var(--text-3)">9 transacciones</div></div></div>
       <div class="member-card"><div class="mem-av av-b">AG</div><div style="flex:1"><div class="mem-name">Ana García</div><div class="mem-role"><span class="tag tag-b">Miembro</span></div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600">$54.400</div><div style="font-size:10px;color:var(--text-3)">5 transacciones</div></div></div>
+      <div class="member-card"><div class="mem-av av-p">IG</div><div style="flex:1"><div class="mem-name">Isabella García</div><div class="mem-role"><span class="tag tag-p">Miembro</span></div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600">$22.200</div><div style="font-size:10px;color:var(--text-3)">2 transacciones</div></div></div>
     </div>
     <div class="card">
       <div class="card-hd"><div class="card-title">Gastos por miembro</div></div>
-      <div class="bar-row"><div class="bar-lbl">María</div><div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--teal)"></div></div><div class="bar-val">$312.400</div></div>
-      <div class="bar-row"><div class="bar-lbl">Carlos</div><div class="bar-track"><div class="bar-fill" style="width:21%;background:var(--amber)"></div></div><div class="bar-val">$98.320</div></div>
+      <div class="bar-row"><div class="bar-lbl">María</div><div class="bar-track"><div class="bar-fill" style="width:64%;background:var(--teal)"></div></div><div class="bar-val">$312.400</div></div>
+      <div class="bar-row"><div class="bar-lbl">Carlos</div><div class="bar-track"><div class="bar-fill" style="width:20%;background:var(--amber)"></div></div><div class="bar-val">$98.320</div></div>
       <div class="bar-row"><div class="bar-lbl">Ana</div><div class="bar-track"><div class="bar-fill" style="width:11%;background:var(--blue)"></div></div><div class="bar-val">$54.400</div></div>
+      <div class="bar-row"><div class="bar-lbl">Isabella</div><div class="bar-track"><div class="bar-fill" style="width:5%;background:var(--purple)"></div></div><div class="bar-val">$22.200</div></div>
     </div>
   </div>
 </div>
@@ -750,7 +748,7 @@ const calendarData = {};
 let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth();
 
-const segProducts = [
+let segProducts = [
   {id:1,name:'Leche Colún 1L x3',cat:'lácteos',freq:'semanal',unit:1290,qty:3,total:3870,seg:'cat1',why:'Nutrición básica'},
   {id:2,name:'Huevos Agrosuper x12',cat:'proteína',freq:'semanal',unit:2990,qty:1,total:2990,seg:'cat1',why:'Proteína esencial'},
   {id:3,name:'Arroz Tucapel 1kg',cat:'abarrotes',freq:'quincenal',unit:1890,qty:2,total:3780,seg:'cat1',why:'Base alimentaria'},
@@ -772,6 +770,36 @@ const segProducts = [
 ];
 let segFilter = 'all';
 
+// ═══════════════════════ PERSISTENCIA (localStorage) ═══════════════════════
+const STORAGE_KEY = 'familyfinance_state_v1';
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ gastos, pantry, shopItems, recipes, calendarData, segProducts, budgets }));
+  } catch (e) { /* almacenamiento no disponible (modo privado, cuota llena, etc.) */ }
+}
+
+let hasSavedState = false;
+(function restoreState() {
+  const saved = loadState();
+  if (!saved) return;
+  hasSavedState = true;
+  if (saved.gastos) gastos = saved.gastos;
+  if (saved.pantry) pantry = saved.pantry;
+  if (saved.shopItems) shopItems = saved.shopItems;
+  if (saved.recipes) recipes = saved.recipes;
+  if (saved.calendarData) Object.assign(calendarData, saved.calendarData);
+  if (saved.segProducts) segProducts = saved.segProducts;
+  if (saved.budgets) budgets.forEach((b, i) => { if (saved.budgets[i]) Object.assign(b, saved.budgets[i]); });
+})();
+
 // ═══════════════════════ NAVIGATION ═══════════════════════
 function goTo(id, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
@@ -789,6 +817,7 @@ function goTo(id, btn) {
     document.getElementById('page-title').textContent = info.title;
     document.getElementById('page-sub').textContent = info.sub;
   }
+  if (id === 'dashboard') renderDashboard();
   if (id === 'presupuesto') renderBudget();
   if (id === 'alacena') renderPantry();
   if (id === 'compras') renderShopList();
@@ -810,6 +839,29 @@ function toast(msg) {
 
 function fmt(n) { return '$' + Math.round(n).toLocaleString('es-CL'); }
 
+// ═══════════════════════ DASHBOARD ═══════════════════════
+function renderDashboard() {
+  const totalGasto = budgets.reduce((a, b) => a + b.spent, 0);
+  const totalPresupuesto = budgets.reduce((a, b) => a + b.total, 0);
+  const el1 = document.getElementById('dash-total-gasto');
+  const el2 = document.getElementById('dash-presu-rest');
+  if (el1) el1.textContent = fmt(totalGasto);
+  if (el2) el2.textContent = fmt(Math.max(0, totalPresupuesto - totalGasto));
+
+  const low = pantry.filter(p => p.low).length;
+  const cEl = document.getElementById('dash-pantry-count');
+  const sEl = document.getElementById('dash-pantry-sub');
+  if (cEl) cEl.textContent = pantry.length;
+  if (sEl) sEl.textContent = low > 0 ? `${low} por agotarse` : 'stock completo';
+
+  const barsEl = document.getElementById('dash-cat-bars');
+  if (barsEl) {
+    const maxSpent = Math.max(...budgets.map(b => b.spent), 1);
+    barsEl.innerHTML = budgets.map(b => `
+      <div class="bar-row"><div class="bar-lbl">${b.name}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(b.spent / maxSpent * 100)}%;background:${b.color}"></div></div><div class="bar-val">${fmt(b.spent)}</div></div>`).join('');
+  }
+}
+
 // ═══════════════════════ GASTOS ═══════════════════════
 function renderGastos() {
   const tbody = document.getElementById('gastos-tbody');
@@ -823,7 +875,15 @@ function renderGastos() {
       <td style="font-size:11px;color:var(--text-3)">${g.fecha}</td>
       <td style="text-align:right;font-size:13px;font-weight:600;color:var(--coral)">${fmt(g.monto)}</td>
     </tr>`).join('');
+  const nb = document.getElementById('nb-gastos');
+  if (nb) {
+    const hoy = gastos.filter(g => g.fecha === 'hoy' || g.fecha === 'ahora').length;
+    nb.textContent = hoy;
+    nb.style.display = hoy > 0 ? '' : 'none';
+  }
 }
+
+const CAT_TO_BUDGET = {supermercado:'Supermercado',servicios:'Servicios',transporte:'Transporte',salud:'Salud',entretenimiento:'Entretenimiento'};
 
 function addGasto() {
   const desc = document.getElementById('g-desc').value.trim();
@@ -831,9 +891,15 @@ function addGasto() {
   const cat = document.getElementById('g-cat').value;
   if (!desc || !monto) return;
   gastos.unshift({id: Date.now(), desc, cat, miembro: 'María', fecha: 'ahora', monto});
+  const budgetName = CAT_TO_BUDGET[cat];
+  const budget = budgetName && budgets.find(b => b.name === budgetName);
+  if (budget) budget.spent += monto;
   document.getElementById('g-desc').value = '';
   document.getElementById('g-monto').value = '';
   renderGastos();
+  renderBudget();
+  renderDashboard();
+  saveState();
   toast('Gasto agregado correctamente');
 }
 
@@ -907,6 +973,8 @@ function saveAddPantry() {
   pantry.push({id: Date.now(), icon, name, qty: qty || '1 unidad', low: false});
   document.getElementById('add-pantry-modal').innerHTML = '';
   renderPantry();
+  renderDashboard();
+  saveState();
   toast('Producto agregado a la alacena');
 }
 
@@ -929,6 +997,7 @@ function toggleShopItem(id) {
   const item = shopItems.find(i => i.id === id);
   if (item) item.checked = !item.checked;
   renderShopList();
+  saveState();
 }
 
 function openAddShop() {
@@ -953,6 +1022,7 @@ function saveAddShop() {
   shopItems.push({id: Date.now(), name, price, checked: false});
   document.getElementById('add-shop-modal').innerHTML = '';
   renderShopList();
+  saveState();
   toast('Producto agregado a la lista');
 }
 
@@ -972,6 +1042,7 @@ function generateShopFromCalendar() {
   const calItems = Object.values(ingMap).map(i => ({id: Date.now() + Math.random(), name: i.n + ` (${i.count}x uso)`, price: 0, checked: false}));
   shopItems = [...shopItems, ...calItems.filter(ci => !shopItems.some(s => s.name.startsWith(ci.name.split(' (')[0])))];
   renderShopList();
+  saveState();
   toast(`${calItems.length} ingredientes agregados desde el menú`);
 }
 
@@ -1073,6 +1144,7 @@ function saveNewRecipe() {
   const stepsRaw = document.getElementById('nr-steps').value.split('.').map(s => s.trim()).filter(Boolean);
   if (!name) return;
   recipes.push({id: Date.now(), name, type: [type], time, servings: 4, tags: ['personalizada'], ingredients: ingrRaw.map(n => ({n, cat: 'abarrotes'})), steps: stepsRaw.length ? stepsRaw : ['Preparar y cocinar']});
+  saveState();
   document.getElementById('recipe-modal').innerHTML = '';
   renderRecipes();
   toast('Receta guardada en el recetario');
@@ -1116,6 +1188,7 @@ function confirmAddToCalendar(recipeId) {
   if (!calendarData[key]) calendarData[key] = [];
   calendarData[key].push({recipeId, type});
   document.getElementById('recipe-modal').innerHTML = '';
+  saveState();
   toast('Receta agregada al calendario del día ' + day);
 }
 
@@ -1162,6 +1235,7 @@ function removeMealCal(key, recipeId) {
   const idx = calendarData[key].findIndex(m => m.recipeId === recipeId);
   if (idx > -1) calendarData[key].splice(idx, 1);
   renderCalendar();
+  saveState();
   toast('Receta eliminada del calendario');
 }
 
@@ -1197,6 +1271,7 @@ function addMealFromModal(key, day) {
   calendarData[key].push({recipeId, type});
   renderCalendar();
   openDayModal(day);
+  saveState();
   toast('Comida agregada al día ' + day);
 }
 
@@ -1205,6 +1280,7 @@ function removeMealModal(key, idx) {
   const day = parseInt(key.split('-')[2]);
   renderCalendar();
   openDayModal(day);
+  saveState();
 }
 
 // ═══════════════════════ SEGMENTACIÓN ═══════════════════════
@@ -1294,6 +1370,7 @@ function changeSegProduct(id, newSeg) {
   const p = segProducts.find(x => x.id === id);
   if (p) p.seg = newSeg;
   renderSeg();
+  saveState();
   toast('Clasificación actualizada');
 }
 
@@ -1302,9 +1379,11 @@ function askAISavings() {
   setAIAndSend('Analiza los gastos de mi familia y dame 5 nuevas estrategias de ahorro específicas para Chile, considerando supermercado, servicios y entretenimiento.');
 }
 
-// ═══════════════════════ AI ASSISTANT ═══════════════════════
-const AI_KEY = '';
-let aiMessages = [];
+// ═══════════════════════ AI ASSISTANT (local, basado en tus datos) ═══════════════════════
+// Nota: esto es una demo sin backend. No se hacen llamadas a APIs externas: exponer una
+// API key de un LLM directamente desde el navegador sería inseguro (cualquiera puede leer
+// el código fuente y robarla). Las respuestas se generan localmente a partir de los datos
+// reales de la app (gastos, alacena, presupuesto, segmentación de productos).
 
 function setAIContext(text) {
   document.getElementById('ai-input').value = text;
@@ -1315,7 +1394,49 @@ function setAIAndSend(text) {
   sendAI();
 }
 
-async function sendAI() {
+function generateAIResponse(text) {
+  const q = text.toLowerCase();
+  const lowItems = pantry.filter(p => p.low).map(p => p.name);
+  const totalGasto = budgets.reduce((a, b) => a + b.spent, 0);
+  const topCat = [...budgets].sort((a, b) => b.spent - a.spent)[0];
+  const savingProds = segProducts.filter(p => p.seg === 'saving');
+  const totalSaving = savingProds.reduce((a, p) => a + p.total, 0);
+
+  if (/receta|cocinar|comer|men[uú]/.test(q)) {
+    const pantryNames = pantry.map(p => p.name.toLowerCase());
+    const withPantry = recipes.filter(r => r.ingredients.some(i => pantryNames.some(n => i.n.toLowerCase().includes(n))));
+    const picks = (withPantry.length ? withPantry : recipes).slice(0, 3);
+    let out = `Con lo que tienes en tu alacena te recomiendo:<br>` + picks.map(r => `• <b>${r.name}</b> (${r.time} min, ${r.servings} porciones)`).join('<br>');
+    if (lowItems.length) out += `<br><br>Ojo: te quedan pocos de ${lowItems.join(', ')}. Agrégalos a tu lista de compras.`;
+    return out;
+  }
+  if (/ahorr/.test(q)) {
+    const p = savingProds[0];
+    let out = `Detecté ${savingProds.length} productos prescindibles en tu segmentación, por un total de ${fmt(totalSaving)}/mes.`;
+    if (p) out += `<br>El mayor: <b>${p.name}</b> — ${p.why} (${fmt(p.total)}/mes).`;
+    out += `<br>Revisa la sección "Segmentación" para ver el detalle completo.`;
+    return out;
+  }
+  if (/presupuesto|organiz/.test(q)) {
+    const over = budgets.filter(b => b.spent > b.total);
+    return `Tu presupuesto mensual total es ${fmt(budgets.reduce((a, b) => a + b.total, 0))} y llevas gastado ${fmt(totalGasto)}.` +
+      (over.length ? `<br>Categorías sobrepasadas: ${over.map(b => b.name).join(', ')}.` : `<br>Vas dentro de lo presupuestado en todas las categorías.`) +
+      `<br>Revisa "Presupuesto" para el detalle por categoría.`;
+  }
+  if (/gast|analiz/.test(q)) {
+    const pct = Math.round(topCat.spent / topCat.total * 100);
+    return `Este mes llevas ${fmt(totalGasto)} gastados. Tu categoría más alta es <b>${topCat.name}</b> con ${fmt(topCat.spent)} (${pct}% de su presupuesto).` +
+      `<br>Te recomiendo revisar "Presupuesto" para ver el detalle por categoría.`;
+  }
+  if (/alacena|stock|inventario/.test(q)) {
+    return lowItems.length
+      ? `Tienes ${lowItems.length} producto(s) por agotarse: ${lowItems.join(', ')}. Te sugiero agregarlos a tu lista de compras.`
+      : `Tu alacena está en buen estado: ${pantry.length} productos registrados y ninguno por agotarse.`;
+  }
+  return `Puedo ayudarte con análisis de tus gastos reales, sugerencias de ahorro según tu segmentación de productos, recetas según lo que tienes en la alacena, y el estado de tu presupuesto. Prueba con una de las preguntas rápidas o cuéntame más detalles.`;
+}
+
+function sendAI() {
   const input = document.getElementById('ai-input');
   const text = input.value.trim();
   if (!text) return;
@@ -1326,29 +1447,12 @@ async function sendAI() {
   msgs.innerHTML += `<div class="ai-msg bot loading" id="ai-loading"><span class="pulse"></span> Pensando...</div>`;
   msgs.scrollTop = msgs.scrollHeight;
 
-  aiMessages.push({role: 'user', content: text});
-
-  const systemPrompt = `Eres el asistente de FamilyFinance, una app de gestión financiera para familias chilenas. Ayudas con: análisis de gastos, consejos de ahorro en Chile, recetas económicas con ingredientes locales, planificación de menú mensual, gestión de alacena, presupuesto familiar. Responde siempre en español, de forma concisa y práctica. Usa montos en pesos chilenos ($). Cuando des recetas, incluye ingredientes con cantidades. Cuando des consejos de ahorro, incluye el ahorro estimado en pesos.`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: aiMessages
-      })
-    });
-    const data = await res.json();
-    const reply = data.content?.[0]?.text || 'No pude obtener respuesta.';
-    aiMessages.push({role: 'assistant', content: reply});
-    document.getElementById('ai-loading').outerHTML = `<div class="ai-msg bot">${reply.replace(/\n/g,'<br>')}</div>`;
-  } catch (e) {
-    document.getElementById('ai-loading').outerHTML = `<div class="ai-msg bot" style="color:var(--coral)">Error de conexión. Verifica tu API key de Anthropic en la configuración.</div>`;
-  }
-  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(() => {
+    const reply = generateAIResponse(text);
+    const loading = document.getElementById('ai-loading');
+    if (loading) loading.outerHTML = `<div class="ai-msg bot">${reply}</div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 500);
 }
 
 // ═══════════════════════ INIT ═══════════════════════
@@ -1359,16 +1463,25 @@ renderBudget();
 renderRecipes();
 renderCalendar();
 renderSeg();
+renderDashboard();
 
-// Preload demo calendar data
+// Precarga datos de demostración del calendario solo la primera vez
+// (si ya hay estado guardado en localStorage, no se vuelve a insertar para evitar duplicados)
 const today = new Date();
 const dm = today.getMonth(), dy = today.getFullYear();
-[[1,1,'almuerzo'],[1,4,'desayuno'],[2,4,'almuerzo'],[3,5,'cena'],[4,7,'desayuno'],[1,8,'almuerzo'],[5,10,'cena'],[6,12,'desayuno']].forEach(([rid,day,type]) => {
-  const key = `${dy}-${dm}-${day}`;
-  if (!calendarData[key]) calendarData[key] = [];
-  calendarData[key].push({recipeId: rid, type});
-});
-renderCalendar();
+if (!hasSavedState) {
+  [[1,1,'almuerzo'],[1,4,'desayuno'],[2,4,'almuerzo'],[3,5,'cena'],[4,7,'desayuno'],[1,8,'almuerzo'],[5,10,'cena'],[6,12,'desayuno']].forEach(([rid,day,type]) => {
+    const key = `${dy}-${dm}-${day}`;
+    if (!calendarData[key]) calendarData[key] = [];
+    calendarData[key].push({recipeId: rid, type});
+  });
+  renderCalendar();
+  saveState();
+}
+
+// La cabecera del dashboard refleja el mes actual en vez de una fecha fija
+document.getElementById('page-sub').textContent = `${MONTHS[dm]} ${dy} · datos de ejemplo`;
+PAGES.dashboard.sub = `${MONTHS[dm]} ${dy} · datos de ejemplo`;
 </script>
 </body>
 </html>
