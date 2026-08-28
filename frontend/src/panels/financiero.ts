@@ -198,8 +198,8 @@ export async function renderGastos() {
           ${
             esAdmin
               ? `<td style="text-align:right;white-space:nowrap">
-                  <button class="btn btn-sm g-editar" data-id="${g.id}" title="Modificar"><i class="ti ti-pencil"></i></button>
-                  <button class="btn btn-sm g-eliminar" data-id="${g.id}" title="Eliminar"><i class="ti ti-trash"></i></button>
+                  <button class="btn btn-sm btn-edit g-editar" data-id="${g.id}"><i class="ti ti-pencil"></i> Modificar</button>
+                  <button class="btn btn-sm btn-danger g-eliminar" data-id="${g.id}"><i class="ti ti-trash"></i> Eliminar</button>
                 </td>`
               : ''
           }

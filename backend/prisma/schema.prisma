@@ -137,6 +137,7 @@ model ProductoAlacena {
   icono           String        @default("📦")
   nombre          String
   unidad          String        @default("unidades")
+  categoria       String        @default("Otros")
   cantidadIdeal   Decimal       @default(1) @db.Decimal(10, 2)
   cantidadActual  Decimal       @default(1) @db.Decimal(10, 2)
 

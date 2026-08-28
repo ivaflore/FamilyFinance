@@ -20,6 +20,7 @@ hogarRouter.post('/groups/:grupoId/alacena', requireAuth, requireGrupo, async (r
       .object({
         nombre: z.string().min(1),
         unidad: z.string().min(1).optional(),
+        categoria: z.string().min(1).optional(),
         cantidadIdeal: z.number().positive(),
         cantidadActual: z.number().nonnegative(),
         icono: z.string().optional(),
@@ -45,6 +46,7 @@ hogarRouter.put('/groups/:grupoId/alacena/:productoId', requireAuth, requireGrup
       .object({
         nombre: z.string().min(1),
         unidad: z.string().min(1),
+        categoria: z.string().min(1),
         cantidadIdeal: z.number().positive(),
         cantidadActual: z.number().nonnegative(),
       })

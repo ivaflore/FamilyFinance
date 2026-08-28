@@ -6,6 +6,7 @@ export const hogarRepository = {
     grupoFamiliarId: string;
     nombre: string;
     unidad?: string;
+    categoria?: string;
     cantidadIdeal: number;
     cantidadActual: number;
     icono?: string;
@@ -26,7 +27,7 @@ export const hogarRepository = {
   actualizarProductoAlacena(
     id: string,
     grupoFamiliarId: string,
-    data: { nombre: string; unidad: string; cantidadIdeal: number; cantidadActual: number },
+    data: { nombre: string; unidad: string; categoria: string; cantidadIdeal: number; cantidadActual: number },
   ) {
     return prisma.productoAlacena.updateMany({ where: { id, grupoFamiliarId }, data });
   },

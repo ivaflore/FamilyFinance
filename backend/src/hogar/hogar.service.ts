@@ -12,7 +12,7 @@ interface Ingrediente {
 export const hogarService = {
   async agregarProductoAlacena(
     grupoFamiliarId: string,
-    data: { nombre: string; unidad?: string; cantidadIdeal: number; cantidadActual: number; icono?: string },
+    data: { nombre: string; unidad?: string; categoria?: string; cantidadIdeal: number; cantidadActual: number; icono?: string },
   ) {
     if (!data.nombre?.trim()) throw new AppError(400, 'El producto necesita un nombre.');
     if (!(data.cantidadIdeal > 0)) throw new AppError(400, 'La cantidad ideal debe ser mayor a cero.');
@@ -29,6 +29,7 @@ export const hogarService = {
       icono: p.icono,
       nombre: p.nombre,
       unidad: p.unidad,
+      categoria: p.categoria,
       cantidadIdeal: Number(p.cantidadIdeal),
       cantidadActual: Number(p.cantidadActual),
       faltante: calcularFaltante(Number(p.cantidadIdeal), Number(p.cantidadActual)),
@@ -41,7 +42,7 @@ export const hogarService = {
   async actualizarProductoAlacena(
     grupoFamiliarId: string,
     id: string,
-    data: { nombre: string; unidad: string; cantidadIdeal: number; cantidadActual: number },
+    data: { nombre: string; unidad: string; categoria: string; cantidadIdeal: number; cantidadActual: number },
   ) {
     if (!data.nombre?.trim()) throw new AppError(400, 'El producto necesita un nombre.');
     if (!(data.cantidadIdeal > 0)) throw new AppError(400, 'La cantidad ideal debe ser mayor a cero.');
@@ -121,6 +122,7 @@ export const hogarService = {
         grupoFamiliarId,
         nombre: item.nombre,
         unidad: item.unidad,
+        categoria: item.categoria,
         cantidadIdeal: item.cantidadIdeal,
         cantidadActual: 0,
         icono: item.icono,

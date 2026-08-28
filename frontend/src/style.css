@@ -50,6 +50,10 @@ button,select,input{font-family:var(--font)}
 .btn-primary{background:var(--teal);color:#fff;border-color:var(--teal)}
 .btn-primary:hover{background:var(--teal-m);border-color:var(--teal-m)}
 .btn-sm{padding:4px 9px;font-size:11px}
+.btn-edit{background:var(--blue-l);color:var(--blue-d);border-color:var(--blue-l)}
+.btn-edit:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-danger{background:var(--red-l);color:var(--red);border-color:var(--red-l)}
+.btn-danger:hover{background:var(--red);color:#fff;border-color:var(--red)}
 
 .content{flex:1;overflow-y:auto;padding:1.5rem}
 .panel{display:none}.panel.on{display:block}
@@ -90,6 +94,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal)}
 .bar-fill{height:100%;border-radius:3px}
 .bar-val{width:70px;font-size:11px;font-weight:500;color:var(--text)}
 
+.pantry-cat{margin-bottom:16px}
+.pantry-cat:last-child{margin-bottom:0}
+.pantry-cat-title{font-size:12px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.pantry-cat-count{font-size:10px;font-weight:600;color:var(--text-3);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:1px 7px}
 .pantry-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
 .pantry-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px;text-align:center}
 .pantry-card.low{border-color:var(--coral);background:var(--coral-l)}

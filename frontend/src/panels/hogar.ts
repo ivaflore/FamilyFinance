@@ -6,10 +6,21 @@ interface ProductoAlacena {
   icono: string;
   nombre: string;
   unidad: string;
+  categoria: string;
   cantidadIdeal: number;
   cantidadActual: number;
   faltante: number;
 }
+
+const CATEGORIAS_ALACENA = [
+  'Despensa y Abarrotes',
+  'Proteínas y Congelados',
+  'Lácteos, Huevos y Fiambrería',
+  'Frutas y Verduras',
+  'Desayuno, Especias y Dulces',
+  'Limpieza e Higiene',
+  'Otros',
+];
 interface ProductoSugerido extends ProductoAlacena {
   origen: 'alacena' | 'receta';
 }
@@ -29,15 +40,18 @@ export async function renderAlacena() {
         <button class="btn btn-sm" id="a-importar">📥 Importar despensa base</button>
       </div>
       <div style="font-size:11px;color:var(--text-3);margin:-6px 0 10px">Define cuánto deberías tener siempre y cuánto tienes ahora</div>
-      <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr auto;gap:8px;align-items:end">
+      <div style="display:grid;grid-template-columns:1.3fr 1.3fr 1fr 0.8fr 0.8fr auto;gap:8px;align-items:end">
         <div><label class="form-label">Producto</label><input type="text" id="a-nombre" placeholder="ej: Leche" /></div>
+        <div><label class="form-label">Categoría</label>
+          <select id="a-categoria">${CATEGORIAS_ALACENA.map((c) => `<option value="${c}">${c}</option>`).join('')}</select>
+        </div>
         <div><label class="form-label">Unidad</label><input type="text" id="a-unidad" placeholder="ej: litros" value="unidades" /></div>
         <div><label class="form-label">Ideal</label><input type="number" id="a-ideal" placeholder="2" min="0.01" step="0.01" /></div>
         <div><label class="form-label">Tengo ahora</label><input type="number" id="a-actual" placeholder="2" min="0" step="0.01" /></div>
         <button class="btn btn-primary" id="a-add"><i class="ti ti-plus"></i> Agregar</button>
       </div>
     </div>
-    <div class="card"><div class="card-hd"><div class="card-title">Inventario del grupo</div></div><div class="pantry-grid" id="pantry-grid"></div></div>
+    <div class="card"><div class="card-hd"><div class="card-title">Inventario del grupo</div></div><div id="pantry-grupos"></div></div>
     <div id="alacena-modal"></div>`;
 
   function abrirEdicion(p: ProductoAlacena) {
@@ -46,6 +60,9 @@ export async function renderAlacena() {
         <div class="modal">
           <div class="modal-title">Editar producto</div>
           <div class="form-row"><label class="form-label">Producto</label><input type="text" id="am-nombre" value="${escapeHtml(p.nombre)}" /></div>
+          <div class="form-row"><label class="form-label">Categoría</label>
+            <select id="am-categoria">${CATEGORIAS_ALACENA.map((c) => `<option value="${c}" ${c === p.categoria ? 'selected' : ''}>${c}</option>`).join('')}</select>
+          </div>
           <div class="form-row"><label class="form-label">Unidad</label><input type="text" id="am-unidad" value="${escapeHtml(p.unidad)}" /></div>
           <div class="form-row"><label class="form-label">Ideal</label><input type="number" id="am-ideal" value="${p.cantidadIdeal}" min="0.01" step="0.01" /></div>
           <div class="form-row"><label class="form-label">Tengo ahora</label><input type="number" id="am-actual" value="${p.cantidadActual}" min="0" step="0.01" /></div>
@@ -60,12 +77,13 @@ export async function renderAlacena() {
     document.getElementById('am-cancel')!.addEventListener('click', close);
     document.getElementById('am-save')!.addEventListener('click', async () => {
       const nombre = (document.getElementById('am-nombre') as HTMLInputElement).value.trim();
+      const categoria = (document.getElementById('am-categoria') as HTMLSelectElement).value;
       const unidad = (document.getElementById('am-unidad') as HTMLInputElement).value.trim() || 'unidades';
       const cantidadIdeal = Number((document.getElementById('am-ideal') as HTMLInputElement).value);
       const cantidadActual = Number((document.getElementById('am-actual') as HTMLInputElement).value);
       if (!nombre || !(cantidadIdeal > 0) || !(cantidadActual >= 0)) return;
       try {
-        await api.put(`/groups/${grupo!.id}/alacena/${p.id}`, { nombre, unidad, cantidadIdeal, cantidadActual });
+        await api.put(`/groups/${grupo!.id}/alacena/${p.id}`, { nombre, categoria, unidad, cantidadIdeal, cantidadActual });
         close();
         await cargar();
       } catch (err) {
@@ -76,24 +94,37 @@ export async function renderAlacena() {
 
   async function cargar() {
     const productos = await api.get<ProductoAlacena[]>(`/groups/${grupo!.id}/alacena`);
-    document.getElementById('pantry-grid')!.innerHTML = productos.length
-      ? productos
-          .map(
-            (p) => `<div class="pantry-card ${p.faltante > 0 ? 'low' : ''}">
-              <span class="p-icon">${escapeHtml(p.icono || '📦')}</span>
-              <div class="p-name">${escapeHtml(p.nombre)}</div>
-              <div class="p-qty">${p.cantidadActual} / ${p.cantidadIdeal} ${escapeHtml(p.unidad)}</div>
-              ${p.faltante > 0 ? `<div style="font-size:10px;color:var(--coral-d);font-weight:600;margin-top:2px">Faltan ${p.faltante}</div>` : ''}
-              <div style="display:flex;gap:4px;justify-content:center;margin-top:6px;flex-wrap:wrap">
-                <button class="btn btn-sm p-menos" data-id="${p.id}" data-actual="${p.cantidadActual}">−1</button>
-                <button class="btn btn-sm p-repone" data-id="${p.id}" data-ideal="${p.cantidadIdeal}">Reponer</button>
-                <button class="btn btn-sm p-editar" data-id="${p.id}" title="Modificar"><i class="ti ti-pencil"></i></button>
-                <button class="btn btn-sm p-eliminar" data-id="${p.id}" title="Eliminar"><i class="ti ti-trash"></i></button>
-              </div>
-            </div>`,
-          )
-          .join('')
-      : `<div style="font-size:12px;color:var(--text-3)">La alacena está vacía todavía.</div>`;
+
+    function tarjeta(p: ProductoAlacena) {
+      return `<div class="pantry-card ${p.faltante > 0 ? 'low' : ''}">
+        <span class="p-icon">${escapeHtml(p.icono || '📦')}</span>
+        <div class="p-name">${escapeHtml(p.nombre)}</div>
+        <div class="p-qty">${p.cantidadActual} / ${p.cantidadIdeal} ${escapeHtml(p.unidad)}</div>
+        ${p.faltante > 0 ? `<div style="font-size:10px;color:var(--coral-d);font-weight:600;margin-top:2px">Faltan ${p.faltante}</div>` : ''}
+        <div style="display:flex;gap:4px;justify-content:center;margin-top:6px;flex-wrap:wrap">
+          <button class="btn btn-sm p-menos" data-id="${p.id}" data-actual="${p.cantidadActual}">−1</button>
+          <button class="btn btn-sm p-repone" data-id="${p.id}" data-ideal="${p.cantidadIdeal}">Reponer</button>
+          <button class="btn btn-sm btn-edit p-editar" data-id="${p.id}"><i class="ti ti-pencil"></i> Editar</button>
+          <button class="btn btn-sm btn-danger p-eliminar" data-id="${p.id}"><i class="ti ti-trash"></i> Borrar</button>
+        </div>
+      </div>`;
+    }
+
+    const grupos = document.getElementById('pantry-grupos')!;
+    if (!productos.length) {
+      grupos.innerHTML = `<div style="font-size:12px;color:var(--text-3)">La alacena está vacía todavía.</div>`;
+    } else {
+      const categoriasConProductos = CATEGORIAS_ALACENA.filter((c) => productos.some((p) => p.categoria === c));
+      grupos.innerHTML = categoriasConProductos
+        .map((categoria) => {
+          const items = productos.filter((p) => p.categoria === categoria);
+          return `<div class="pantry-cat">
+            <div class="pantry-cat-title">${escapeHtml(categoria)} <span class="pantry-cat-count">${items.length}</span></div>
+            <div class="pantry-grid">${items.map(tarjeta).join('')}</div>
+          </div>`;
+        })
+        .join('');
+    }
 
     document.querySelectorAll<HTMLElement>('.p-menos').forEach((el) =>
       el.addEventListener('click', async () => {
@@ -132,13 +163,14 @@ export async function renderAlacena() {
 
   document.getElementById('a-add')!.addEventListener('click', async () => {
     const nombre = (document.getElementById('a-nombre') as HTMLInputElement).value.trim();
+    const categoria = (document.getElementById('a-categoria') as HTMLSelectElement).value;
     const unidad = (document.getElementById('a-unidad') as HTMLInputElement).value.trim() || 'unidades';
     const cantidadIdeal = Number((document.getElementById('a-ideal') as HTMLInputElement).value);
     const cantidadActualInput = (document.getElementById('a-actual') as HTMLInputElement).value;
     const cantidadActual = cantidadActualInput === '' ? cantidadIdeal : Number(cantidadActualInput);
     if (!nombre || !(cantidadIdeal > 0)) return;
     try {
-      await api.post(`/groups/${grupo!.id}/alacena`, { nombre, unidad, cantidadIdeal, cantidadActual });
+      await api.post(`/groups/${grupo!.id}/alacena`, { nombre, categoria, unidad, cantidadIdeal, cantidadActual });
       (document.getElementById('a-nombre') as HTMLInputElement).value = '';
       (document.getElementById('a-ideal') as HTMLInputElement).value = '';
       (document.getElementById('a-actual') as HTMLInputElement).value = '';
@@ -427,8 +459,8 @@ export async function renderCalendario() {
                 <td><span class="tag">${p.tipoComida}</span></td>
                 <td>${escapeHtml(p.receta.nombre)}</td>
                 <td style="text-align:right;white-space:nowrap">
-                  <button class="btn btn-sm cal-editar" data-id="${p.id}" title="Modificar"><i class="ti ti-pencil"></i></button>
-                  <button class="btn btn-sm cal-eliminar" data-id="${p.id}" title="Eliminar"><i class="ti ti-trash"></i></button>
+                  <button class="btn btn-sm btn-edit cal-editar" data-id="${p.id}"><i class="ti ti-pencil"></i> Modificar</button>
+                  <button class="btn btn-sm btn-danger cal-eliminar" data-id="${p.id}"><i class="ti ti-trash"></i> Eliminar</button>
                 </td>
               </tr>`,
           )
