@@ -17,6 +17,11 @@ services:
         sync: false
       - key: SESSION_COOKIE_SECURE
         value: "true"
+      # Opcional: asistente con IA real y escaneo de boletas (gratis en
+      # https://aistudio.google.com/apikey). Sin esta clave, ambas funciones
+      # operan en modo degradado en vez de fallar.
+      - key: GEMINI_API_KEY
+        sync: false
 
 databases:
   - name: familyfinance-db

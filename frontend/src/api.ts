@@ -3,10 +3,14 @@
 // listo para mostrar al usuario (SECURITY-09: mensajes genéricos).
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  // FormData: dejamos que el navegador ponga su propio Content-Type con el
+  // boundary del multipart — si lo fijamos nosotros a mano, el servidor no
+  // puede parsear el body.
+  const esFormData = options.body instanceof FormData;
   const res = await fetch(`/api${path}`, {
     ...options,
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...options.headers },
+    headers: esFormData ? options.headers : { 'Content-Type': 'application/json', ...options.headers },
   });
 
   if (res.status === 204) return undefined as T;
@@ -25,6 +29,7 @@ export const api = {
   put: <T>(path: string, body?: unknown) => request<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
   patch: <T>(path: string, body?: unknown) => request<T>(path, { method: 'PATCH', body: JSON.stringify(body) }),
   del: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
+  upload: <T>(path: string, form: FormData) => request<T>(path, { method: 'POST', body: form }),
 };
 
 export function fmt(n: number): string {

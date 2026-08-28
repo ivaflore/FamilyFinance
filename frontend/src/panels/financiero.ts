@@ -72,7 +72,11 @@ export async function renderGastos() {
   const grupo = grupoActivo();
   content.innerHTML = `
     <div class="card">
-      <div class="card-hd"><div class="card-title">Registrar nuevo gasto</div></div>
+      <div class="card-hd">
+        <div class="card-title">Registrar nuevo gasto</div>
+        <button class="btn btn-sm" id="g-scan"><i class="ti ti-camera"></i> Escanear boleta</button>
+        <input type="file" id="g-scan-input" accept="image/*" capture="environment" style="display:none" />
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end">
         <div><label class="form-label">Descripción</label><input type="text" id="g-desc" placeholder="ej: Jumbo" /></div>
         <div><label class="form-label">Monto ($)</label><input type="number" id="g-monto" placeholder="0" /></div>
@@ -88,7 +92,63 @@ export async function renderGastos() {
         <thead><tr><th>Descripción</th><th>Categoría</th><th>Miembro</th><th style="text-align:right">Monto</th></tr></thead>
         <tbody id="gastos-tbody"></tbody>
       </table>
-    </div>`;
+    </div>
+    <div id="scan-modal"></div>`;
+
+  function abrirConfirmacion(datos: { descripcion: string; monto: number; categoria: string }) {
+    document.getElementById('scan-modal')!.innerHTML = `
+      <div class="modal-overlay" id="sm-overlay">
+        <div class="modal">
+          <div class="modal-title">Confirma el gasto detectado</div>
+          <div class="form-row"><label class="form-label">Descripción / comercio</label><input type="text" id="sm-desc" value="${escapeHtml(datos.descripcion)}" /></div>
+          <div class="form-row"><label class="form-label">Monto ($)</label><input type="number" id="sm-monto" value="${datos.monto}" /></div>
+          <div class="form-row"><label class="form-label">Categoría</label>
+            <select id="sm-cat">${CATEGORIAS.map((c) => `<option value="${c}" ${c === datos.categoria ? 'selected' : ''}>${c}</option>`).join('')}</select>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-primary" id="sm-save" style="flex:1">Guardar gasto</button>
+            <button class="btn" id="sm-cancel">Cancelar</button>
+          </div>
+        </div>
+      </div>`;
+    const close = () => (document.getElementById('scan-modal')!.innerHTML = '');
+    document.getElementById('sm-overlay')!.addEventListener('click', (e) => e.target === e.currentTarget && close());
+    document.getElementById('sm-cancel')!.addEventListener('click', close);
+    document.getElementById('sm-save')!.addEventListener('click', async () => {
+      const descripcion = (document.getElementById('sm-desc') as HTMLInputElement).value.trim();
+      const monto = Number((document.getElementById('sm-monto') as HTMLInputElement).value);
+      const categoria = (document.getElementById('sm-cat') as HTMLSelectElement).value;
+      if (!descripcion || !(monto > 0)) return;
+      await api.post(`/groups/${grupo!.id}/gastos`, { descripcion, monto, categoria });
+      close();
+      await cargar();
+    });
+  }
+
+  const scanBtn = document.getElementById('g-scan') as HTMLButtonElement;
+  const scanInput = document.getElementById('g-scan-input') as HTMLInputElement;
+  scanBtn.addEventListener('click', () => scanInput.click());
+  scanInput.addEventListener('change', async () => {
+    const file = scanInput.files?.[0];
+    scanInput.value = '';
+    if (!file) return;
+    scanBtn.disabled = true;
+    scanBtn.innerHTML = `<i class="ti ti-loader-2"></i> Leyendo boleta…`;
+    try {
+      const form = new FormData();
+      form.append('imagen', file);
+      const datos = await api.upload<{ monto: number; comercio: string; categoriaSugerida: string }>(
+        `/groups/${grupo!.id}/gastos/desde-boleta`,
+        form,
+      );
+      abrirConfirmacion({ descripcion: datos.comercio, monto: datos.monto, categoria: datos.categoriaSugerida });
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
+      scanBtn.disabled = false;
+      scanBtn.innerHTML = `<i class="ti ti-camera"></i> Escanear boleta`;
+    }
+  });
 
   async function cargar() {
     const gastos = await api.get<Gasto[]>(`/groups/${grupo!.id}/gastos`);

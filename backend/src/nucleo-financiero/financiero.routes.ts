@@ -1,6 +1,8 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { z } from 'zod';
 import { requireAuth } from '../middleware/auth';
+import { AppError } from '../middleware/errorHandler';
 import { requireAdmin, requireGrupo } from '../middleware/grupo';
 import { financieroService } from './financiero.service';
 
@@ -12,6 +14,16 @@ const gastoSchema = z.object({
   categoria: z.string().min(1),
 });
 
+const MIME_IMAGENES = /^image\/(jpeg|png|webp|heic|heif)$/;
+const uploadBoleta = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (!MIME_IMAGENES.test(file.mimetype)) return cb(new AppError(400, 'El archivo debe ser una imagen (JPG, PNG o WEBP).'));
+    cb(null, true);
+  },
+});
+
 financieroRouter.post('/groups/:grupoId/gastos', requireAuth, requireGrupo, async (req, res, next) => {
   try {
     const data = gastoSchema.parse(req.body);
@@ -21,6 +33,22 @@ financieroRouter.post('/groups/:grupoId/gastos', requireAuth, requireGrupo, asyn
     next(err);
   }
 });
+
+financieroRouter.post(
+  '/groups/:grupoId/gastos/desde-boleta',
+  requireAuth,
+  requireGrupo,
+  (req, res, next) => uploadBoleta.single('imagen')(req, res, (err) => next(err instanceof multer.MulterError ? new AppError(400, 'La imagen es demasiado grande (máximo 5MB).') : err)),
+  async (req, res, next) => {
+    try {
+      if (!req.file) throw new AppError(400, 'Debes adjuntar una imagen de la boleta.');
+      const extraido = await financieroService.interpretarBoleta(req.file.buffer.toString('base64'), req.file.mimetype);
+      res.json(extraido);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 financieroRouter.get('/groups/:grupoId/gastos', requireAuth, requireGrupo, async (req, res, next) => {
   try {

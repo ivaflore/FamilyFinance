@@ -72,10 +72,15 @@ export async function renderAsistente() {
     input.value = '';
     const msgs = document.getElementById('ai-msgs')!;
     msgs.innerHTML += `<div class="ai-msg user">${escapeHtml(texto)}</div>`;
+    msgs.innerHTML += `<div class="ai-msg bot" id="ai-typing">Escribiendo…</div>`;
     msgs.scrollTop = msgs.scrollHeight;
 
-    const { respuesta } = await api.post<{ respuesta: string }>(`/groups/${grupo!.id}/asistente`, { pregunta: texto });
-    msgs.innerHTML += `<div class="ai-msg bot">${escapeHtml(respuesta)}</div>`;
+    try {
+      const { respuesta } = await api.post<{ respuesta: string }>(`/groups/${grupo!.id}/asistente`, { pregunta: texto });
+      document.getElementById('ai-typing')!.outerHTML = `<div class="ai-msg bot">${escapeHtml(respuesta)}</div>`;
+    } catch (err) {
+      document.getElementById('ai-typing')!.outerHTML = `<div class="ai-msg bot">${escapeHtml((err as Error).message)}</div>`;
+    }
     msgs.scrollTop = msgs.scrollHeight;
   }
 
