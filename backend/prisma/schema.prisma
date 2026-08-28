@@ -136,8 +136,9 @@ model ProductoAlacena {
   grupo           GrupoFamiliar @relation(fields: [grupoFamiliarId], references: [id])
   icono           String        @default("📦")
   nombre          String
-  cantidadTexto   String
-  porAgotarse     Boolean       @default(false)
+  unidad          String        @default("unidades")
+  cantidadIdeal   Decimal       @default(1) @db.Decimal(10, 2)
+  cantidadActual  Decimal       @default(1) @db.Decimal(10, 2)
 
   @@index([grupoFamiliarId])
 }
@@ -151,6 +152,19 @@ model ItemCompra {
   comprado        Boolean       @default(false)
 
   @@index([grupoFamiliarId])
+}
+
+// Catálogo de recetas sugeridas, compartido entre todos los grupos (solo
+// lectura). No lleva grupoFamiliarId porque no es dato de un tenant — es
+// contenido de referencia que cada grupo puede copiar a su propio recetario.
+model RecetaPlantilla {
+  id           String   @id @default(uuid())
+  nombre       String
+  tipos        String[]
+  tiempoMin    Int
+  porciones    Int
+  ingredientes Json
+  pasos        String[]
 }
 
 model Receta {

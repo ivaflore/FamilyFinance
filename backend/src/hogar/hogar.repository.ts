@@ -2,11 +2,21 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '../db/prisma';
 
 export const hogarRepository = {
-  crearProductoAlacena(data: { grupoFamiliarId: string; nombre: string; cantidadTexto: string; icono?: string }) {
+  crearProductoAlacena(data: {
+    grupoFamiliarId: string;
+    nombre: string;
+    unidad?: string;
+    cantidadIdeal: number;
+    cantidadActual: number;
+    icono?: string;
+  }) {
     return prisma.productoAlacena.create({ data });
   },
   listarAlacena(grupoFamiliarId: string) {
-    return prisma.productoAlacena.findMany({ where: { grupoFamiliarId } });
+    return prisma.productoAlacena.findMany({ where: { grupoFamiliarId }, orderBy: { nombre: 'asc' } });
+  },
+  actualizarCantidadActual(id: string, grupoFamiliarId: string, cantidadActual: number) {
+    return prisma.productoAlacena.updateMany({ where: { id, grupoFamiliarId }, data: { cantidadActual } });
   },
 
   crearItemCompra(data: { grupoFamiliarId: string; nombre: string; precioEstimado?: number }) {
@@ -20,6 +30,13 @@ export const hogarRepository = {
   },
   buscarItemPorNombre(grupoFamiliarId: string, nombre: string) {
     return prisma.itemCompra.findFirst({ where: { grupoFamiliarId, nombre: { equals: nombre, mode: 'insensitive' } } });
+  },
+
+  listarRecetasPlantilla() {
+    return prisma.recetaPlantilla.findMany();
+  },
+  buscarRecetaPlantilla(id: string) {
+    return prisma.recetaPlantilla.findUnique({ where: { id } });
   },
 
   crearReceta(data: {

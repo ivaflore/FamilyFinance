@@ -1,5 +1,12 @@
 // Lógica pura de la Unidad 4, testable con PBT sin base de datos.
 
+// BR-20: la cantidad a comprar de un producto de la alacena es la diferencia
+// entre lo que deberíamos tener (cantidadIdeal) y lo que tenemos (cantidadActual),
+// nunca negativa (un excedente no "resta" de otro producto).
+export function calcularFaltante(cantidadIdeal: number, cantidadActual: number): number {
+  return Math.max(0, cantidadIdeal - cantidadActual);
+}
+
 // BR-19: dado el conjunto de ingredientes requeridos por el menú planificado
 // y los nombres ya presentes en la lista de compras, calcula solo los
 // nombres que faltan agregar (normalizados, sin distinguir mayúsculas).

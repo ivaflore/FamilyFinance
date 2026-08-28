@@ -17,9 +17,24 @@ hogarRouter.get('/groups/:grupoId/alacena', requireAuth, requireGrupo, async (re
 hogarRouter.post('/groups/:grupoId/alacena', requireAuth, requireGrupo, async (req, res, next) => {
   try {
     const data = z
-      .object({ nombre: z.string().min(1), cantidadTexto: z.string().min(1), icono: z.string().optional() })
+      .object({
+        nombre: z.string().min(1),
+        unidad: z.string().min(1).optional(),
+        cantidadIdeal: z.number().positive(),
+        cantidadActual: z.number().nonnegative(),
+        icono: z.string().optional(),
+      })
       .parse(req.body);
     res.status(201).json(await hogarService.agregarProductoAlacena(req.grupoFamiliarId!, data));
+  } catch (err) {
+    next(err);
+  }
+});
+hogarRouter.patch('/groups/:grupoId/alacena/:productoId', requireAuth, requireGrupo, async (req, res, next) => {
+  try {
+    const { cantidadActual } = z.object({ cantidadActual: z.number().nonnegative() }).parse(req.body);
+    await hogarService.actualizarCantidadActual(req.grupoFamiliarId!, req.params.productoId, cantidadActual);
+    res.status(204).end();
   } catch (err) {
     next(err);
   }
@@ -60,6 +75,20 @@ hogarRouter.post('/groups/:grupoId/compras/generar-desde-menu', requireAuth, req
 });
 
 // Recetario
+hogarRouter.get('/recetas-plantilla', requireAuth, async (_req, res, next) => {
+  try {
+    res.json(await hogarService.listarRecetasPlantilla());
+  } catch (err) {
+    next(err);
+  }
+});
+hogarRouter.post('/groups/:grupoId/recetas/importar/:plantillaId', requireAuth, requireGrupo, async (req, res, next) => {
+  try {
+    res.status(201).json(await hogarService.importarRecetaPlantilla(req.grupoFamiliarId!, req.params.plantillaId));
+  } catch (err) {
+    next(err);
+  }
+});
 hogarRouter.get('/groups/:grupoId/recetas', requireAuth, requireGrupo, async (req, res, next) => {
   try {
     res.json(await hogarService.listarRecetas(req.grupoFamiliarId!));

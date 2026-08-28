@@ -1,9 +1,19 @@
 import { api, escapeHtml, fmt } from '../api';
 import { grupoActivo } from '../state';
 
-interface ProductoAlacena { id: string; icono: string; nombre: string; cantidadTexto: string; porAgotarse: boolean }
+interface ProductoAlacena {
+  id: string;
+  icono: string;
+  nombre: string;
+  unidad: string;
+  cantidadIdeal: number;
+  cantidadActual: number;
+  faltante: number;
+}
 interface ItemCompra { id: string; nombre: string; precioEstimado: number; comprado: boolean }
+interface ListaCompras { sugeridos: ProductoAlacena[]; manuales: ItemCompra[] }
 interface Receta { id: string; nombre: string; tipos: string[]; tiempoMin: number; porciones: number; ingredientes: { n: string }[]; pasos: string[] }
+interface RecetaPlantilla { id: string; nombre: string; tiempoMin: number; porciones: number; ingredientes: { n: string }[] }
 interface Planificacion { id: string; fecha: string; tipoComida: string; receta: Receta }
 
 export async function renderAlacena() {
@@ -12,11 +22,14 @@ export async function renderAlacena() {
   content.innerHTML = `
     <div class="card">
       <div class="card-hd">
-        <div class="card-title">Agregar producto</div>
+        <div class="card-title">Agregar producto a mantener</div>
+        <span class="card-sub">Define cuánto deberías tener siempre y cuánto tienes ahora</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+      <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr auto;gap:8px;align-items:end">
         <div><label class="form-label">Producto</label><input type="text" id="a-nombre" placeholder="ej: Leche" /></div>
-        <div><label class="form-label">Cantidad</label><input type="text" id="a-cant" placeholder="ej: 2 litros" /></div>
+        <div><label class="form-label">Unidad</label><input type="text" id="a-unidad" placeholder="ej: litros" value="unidades" /></div>
+        <div><label class="form-label">Ideal</label><input type="number" id="a-ideal" placeholder="2" min="0.01" step="0.01" /></div>
+        <div><label class="form-label">Tengo ahora</label><input type="number" id="a-actual" placeholder="2" min="0" step="0.01" /></div>
         <button class="btn btn-primary" id="a-add"><i class="ti ti-plus"></i> Agregar</button>
       </div>
     </div>
@@ -27,23 +40,46 @@ export async function renderAlacena() {
     document.getElementById('pantry-grid')!.innerHTML = productos.length
       ? productos
           .map(
-            (p) => `<div class="pantry-card ${p.porAgotarse ? 'low' : ''}">
+            (p) => `<div class="pantry-card ${p.faltante > 0 ? 'low' : ''}">
               <span class="p-icon">${escapeHtml(p.icono || '📦')}</span>
               <div class="p-name">${escapeHtml(p.nombre)}</div>
-              <div class="p-qty">${escapeHtml(p.cantidadTexto)}</div>
+              <div class="p-qty">${p.cantidadActual} / ${p.cantidadIdeal} ${escapeHtml(p.unidad)}</div>
+              ${p.faltante > 0 ? `<div style="font-size:10px;color:var(--coral-d);font-weight:600;margin-top:2px">Faltan ${p.faltante}</div>` : ''}
+              <div style="display:flex;gap:4px;justify-content:center;margin-top:6px">
+                <button class="btn btn-sm p-menos" data-id="${p.id}" data-actual="${p.cantidadActual}">−1</button>
+                <button class="btn btn-sm p-repone" data-id="${p.id}" data-ideal="${p.cantidadIdeal}">Reponer</button>
+              </div>
             </div>`,
           )
           .join('')
       : `<div style="font-size:12px;color:var(--text-3)">La alacena está vacía todavía.</div>`;
+
+    document.querySelectorAll<HTMLElement>('.p-menos').forEach((el) =>
+      el.addEventListener('click', async () => {
+        const actual = Math.max(0, Number(el.dataset.actual) - 1);
+        await api.patch(`/groups/${grupo!.id}/alacena/${el.dataset.id}`, { cantidadActual: actual });
+        await cargar();
+      }),
+    );
+    document.querySelectorAll<HTMLElement>('.p-repone').forEach((el) =>
+      el.addEventListener('click', async () => {
+        await api.patch(`/groups/${grupo!.id}/alacena/${el.dataset.id}`, { cantidadActual: Number(el.dataset.ideal) });
+        await cargar();
+      }),
+    );
   }
 
   document.getElementById('a-add')!.addEventListener('click', async () => {
     const nombre = (document.getElementById('a-nombre') as HTMLInputElement).value.trim();
-    const cantidadTexto = (document.getElementById('a-cant') as HTMLInputElement).value.trim() || '1 unidad';
-    if (!nombre) return;
-    await api.post(`/groups/${grupo!.id}/alacena`, { nombre, cantidadTexto });
+    const unidad = (document.getElementById('a-unidad') as HTMLInputElement).value.trim() || 'unidades';
+    const cantidadIdeal = Number((document.getElementById('a-ideal') as HTMLInputElement).value);
+    const cantidadActualInput = (document.getElementById('a-actual') as HTMLInputElement).value;
+    const cantidadActual = cantidadActualInput === '' ? cantidadIdeal : Number(cantidadActualInput);
+    if (!nombre || !(cantidadIdeal > 0)) return;
+    await api.post(`/groups/${grupo!.id}/alacena`, { nombre, unidad, cantidadIdeal, cantidadActual });
     (document.getElementById('a-nombre') as HTMLInputElement).value = '';
-    (document.getElementById('a-cant') as HTMLInputElement).value = '';
+    (document.getElementById('a-ideal') as HTMLInputElement).value = '';
+    (document.getElementById('a-actual') as HTMLInputElement).value = '';
     await cargar();
   });
 
@@ -56,7 +92,14 @@ export async function renderCompras() {
   content.innerHTML = `
     <div class="card">
       <div class="card-hd">
-        <div class="card-title">Lista de compras del grupo</div>
+        <div class="card-title">Sugeridos desde tu alacena</div>
+        <span class="card-sub">Productos por debajo de la cantidad que deberías tener</span>
+      </div>
+      <div id="shop-sugeridos"></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Otros productos</div>
         <div style="display:flex;gap:6px">
           <input type="text" id="c-nombre" placeholder="Agregar producto…" style="width:180px" />
           <button class="btn btn-sm btn-primary" id="c-add"><i class="ti ti-plus"></i></button>
@@ -66,10 +109,30 @@ export async function renderCompras() {
     </div>`;
 
   async function cargar() {
-    const items = await api.get<ItemCompra[]>(`/groups/${grupo!.id}/compras`);
+    const { sugeridos, manuales } = await api.get<ListaCompras>(`/groups/${grupo!.id}/compras`);
+
+    document.getElementById('shop-sugeridos')!.innerHTML = sugeridos.length
+      ? sugeridos
+          .map(
+            (p) => `<div class="shop-item">
+              <span class="tag" style="background:var(--coral-l);color:var(--coral-d)">Faltan ${p.faltante} ${escapeHtml(p.unidad)}</span>
+              <div class="shop-name">${escapeHtml(p.nombre)}</div>
+              <button class="btn btn-sm btn-primary p-comprado" data-id="${p.id}" data-ideal="${p.cantidadIdeal}">Ya compré</button>
+            </div>`,
+          )
+          .join('')
+      : `<div style="font-size:12px;color:var(--text-3)">Tu alacena está completa — nada pendiente por comprar.</div>`;
+
+    document.querySelectorAll<HTMLElement>('.p-comprado').forEach((el) =>
+      el.addEventListener('click', async () => {
+        await api.patch(`/groups/${grupo!.id}/alacena/${el.dataset.id}`, { cantidadActual: Number(el.dataset.ideal) });
+        await cargar();
+      }),
+    );
+
     const list = document.getElementById('shop-list')!;
-    list.innerHTML = items.length
-      ? items
+    list.innerHTML = manuales.length
+      ? manuales
           .map(
             (i) => `<div class="shop-item">
               <div class="shop-check ${i.comprado ? 'checked' : ''}" data-id="${i.id}" data-comprado="${i.comprado}">${i.comprado ? '<i class="ti ti-check" style="font-size:10px;color:#fff"></i>' : ''}</div>
@@ -78,7 +141,7 @@ export async function renderCompras() {
             </div>`,
           )
           .join('')
-      : `<div style="font-size:12px;color:var(--text-3)">No hay productos en la lista.</div>`;
+      : `<div style="font-size:12px;color:var(--text-3)">No hay otros productos en la lista.</div>`;
 
     list.querySelectorAll<HTMLElement>('.shop-check').forEach((el) => {
       el.addEventListener('click', async () => {
@@ -107,12 +170,39 @@ export async function renderRecetario() {
   content.innerHTML = `
     <div class="card">
       <div class="card-hd">
+        <div class="card-title">Recetas sugeridas</div>
+        <span class="card-sub">Agrégalas a tu recetario con un clic</span>
+      </div>
+      <div class="recipe-grid" id="recipe-plantillas"></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
         <div class="card-title">Recetario del grupo</div>
         <button class="btn btn-sm btn-primary" id="r-new"><i class="ti ti-plus"></i> Nueva receta</button>
       </div>
       <div class="recipe-grid" id="recipe-grid"></div>
     </div>
     <div id="recipe-modal"></div>`;
+
+  async function cargarPlantillas() {
+    const plantillas = await api.get<RecetaPlantilla[]>('/recetas-plantilla');
+    document.getElementById('recipe-plantillas')!.innerHTML = plantillas
+      .map(
+        (p) => `<div class="recipe-card p-plantilla" data-id="${p.id}">
+          <div class="rc-name">${escapeHtml(p.nombre)}</div>
+          <div class="rc-meta"><span>${p.tiempoMin} min</span><span>${p.porciones} pers.</span></div>
+          <div style="font-size:10px;color:var(--text-3)">${escapeHtml((p.ingredientes ?? []).map((i) => i.n).join(', '))}</div>
+        </div>`,
+      )
+      .join('');
+
+    document.querySelectorAll<HTMLElement>('.p-plantilla').forEach((el) =>
+      el.addEventListener('click', async () => {
+        await api.post(`/groups/${grupo!.id}/recetas/importar/${el.dataset.id}`, {});
+        await cargar();
+      }),
+    );
+  }
 
   async function cargar() {
     const recetas = await api.get<Receta[]>(`/groups/${grupo!.id}/recetas`);
@@ -173,7 +263,7 @@ export async function renderRecetario() {
     });
   });
 
-  await cargar();
+  await Promise.all([cargarPlantillas(), cargar()]);
 }
 
 export async function renderCalendario() {
@@ -184,7 +274,7 @@ export async function renderCalendario() {
     <div class="card">
       <div class="card-hd">
         <div class="card-title">Menú de ${hoy.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' })}</div>
-        <button class="btn btn-sm btn-primary" id="cal-generar"><i class="ti ti-shopping-cart"></i> Generar lista de compras</button>
+        <button class="btn btn-sm btn-primary" id="cal-generar"><i class="ti ti-shopping-cart"></i> Agregar ingredientes a la alacena</button>
       </div>
       <table class="tbl">
         <thead><tr><th>Fecha</th><th>Comida</th><th>Receta</th></tr></thead>
@@ -233,7 +323,7 @@ export async function renderCalendario() {
       anio: hoy.getFullYear(),
       mes: hoy.getMonth(),
     });
-    alert(res.agregados.length ? `${res.agregados.length} ingredientes agregados a la lista de compras.` : 'No hay ingredientes nuevos para agregar.');
+    alert(res.agregados.length ? `${res.agregados.length} producto(s) agregados a tu alacena y a la lista de compras.` : 'No hay ingredientes nuevos para agregar.');
   });
 
   await cargar();

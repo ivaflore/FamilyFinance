@@ -47,7 +47,7 @@ export const insightsService = {
     }
     if (/alacena|stock/.test(q)) {
       const alacena = await hogarService.listarAlacena(grupoFamiliarId);
-      const porAgotarse = alacena.filter((p) => p.porAgotarse);
+      const porAgotarse = alacena.filter((p) => p.faltante > 0);
       return porAgotarse.length
         ? `Tienes ${porAgotarse.length} producto(s) por agotarse: ${porAgotarse.map((p) => p.nombre).join(', ')}.`
         : `Tu alacena está en buen estado, ${alacena.length} productos registrados.`;
