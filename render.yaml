@@ -22,6 +22,12 @@ services:
       # operan en modo degradado en vez de fallar.
       - key: GEMINI_API_KEY
         sync: false
+      # Opcional: notificaciones push. Par de claves autogenerado (no
+      # depende de ninguna cuenta externa) — ver backend/.env.example.
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
 
 databases:
   - name: familyfinance-db

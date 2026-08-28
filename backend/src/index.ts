@@ -8,6 +8,7 @@ import { hogarRouter } from './hogar/hogar.routes';
 import { identidadRouter } from './identidad/identidad.routes';
 import { insightsRouter } from './insights/insights.routes';
 import { mesadaRouter } from './mesada/mesada.routes';
+import { notificacionesRouter } from './notificaciones/notificaciones.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api', financieroRouter);
 app.use('/api', hogarRouter);
 app.use('/api', insightsRouter);
 app.use('/api', mesadaRouter);
+app.use('/api', notificacionesRouter);
 
 // Sirve el frontend ya compilado (mismo origen -> la cookie de sesion
 // funciona sin configuracion adicional de CORS entre sitios).

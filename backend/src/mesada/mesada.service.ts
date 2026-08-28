@@ -1,5 +1,6 @@
 import { prisma } from '../db/prisma';
 import { AppError } from '../middleware/errorHandler';
+import { notificacionesService } from '../notificaciones/notificaciones.service';
 import { calcularProgreso, calcularSaldo } from './mesada.logic';
 import { mesadaRepository } from './mesada.repository';
 
@@ -102,15 +103,25 @@ export const mesadaService = {
 
   // Solo el administrador crea y asigna tareas del hogar (aplicado también
   // vía requireAdmin en la ruta).
-  agregarTarea(grupoFamiliarId: string, data: { titulo: string; asignadoAUsuarioId?: string; recompensa?: number }) {
+  async agregarTarea(grupoFamiliarId: string, data: { titulo: string; asignadoAUsuarioId?: string; recompensa?: number }) {
     if (!data.titulo?.trim()) throw new AppError(400, 'La tarea necesita un título.');
     if (data.recompensa !== undefined && !(data.recompensa >= 0)) throw new AppError(400, 'La recompensa no puede ser negativa.');
-    return mesadaRepository.crearTarea({
+    const titulo = data.titulo.trim();
+    const tarea = await mesadaRepository.crearTarea({
       grupoFamiliarId,
-      titulo: data.titulo.trim(),
+      titulo,
       asignadoAUsuarioId: data.asignadoAUsuarioId,
       recompensa: data.recompensa ?? 0,
     });
+    if (data.asignadoAUsuarioId) {
+      const recompensa = data.recompensa ?? 0;
+      notificacionesService.notificarUsuarios([data.asignadoAUsuarioId], {
+        title: 'Nueva tarea asignada',
+        body: recompensa > 0 ? `${titulo} — recompensa de $${recompensa.toLocaleString('es-CL')}` : titulo,
+        url: '/#tareas',
+      });
+    }
+    return tarea;
   },
   listarTareas(grupoFamiliarId: string) {
     return mesadaRepository.listarTareas(grupoFamiliarId);

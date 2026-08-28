@@ -87,10 +87,15 @@ npm test
 3. Invita a los demás miembros de tu familia desde "Mi familia" → "Invitar" (comparte el link generado).
 4. Empieza a registrar gastos, definir tu presupuesto, y usar el resto de las secciones — todo se sincroniza automáticamente entre los miembros del grupo.
 
+## Instalar como app (PWA)
+
+FamilyFinance es una Progressive Web App instalable en el celular (Android/iOS) o el computador: desde el navegador, usa la opción "Instalar app" / "Agregar a la pantalla de inicio". Las pantallas compartidas (Alacena, Lista de compras, Menú del mes) se refrescan solas cada 10 segundos para que los cambios de otros miembros aparezcan sin recargar.
+
+Para activar las notificaciones push (avisos de gastos grandes, tareas asignadas, nuevos miembros), configura `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` (ver `backend/.env.example`) y usa el botón "Activar notificaciones" en el pie de la barra lateral.
+
 ## Roadmap (fuera de alcance de este ciclo)
 
-- Progressive Web App (PWA) instalable en Android.
-- App nativa publicada en Google Play Store.
+- App nativa publicada en Google Play Store (hoy es una PWA instalable, no un paquete nativo en la tienda).
 - Ver `aidlc-docs/inception/requirements/requirements.md` para el detalle completo de alcance y fuera de alcance.
 
 ## Seguridad

@@ -1,6 +1,8 @@
 import crypto from 'node:crypto';
+import { prisma } from '../db/prisma';
 import { hashToken } from '../lib/session';
 import { AppError } from '../middleware/errorHandler';
+import { notificacionesService } from '../notificaciones/notificaciones.service';
 import { gruposRepository } from './grupos.repository';
 import { invitacionEsAceptable, puedeRemoverAdministrador } from './grupos.logic';
 
@@ -31,7 +33,13 @@ export const gruposService = {
     // BR-11: idempotente — si ya es miembro, no duplica la membresía
     const existente = await gruposRepository.buscarMembresia(invitacion.grupoFamiliarId, usuarioId);
     if (!existente) {
+      const miembrosActuales = await gruposRepository.listarMiembros(invitacion.grupoFamiliarId);
       await gruposRepository.crearMembresia(invitacion.grupoFamiliarId, usuarioId, 'Miembro');
+      const nuevoUsuario = await prisma.usuario.findUnique({ where: { id: usuarioId } });
+      notificacionesService.notificarUsuarios(
+        miembrosActuales.map((m) => m.usuarioId),
+        { title: 'Nuevo miembro en la familia', body: `${nuevoUsuario?.nombre ?? 'Alguien'} se unió al grupo.`, url: '/#familia' },
+      );
     }
     if (invitacion.estado === 'Pendiente') {
       await gruposRepository.marcarInvitacionAceptada(invitacion.id);

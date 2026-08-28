@@ -1,7 +1,10 @@
 import './style.css';
 import { api } from './api';
 import { renderApp } from './app';
+import { registrarServiceWorker } from './push';
 import { state } from './state';
+
+registrarServiceWorker();
 
 declare global {
   interface Window {

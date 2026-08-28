@@ -5,6 +5,7 @@ import { renderFamilia } from './panels/familia';
 import { renderAlacena, renderCalendario, renderCompras, renderRecetario } from './panels/hogar';
 import { renderDashboard, renderGastos, renderIngresos, renderPresupuesto } from './panels/financiero';
 import { renderMesada, renderTareas } from './panels/mesada';
+import { activarNotificaciones, desactivarNotificaciones, estadoNotificaciones } from './push';
 
 const PAGES: Record<string, { title: string; sub: string; render: () => void }> = {
   dashboard: { title: 'Resumen financiero', sub: 'de tu grupo familiar', render: renderDashboard },
@@ -70,6 +71,7 @@ export function renderApp() {
             </div>`).join('')}
         </nav>
         <div class="sb-foot">
+          <button class="nav-item" id="btn-notificaciones" style="margin-bottom:6px"><i class="ti ti-bell"></i> <span id="notif-label">Notificaciones</span></button>
           <div class="user-row" id="btn-logout" title="Cerrar sesión">
             <div class="av">${escapeHtml((state.usuario?.nombre ?? '?').slice(0, 2).toUpperCase())}</div>
             <div><div class="u-name">${escapeHtml(state.usuario?.nombre ?? '')}</div><div class="u-role">${grupo?.rol ?? ''}</div></div>
@@ -96,6 +98,7 @@ export function renderApp() {
     location.reload();
   });
 
+  configurarBotonNotificaciones();
   goTo('dashboard');
 }
 
@@ -131,4 +134,39 @@ export function goTo(pageId: string) {
   document.getElementById('page-sub')!.textContent = page.sub;
   document.getElementById('content')!.innerHTML = '';
   page.render();
+}
+
+async function configurarBotonNotificaciones() {
+  const btn = document.getElementById('btn-notificaciones') as HTMLButtonElement | null;
+  const label = document.getElementById('notif-label');
+  if (!btn || !label) return;
+
+  async function refrescar() {
+    const estado = await estadoNotificaciones();
+    if (estado === 'no-soportado' || estado === 'no-configurado') {
+      btn!.style.display = 'none';
+      return;
+    }
+    btn!.style.display = '';
+    btn!.classList.toggle('active', estado === 'activo');
+    label!.textContent =
+      estado === 'activo' ? 'Notificaciones activas' : estado === 'denegado' ? 'Notificaciones bloqueadas' : 'Activar notificaciones';
+    btn!.disabled = estado === 'denegado';
+  }
+
+  btn.addEventListener('click', async () => {
+    try {
+      const estadoActual = await estadoNotificaciones();
+      if (estadoActual === 'activo') {
+        await desactivarNotificaciones();
+      } else {
+        await activarNotificaciones();
+      }
+    } catch (err) {
+      alert(`No se pudo activar las notificaciones: ${(err as Error).message}`);
+    }
+    await refrescar();
+  });
+
+  await refrescar();
 }

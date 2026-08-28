@@ -1,8 +1,13 @@
 import { prisma } from '../db/prisma';
 import { geminiDisponible, interpretarBoleta as interpretarBoletaConGemini } from '../lib/gemini';
 import { AppError } from '../middleware/errorHandler';
+import { notificacionesService } from '../notificaciones/notificaciones.service';
 import { calcularEstadoPresupuesto } from './financiero.logic';
 import { financieroRepository } from './financiero.repository';
+
+// Umbral (CLP) a partir del cual un gasto se considera "grande" y avisa al
+// resto del grupo por notificación push — puramente informativo.
+const UMBRAL_GASTO_GRANDE = 50_000;
 
 // Debe reflejar exactamente las categorías que ofrece el selector del
 // frontend (frontend/src/panels/financiero.ts) — se usan aquí solo como
@@ -33,12 +38,23 @@ export const financieroService = {
   ) {
     if (!(data.monto > 0)) throw new AppError(400, 'El monto debe ser mayor a cero.'); // BR-14
     if (!data.descripcion?.trim()) throw new AppError(400, 'La descripción es obligatoria.');
-    return financieroRepository.crearGasto({
+    const gasto = await financieroRepository.crearGasto({
       grupoFamiliarId,
       usuarioId,
       ...data,
       descripcion: data.descripcion.trim(),
     });
+    if (data.monto >= UMBRAL_GASTO_GRANDE) {
+      const otros = await prisma.membresia.findMany({
+        where: { grupoFamiliarId, usuarioId: { not: usuarioId } },
+        select: { usuarioId: true },
+      });
+      notificacionesService.notificarUsuarios(
+        otros.map((m) => m.usuarioId),
+        { title: 'Gasto grande registrado', body: `${data.descripcion.trim()}: $${data.monto.toLocaleString('es-CL')}`, url: '/#gastos' },
+      );
+    }
+    return gasto;
   },
 
   listarGastos(grupoFamiliarId: string) {
