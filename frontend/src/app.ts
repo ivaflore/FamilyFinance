@@ -3,11 +3,12 @@ import { grupoActivo, state } from './state';
 import { renderAsistente, renderSegmentacion } from './panels/insights';
 import { renderFamilia } from './panels/familia';
 import { renderAlacena, renderCalendario, renderCompras, renderRecetario } from './panels/hogar';
-import { renderDashboard, renderGastos, renderPresupuesto } from './panels/financiero';
+import { renderDashboard, renderGastos, renderIngresos, renderPresupuesto } from './panels/financiero';
 
 const PAGES: Record<string, { title: string; sub: string; render: () => void }> = {
   dashboard: { title: 'Resumen financiero', sub: 'de tu grupo familiar', render: renderDashboard },
   gastos: { title: 'Gestión de gastos', sub: 'Todos los gastos del grupo', render: renderGastos },
+  ingresos: { title: 'Ingresos', sub: 'Sueldos, bonos y mesadas del grupo', render: renderIngresos },
   presupuesto: { title: 'Presupuesto familiar', sub: 'Control por categoría', render: renderPresupuesto },
   alacena: { title: 'Inventario alacena', sub: 'Stock del hogar compartido', render: renderAlacena },
   compras: { title: 'Lista de compras', sub: 'Compartida con tu grupo', render: renderCompras },
@@ -22,6 +23,7 @@ const NAV_SECTIONS: { label: string; items: { id: string; icon: string; label: s
   { label: 'principal', items: [
     { id: 'dashboard', icon: 'ti-layout-dashboard', label: 'Resumen' },
     { id: 'gastos', icon: 'ti-receipt', label: 'Gastos' },
+    { id: 'ingresos', icon: 'ti-cash', label: 'Ingresos' },
   ] },
   { label: 'hogar', items: [
     { id: 'alacena', icon: 'ti-package', label: 'Alacena' },
@@ -90,7 +92,30 @@ export function renderApp() {
   goTo('dashboard');
 }
 
+let intervaloActivo: number | null = null;
+
+// Sincronización "en vivo" simple: las pantallas compartidas (compras,
+// alacena, menú) se registran acá para refrescar sus datos cada cierto
+// tiempo mientras están abiertas, así los cambios de otros miembros del
+// grupo aparecen sin que haya que recargar la página a mano. Se limpia
+// automáticamente al salir de la pantalla (goTo) para no seguir refrescando
+// contenido que ya no existe en el DOM.
+export function registrarPolling(fn: () => void, ms = 10000) {
+  if (intervaloActivo !== null) window.clearInterval(intervaloActivo);
+  intervaloActivo = window.setInterval(() => {
+    // No refrescar mientras el usuario está escribiendo en un campo (ej:
+    // editando la cantidad a comprar) — perdería lo que estaba tipeando.
+    const activo = document.activeElement;
+    if (activo instanceof HTMLInputElement || activo instanceof HTMLTextAreaElement) return;
+    fn();
+  }, ms);
+}
+
 export function goTo(pageId: string) {
+  if (intervaloActivo !== null) {
+    window.clearInterval(intervaloActivo);
+    intervaloActivo = null;
+  }
   document.querySelectorAll('.nav-item, .mobile-nav button').forEach((el) => el.classList.remove('active'));
   document.querySelectorAll(`[data-page="${pageId}"]`).forEach((el) => el.classList.add('active'));
 

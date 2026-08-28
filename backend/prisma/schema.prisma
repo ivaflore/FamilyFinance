@@ -22,6 +22,11 @@ model Usuario {
   membresias          Membresia[]
   gastos              Gasto[]
   invitacionesCreadas Invitacion[] @relation("InvitacionCreador")
+  ingresos            Ingreso[]
+  movimientosMesada   MovimientoMesada[]
+  metasAhorro         MetaAhorro[]
+  tareasAsignadas     Tarea[]            @relation("TareaAsignado")
+  pushSubscriptions   PushSubscription[]
 }
 
 enum EstadoSesion {
@@ -59,6 +64,11 @@ model GrupoFamiliar {
   recetas              Receta[]
   planificaciones      PlanificacionDia[]
   productosSegmentados ProductoSegmentado[]
+  gastosRecurrentes    GastoRecurrente[]
+  ingresos             Ingreso[]
+  movimientosMesada    MovimientoMesada[]
+  metasAhorro          MetaAhorro[]
+  tareas               Tarea[]
 }
 
 enum RolMembresia {
@@ -104,15 +114,17 @@ model Invitacion {
 // ══════════════ Unidad 3: Núcleo Financiero ══════════════
 
 model Gasto {
-  id              String        @id @default(uuid())
-  grupoFamiliarId String
-  grupo           GrupoFamiliar @relation(fields: [grupoFamiliarId], references: [id])
-  usuarioId       String
-  usuario         Usuario       @relation(fields: [usuarioId], references: [id])
-  descripcion     String
-  monto           Decimal       @db.Decimal(12, 2)
-  categoria       String
-  fecha           DateTime      @default(now())
+  id                String           @id @default(uuid())
+  grupoFamiliarId   String
+  grupo             GrupoFamiliar    @relation(fields: [grupoFamiliarId], references: [id])
+  usuarioId         String
+  usuario           Usuario          @relation(fields: [usuarioId], references: [id])
+  descripcion       String
+  monto             Decimal          @db.Decimal(12, 2)
+  categoria         String
+  fecha             DateTime         @default(now())
+  gastoRecurrenteId String?
+  gastoRecurrente   GastoRecurrente? @relation(fields: [gastoRecurrenteId], references: [id])
 
   @@index([grupoFamiliarId])
   @@index([grupoFamiliarId, categoria])
@@ -126,6 +138,38 @@ model Presupuesto {
   montoAsignado   Decimal       @db.Decimal(12, 2)
 
   @@unique([grupoFamiliarId, categoria])
+}
+
+// Plantilla de un gasto fijo del mes (arriendo, luz, colegio...). Cada mes se
+// genera automáticamente un Gasto real a partir de esta plantilla (idempotente
+// — nunca duplica el mismo mes), enlazado vía Gasto.gastoRecurrenteId.
+model GastoRecurrente {
+  id              String        @id @default(uuid())
+  grupoFamiliarId String
+  grupo           GrupoFamiliar @relation(fields: [grupoFamiliarId], references: [id])
+  descripcion     String
+  monto           Decimal       @db.Decimal(12, 2)
+  categoria       String
+  diaDelMes       Int
+  activo          Boolean       @default(true)
+  fechaCreacion   DateTime      @default(now())
+
+  gastos          Gasto[]
+
+  @@index([grupoFamiliarId])
+}
+
+model Ingreso {
+  id              String        @id @default(uuid())
+  grupoFamiliarId String
+  grupo           GrupoFamiliar @relation(fields: [grupoFamiliarId], references: [id])
+  usuarioId       String
+  usuario         Usuario       @relation(fields: [usuarioId], references: [id])
+  descripcion     String
+  monto           Decimal       @db.Decimal(12, 2)
+  fecha           DateTime      @default(now())
+
+  @@index([grupoFamiliarId])
 }
 
 // ══════════════ Unidad 4: Hogar ══════════════
@@ -213,4 +257,74 @@ model ProductoSegmentado {
   justificacion   String
 
   @@index([grupoFamiliarId])
+}
+
+// ══════════════ Unidad 6: Mesada y Tareas del Hogar ══════════════
+// Pensada para los hijos del grupo (aunque cualquier miembro puede usarla):
+// un registro personal de plata (mesada, gastos propios, ahorro) y tareas
+// del hogar que un administrador puede asignar y ligar a una recompensa.
+
+// Movimiento de la cuenta personal de un usuario dentro del grupo. El saldo
+// SIEMPRE se deriva de la suma de sus movimientos (mismo criterio que
+// BR-15 para el presupuesto) — nunca un contador aparte. monto positivo =
+// ingreso (mesada, recompensa), negativo = retiro/gasto propio.
+model MovimientoMesada {
+  id              String        @id @default(uuid())
+  grupoFamiliarId String
+  grupo           GrupoFamiliar @relation(fields: [grupoFamiliarId], references: [id])
+  usuarioId       String
+  usuario         Usuario       @relation(fields: [usuarioId], references: [id])
+  descripcion     String
+  monto           Decimal       @db.Decimal(12, 2)
+  fecha           DateTime      @default(now())
+
+  @@index([grupoFamiliarId, usuarioId])
+}
+
+// Meta de ahorro personal (ej. "bicicleta nueva"). El progreso se deriva
+// comparando el saldo actual del usuario (suma de MovimientoMesada) contra
+// montoObjetivo — no se reserva plata aparte.
+model MetaAhorro {
+  id              String        @id @default(uuid())
+  grupoFamiliarId String
+  grupo           GrupoFamiliar @relation(fields: [grupoFamiliarId], references: [id])
+  usuarioId       String
+  usuario         Usuario       @relation(fields: [usuarioId], references: [id])
+  nombre          String
+  montoObjetivo   Decimal       @db.Decimal(12, 2)
+  activa          Boolean       @default(true)
+  fechaCreacion   DateTime      @default(now())
+
+  @@index([grupoFamiliarId, usuarioId])
+}
+
+// Tarea del hogar, opcionalmente asignada a un miembro y con una recompensa
+// en dinero. Al marcarla completada con recompensa > 0, se acredita
+// automáticamente como un MovimientoMesada del asignado.
+model Tarea {
+  id                 String        @id @default(uuid())
+  grupoFamiliarId    String
+  grupo              GrupoFamiliar @relation(fields: [grupoFamiliarId], references: [id])
+  titulo             String
+  asignadoAUsuarioId String?
+  asignadoA          Usuario?      @relation("TareaAsignado", fields: [asignadoAUsuarioId], references: [id])
+  recompensa         Decimal       @default(0) @db.Decimal(12, 2)
+  completada         Boolean       @default(false)
+  fechaCreacion      DateTime      @default(now())
+
+  @@index([grupoFamiliarId])
+}
+
+// ══════════════ Notificaciones Push ══════════════
+
+model PushSubscription {
+  id            String   @id @default(uuid())
+  usuarioId     String
+  usuario       Usuario  @relation(fields: [usuarioId], references: [id])
+  endpoint      String   @unique
+  p256dh        String
+  auth          String
+  fechaCreacion DateTime @default(now())
+
+  @@index([usuarioId])
 }

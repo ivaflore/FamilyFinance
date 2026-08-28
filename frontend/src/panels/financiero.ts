@@ -3,6 +3,8 @@ import { grupoActivo } from '../state';
 
 interface Gasto { id: string; descripcion: string; monto: number; categoria: string; fecha: string; miembro: string }
 interface EstadoCategoria { categoria: string; montoAsignado: number; gastado: number; disponible: number }
+interface Ingreso { id: string; descripcion: string; monto: number; fecha: string; miembro: string }
+interface GastoRecurrente { id: string; descripcion: string; monto: number; categoria: string; diaDelMes: number; activo: boolean }
 
 const CATEGORIAS = [
   'Vivienda',
@@ -26,10 +28,17 @@ export async function renderDashboard() {
   const grupo = grupoActivo();
   content.innerHTML = `<div class="card"><div class="card-title">Cargando…</div></div>`;
 
-  const [estado, gastos] = await Promise.all([
+  // Antes de mostrar el resumen, se asegura de que los gastos fijos del mes
+  // (arriendo, luz, etc.) ya estén generados — es idempotente, así que no
+  // importa cuál miembro de la familia entre primero a la app cada mes.
+  await api.post(`/groups/${grupo!.id}/gastos-recurrentes/generar`, {});
+
+  const [estado, gastos, ingresos] = await Promise.all([
     api.get<EstadoCategoria[]>(`/groups/${grupo!.id}/presupuesto`),
     api.get<Gasto[]>(`/groups/${grupo!.id}/gastos`),
+    api.get<Ingreso[]>(`/groups/${grupo!.id}/ingresos`),
   ]);
+  const totalIngresos = ingresos.reduce((a, i) => a + i.monto, 0);
 
   // Gasto real total del grupo (BR-15: siempre derivado de los gastos reales,
   // no de la suma de "gastado" por categoría — así una categoría sin
@@ -75,6 +84,18 @@ export async function renderDashboard() {
         <div class="m-sub">${miembrosActivos ? `por ${miembrosActivos} miembro(s)` : 'este mes'}</div>
       </div>
     </div>
+    <div class="g2">
+      <div class="metric">
+        <div class="m-label">Ingresos del mes</div>
+        <div class="m-val m-good">${fmt(totalIngresos)}</div>
+        <div class="m-sub">${ingresos.length} registro(s) — ver "Ingresos"</div>
+      </div>
+      <div class="metric">
+        <div class="m-label">Balance neto</div>
+        <div class="m-val ${totalIngresos - totalGasto < 0 ? 'm-bad' : 'm-good'}">${fmt(totalIngresos - totalGasto)}</div>
+        <div class="m-sub">ingresos − gastos del mes</div>
+      </div>
+    </div>
     <div class="card">
       <div class="card-hd"><div class="card-title">Gastos por categoría</div></div>
       <div id="dash-bars"></div>
@@ -115,6 +136,26 @@ export async function renderGastos() {
   const grupo = grupoActivo();
   const esAdmin = grupo!.rol === 'Administrador';
   content.innerHTML = `
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Gastos fijos del mes</div>
+        <span class="card-sub">Arriendo, luz, colegio… se generan solos cada mes</span>
+      </div>
+      <div id="recurrentes-list"></div>
+      ${
+        esAdmin
+          ? `<div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 0.7fr auto;gap:8px;align-items:end;margin-top:10px">
+              <div><label class="form-label">Descripción</label><input type="text" id="gr-desc" placeholder="ej: Arriendo" /></div>
+              <div><label class="form-label">Monto ($)</label><input type="number" id="gr-monto" placeholder="0" /></div>
+              <div><label class="form-label">Categoría</label>
+                <select id="gr-cat">${CATEGORIAS.map((c) => `<option value="${c}">${c}</option>`).join('')}</select>
+              </div>
+              <div><label class="form-label">Día del mes</label><input type="number" id="gr-dia" placeholder="5" min="1" max="28" /></div>
+              <button class="btn btn-primary" id="gr-add"><i class="ti ti-plus"></i> Agregar</button>
+            </div>`
+          : ''
+      }
+    </div>
     <div class="card">
       <div class="card-hd">
         <div class="card-title">Registrar nuevo gasto</div>
@@ -278,7 +319,61 @@ export async function renderGastos() {
     await cargar();
   });
 
-  await cargar();
+  async function cargarRecurrentes() {
+    const recurrentes = await api.get<GastoRecurrente[]>(`/groups/${grupo!.id}/gastos-recurrentes`);
+    document.getElementById('recurrentes-list')!.innerHTML = recurrentes.length
+      ? recurrentes
+          .map(
+            (r) => `<div class="shop-item">
+              <span class="tag" style="background:var(--blue-l);color:var(--blue-d)">día ${r.diaDelMes}</span>
+              <div class="shop-name ${r.activo ? '' : 'done'}">${escapeHtml(r.descripcion)} <span style="color:var(--text-3)">· ${escapeHtml(r.categoria)}</span></div>
+              <div style="font-weight:600">${fmt(r.monto)}</div>
+              ${
+                esAdmin
+                  ? `<button class="btn btn-sm gr-toggle" data-id="${r.id}" data-activo="${r.activo}" style="margin-left:8px">${r.activo ? 'Pausar' : 'Reactivar'}</button>
+                     <button class="btn btn-sm btn-danger gr-eliminar" data-id="${r.id}">Eliminar</button>`
+                  : ''
+              }
+            </div>`,
+          )
+          .join('')
+      : `<div style="font-size:12px;color:var(--text-3)">Sin gastos fijos definidos.</div>`;
+
+    document.querySelectorAll<HTMLElement>('.gr-toggle').forEach((el) =>
+      el.addEventListener('click', async () => {
+        await api.patch(`/groups/${grupo!.id}/gastos-recurrentes/${el.dataset.id}`, { activo: el.dataset.activo !== 'true' });
+        await cargarRecurrentes();
+      }),
+    );
+    document.querySelectorAll<HTMLElement>('.gr-eliminar').forEach((el) =>
+      el.addEventListener('click', async () => {
+        if (!confirm('¿Eliminar este gasto fijo? (los gastos ya generados no se borran)')) return;
+        await api.del(`/groups/${grupo!.id}/gastos-recurrentes/${el.dataset.id}`);
+        await cargarRecurrentes();
+      }),
+    );
+  }
+
+  if (esAdmin) {
+    document.getElementById('gr-add')!.addEventListener('click', async () => {
+      const descripcion = (document.getElementById('gr-desc') as HTMLInputElement).value.trim();
+      const monto = Number((document.getElementById('gr-monto') as HTMLInputElement).value);
+      const categoria = (document.getElementById('gr-cat') as HTMLSelectElement).value;
+      const diaDelMes = Number((document.getElementById('gr-dia') as HTMLInputElement).value);
+      if (!descripcion || !(monto > 0) || !(diaDelMes >= 1 && diaDelMes <= 28)) return;
+      try {
+        await api.post(`/groups/${grupo!.id}/gastos-recurrentes`, { descripcion, monto, categoria, diaDelMes });
+        (document.getElementById('gr-desc') as HTMLInputElement).value = '';
+        (document.getElementById('gr-monto') as HTMLInputElement).value = '';
+        (document.getElementById('gr-dia') as HTMLInputElement).value = '';
+        await cargarRecurrentes();
+      } catch (err) {
+        alert((err as Error).message);
+      }
+    });
+  }
+
+  await Promise.all([cargar(), cargarRecurrentes()]);
 }
 
 export async function renderPresupuesto() {
@@ -327,6 +422,110 @@ export async function renderPresupuesto() {
     } catch (err) {
       alert((err as Error).message);
     }
+  });
+
+  await cargar();
+}
+
+export async function renderIngresos() {
+  const content = document.getElementById('content')!;
+  const grupo = grupoActivo();
+  const esAdmin = grupo!.rol === 'Administrador';
+  content.innerHTML = `
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Registrar nuevo ingreso</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+        <div><label class="form-label">Descripción</label><input type="text" id="i-desc" placeholder="ej: Sueldo, bono, mesada" /></div>
+        <div><label class="form-label">Monto ($)</label><input type="number" id="i-monto" placeholder="0" /></div>
+        <button class="btn btn-primary" id="i-add"><i class="ti ti-plus"></i> Agregar</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Historial de ingresos</div></div>
+      <table class="tbl">
+        <thead><tr><th>Descripción</th><th>Miembro</th><th style="text-align:right">Monto</th>${esAdmin ? '<th></th>' : ''}</tr></thead>
+        <tbody id="ingresos-tbody"></tbody>
+      </table>
+    </div>
+    <div id="ingreso-modal"></div>`;
+
+  function abrirEdicion(i: Ingreso) {
+    document.getElementById('ingreso-modal')!.innerHTML = `
+      <div class="modal-overlay" id="im-overlay">
+        <div class="modal">
+          <div class="modal-title">Editar ingreso</div>
+          <div class="form-row"><label class="form-label">Descripción</label><input type="text" id="im-desc" value="${escapeHtml(i.descripcion)}" /></div>
+          <div class="form-row"><label class="form-label">Monto ($)</label><input type="number" id="im-monto" value="${i.monto}" /></div>
+          <div class="modal-actions">
+            <button class="btn btn-primary" id="im-save" style="flex:1">Guardar</button>
+            <button class="btn" id="im-cancel">Cancelar</button>
+          </div>
+        </div>
+      </div>`;
+    const close = () => (document.getElementById('ingreso-modal')!.innerHTML = '');
+    document.getElementById('im-overlay')!.addEventListener('click', (e) => e.target === e.currentTarget && close());
+    document.getElementById('im-cancel')!.addEventListener('click', close);
+    document.getElementById('im-save')!.addEventListener('click', async () => {
+      const descripcion = (document.getElementById('im-desc') as HTMLInputElement).value.trim();
+      const monto = Number((document.getElementById('im-monto') as HTMLInputElement).value);
+      if (!descripcion || !(monto > 0)) return;
+      try {
+        await api.put(`/groups/${grupo!.id}/ingresos/${i.id}`, { descripcion, monto });
+        close();
+        await cargar();
+      } catch (err) {
+        alert((err as Error).message);
+      }
+    });
+  }
+
+  async function cargar() {
+    const ingresos = await api.get<Ingreso[]>(`/groups/${grupo!.id}/ingresos`);
+    document.getElementById('ingresos-tbody')!.innerHTML = ingresos.length
+      ? ingresos
+          .map(
+            (i) => `<tr>
+              <td>${escapeHtml(i.descripcion)}</td>
+              <td>${escapeHtml(i.miembro)}</td>
+              <td style="text-align:right;color:var(--green);font-weight:600">${fmt(i.monto)}</td>
+              ${
+                esAdmin
+                  ? `<td style="text-align:right;white-space:nowrap">
+                      <button class="btn btn-sm btn-edit i-editar" data-id="${i.id}"><i class="ti ti-pencil"></i> Modificar</button>
+                      <button class="btn btn-sm btn-danger i-eliminar" data-id="${i.id}"><i class="ti ti-trash"></i> Eliminar</button>
+                    </td>`
+                  : ''
+              }
+            </tr>`,
+          )
+          .join('')
+      : `<tr><td style="color:var(--text-3);font-size:12px">Todavía no hay ingresos registrados.</td></tr>`;
+
+    if (esAdmin) {
+      document.querySelectorAll<HTMLElement>('.i-editar').forEach((el) =>
+        el.addEventListener('click', () => {
+          const i = ingresos.find((x) => x.id === el.dataset.id);
+          if (i) abrirEdicion(i);
+        }),
+      );
+      document.querySelectorAll<HTMLElement>('.i-eliminar').forEach((el) =>
+        el.addEventListener('click', async () => {
+          if (!confirm('¿Eliminar este ingreso?')) return;
+          await api.del(`/groups/${grupo!.id}/ingresos/${el.dataset.id}`);
+          await cargar();
+        }),
+      );
+    }
+  }
+
+  document.getElementById('i-add')!.addEventListener('click', async () => {
+    const descripcion = (document.getElementById('i-desc') as HTMLInputElement).value.trim();
+    const monto = Number((document.getElementById('i-monto') as HTMLInputElement).value);
+    if (!descripcion || !(monto > 0)) return;
+    await api.post(`/groups/${grupo!.id}/ingresos`, { descripcion, monto });
+    (document.getElementById('i-desc') as HTMLInputElement).value = '';
+    (document.getElementById('i-monto') as HTMLInputElement).value = '';
+    await cargar();
   });
 
   await cargar();

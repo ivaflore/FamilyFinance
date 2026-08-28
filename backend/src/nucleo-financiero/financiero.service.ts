@@ -99,4 +99,74 @@ export const financieroService = {
       transacciones: a._count,
     }));
   },
+
+  // BR: solo el administrador define los gastos fijos del grupo (aplicado
+  // vía requireAdmin en la ruta) — son compromisos compartidos, no un
+  // gasto puntual de un miembro.
+  agregarGastoRecurrente(
+    grupoFamiliarId: string,
+    data: { descripcion: string; monto: number; categoria: string; diaDelMes: number },
+  ) {
+    if (!data.descripcion?.trim()) throw new AppError(400, 'La descripción es obligatoria.');
+    if (!(data.monto > 0)) throw new AppError(400, 'El monto debe ser mayor a cero.');
+    if (!Number.isInteger(data.diaDelMes) || data.diaDelMes < 1 || data.diaDelMes > 28) {
+      throw new AppError(400, 'El día del mes debe estar entre 1 y 28.');
+    }
+    return financieroRepository.crearGastoRecurrente({ ...data, grupoFamiliarId, descripcion: data.descripcion.trim() });
+  },
+  listarGastosRecurrentes(grupoFamiliarId: string) {
+    return financieroRepository.listarGastosRecurrentes(grupoFamiliarId);
+  },
+  activarGastoRecurrente(grupoFamiliarId: string, id: string, activo: boolean) {
+    return financieroRepository.actualizarActivoGastoRecurrente(id, grupoFamiliarId, activo);
+  },
+  eliminarGastoRecurrente(grupoFamiliarId: string, id: string) {
+    return financieroRepository.eliminarGastoRecurrente(id, grupoFamiliarId);
+  },
+
+  // Genera el Gasto real del mes para cada plantilla activa que todavía no
+  // lo tenga (idempotente: nunca duplica el mismo mes — se verifica por
+  // Gasto.gastoRecurrenteId dentro del rango del mes actual). Se llama sola
+  // al cargar el resumen financiero, así el gasto fijo aparece para todo el
+  // grupo sin que nadie tenga que acordarse de generarlo a mano.
+  async generarGastosRecurrentesDelMes(grupoFamiliarId: string, usuarioId: string) {
+    const activos = await financieroRepository.listarGastosRecurrentesActivos(grupoFamiliarId);
+    const ahora = new Date();
+    const desde = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), 1));
+    const hasta = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth() + 1, 1));
+
+    const generados: string[] = [];
+    for (const r of activos) {
+      const yaExiste = await financieroRepository.existeGastoGeneradoEnRango(r.id, desde, hasta);
+      if (yaExiste) continue;
+      await financieroRepository.crearGasto({
+        grupoFamiliarId,
+        usuarioId,
+        descripcion: r.descripcion,
+        monto: Number(r.monto),
+        categoria: r.categoria,
+        gastoRecurrenteId: r.id,
+      });
+      generados.push(r.descripcion);
+    }
+    return { generados };
+  },
+
+  registrarIngreso(grupoFamiliarId: string, usuarioId: string, data: { descripcion: string; monto: number }) {
+    if (!(data.monto > 0)) throw new AppError(400, 'El monto debe ser mayor a cero.');
+    if (!data.descripcion?.trim()) throw new AppError(400, 'La descripción es obligatoria.');
+    return financieroRepository.crearIngreso({ grupoFamiliarId, usuarioId, ...data, descripcion: data.descripcion.trim() });
+  },
+  listarIngresos(grupoFamiliarId: string) {
+    return financieroRepository.listarIngresos(grupoFamiliarId);
+  },
+  // BR-09: mismo criterio que los gastos — solo el administrador corrige o elimina.
+  actualizarIngreso(grupoFamiliarId: string, id: string, data: { descripcion: string; monto: number }) {
+    if (!(data.monto > 0)) throw new AppError(400, 'El monto debe ser mayor a cero.');
+    if (!data.descripcion?.trim()) throw new AppError(400, 'La descripción es obligatoria.');
+    return financieroRepository.actualizarIngreso(id, grupoFamiliarId, { ...data, descripcion: data.descripcion.trim() });
+  },
+  eliminarIngreso(grupoFamiliarId: string, id: string) {
+    return financieroRepository.eliminarIngreso(id, grupoFamiliarId);
+  },
 };

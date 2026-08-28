@@ -1,3 +1,4 @@
+import { registrarPolling } from '../app';
 import { api, escapeHtml, fmt } from '../api';
 import { grupoActivo } from '../state';
 
@@ -188,6 +189,7 @@ export async function renderAlacena() {
   });
 
   await cargar();
+  registrarPolling(cargar);
 }
 
 export async function renderCompras() {
@@ -319,6 +321,7 @@ export async function renderCompras() {
   });
 
   await cargar();
+  registrarPolling(cargar);
 }
 
 export async function renderRecetario() {
@@ -567,4 +570,5 @@ export async function renderCalendario() {
   });
 
   await cargar();
+  registrarPolling(cargar);
 }

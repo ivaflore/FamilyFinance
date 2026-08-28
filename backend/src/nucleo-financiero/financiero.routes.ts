@@ -111,3 +111,124 @@ financieroRouter.get('/groups/:grupoId/miembros/aportes', requireAuth, requireGr
     next(err);
   }
 });
+
+// Gastos recurrentes (pagos fijos del grupo)
+const gastoRecurrenteSchema = z.object({
+  descripcion: z.string().min(1).max(200),
+  monto: z.number().positive(),
+  categoria: z.string().min(1),
+  diaDelMes: z.number().int().min(1).max(28),
+});
+
+financieroRouter.get('/groups/:grupoId/gastos-recurrentes', requireAuth, requireGrupo, async (req, res, next) => {
+  try {
+    const recurrentes = await financieroService.listarGastosRecurrentes(req.grupoFamiliarId!);
+    res.json(recurrentes.map((r) => ({ ...r, monto: Number(r.monto) })));
+  } catch (err) {
+    next(err);
+  }
+});
+
+financieroRouter.post('/groups/:grupoId/gastos-recurrentes', requireAuth, requireGrupo, requireAdmin, async (req, res, next) => {
+  try {
+    const data = gastoRecurrenteSchema.parse(req.body);
+    res.status(201).json(await financieroService.agregarGastoRecurrente(req.grupoFamiliarId!, data));
+  } catch (err) {
+    next(err);
+  }
+});
+
+financieroRouter.patch(
+  '/groups/:grupoId/gastos-recurrentes/:id',
+  requireAuth,
+  requireGrupo,
+  requireAdmin,
+  async (req, res, next) => {
+    try {
+      const { activo } = z.object({ activo: z.boolean() }).parse(req.body);
+      await financieroService.activarGastoRecurrente(req.grupoFamiliarId!, req.params.id, activo);
+      res.status(204).end();
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+financieroRouter.delete(
+  '/groups/:grupoId/gastos-recurrentes/:id',
+  requireAuth,
+  requireGrupo,
+  requireAdmin,
+  async (req, res, next) => {
+    try {
+      await financieroService.eliminarGastoRecurrente(req.grupoFamiliarId!, req.params.id);
+      res.status(204).end();
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+financieroRouter.post(
+  '/groups/:grupoId/gastos-recurrentes/generar',
+  requireAuth,
+  requireGrupo,
+  async (req, res, next) => {
+    try {
+      res.json(await financieroService.generarGastosRecurrentesDelMes(req.grupoFamiliarId!, req.usuarioId!));
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// Ingresos
+const ingresoSchema = z.object({
+  descripcion: z.string().min(1).max(200),
+  monto: z.number().positive(),
+});
+
+financieroRouter.get('/groups/:grupoId/ingresos', requireAuth, requireGrupo, async (req, res, next) => {
+  try {
+    const ingresos = await financieroService.listarIngresos(req.grupoFamiliarId!);
+    res.json(
+      ingresos.map((i) => ({
+        id: i.id,
+        descripcion: i.descripcion,
+        monto: Number(i.monto),
+        fecha: i.fecha,
+        miembro: i.usuario.nombre,
+      })),
+    );
+  } catch (err) {
+    next(err);
+  }
+});
+
+financieroRouter.post('/groups/:grupoId/ingresos', requireAuth, requireGrupo, async (req, res, next) => {
+  try {
+    const data = ingresoSchema.parse(req.body);
+    res.status(201).json(await financieroService.registrarIngreso(req.grupoFamiliarId!, req.usuarioId!, data));
+  } catch (err) {
+    next(err);
+  }
+});
+
+financieroRouter.put('/groups/:grupoId/ingresos/:id', requireAuth, requireGrupo, requireAdmin, async (req, res, next) => {
+  try {
+    const data = ingresoSchema.parse(req.body);
+    await financieroService.actualizarIngreso(req.grupoFamiliarId!, req.params.id, data);
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
+
+financieroRouter.delete('/groups/:grupoId/ingresos/:id', requireAuth, requireGrupo, requireAdmin, async (req, res, next) => {
+  try {
+    await financieroService.eliminarIngreso(req.grupoFamiliarId!, req.params.id);
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
