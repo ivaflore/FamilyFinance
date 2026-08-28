@@ -4,6 +4,7 @@ import { renderAsistente, renderSegmentacion } from './panels/insights';
 import { renderFamilia } from './panels/familia';
 import { renderAlacena, renderCalendario, renderCompras, renderRecetario } from './panels/hogar';
 import { renderDashboard, renderGastos, renderIngresos, renderPresupuesto } from './panels/financiero';
+import { renderMesada, renderTareas } from './panels/mesada';
 
 const PAGES: Record<string, { title: string; sub: string; render: () => void }> = {
   dashboard: { title: 'Resumen financiero', sub: 'de tu grupo familiar', render: renderDashboard },
@@ -14,6 +15,8 @@ const PAGES: Record<string, { title: string; sub: string; render: () => void }> 
   compras: { title: 'Lista de compras', sub: 'Compartida con tu grupo', render: renderCompras },
   recetario: { title: 'Recetario familiar', sub: 'Recetas de tu grupo', render: renderRecetario },
   calendario: { title: 'Menú del mes', sub: 'Calendario de comidas', render: renderCalendario },
+  mesada: { title: 'Mi mesada', sub: 'Tu plata, tus metas de ahorro', render: renderMesada },
+  tareas: { title: 'Tareas del hogar', sub: 'Con recompensa cuando corresponde', render: renderTareas },
   segmentacion: { title: 'Segmentación de productos', sub: '1ª categoría, 2ª categoría y prescindibles', render: renderSegmentacion },
   asistente: { title: 'Asistente', sub: 'Consulta sobre tus datos reales', render: renderAsistente },
   familia: { title: 'Mi familia', sub: 'Miembros del grupo', render: renderFamilia },
@@ -33,6 +36,10 @@ const NAV_SECTIONS: { label: string; items: { id: string; icon: string; label: s
   { label: 'planificación', items: [
     { id: 'recetario', icon: 'ti-chef-hat', label: 'Recetario' },
     { id: 'calendario', icon: 'ti-calendar-month', label: 'Menú del mes' },
+  ] },
+  { label: 'hijos', items: [
+    { id: 'mesada', icon: 'ti-piggy-bank', label: 'Mi mesada' },
+    { id: 'tareas', icon: 'ti-checklist', label: 'Tareas del hogar' },
   ] },
   { label: 'familia', items: [
     { id: 'segmentacion', icon: 'ti-layers-intersect', label: 'Segmentación' },
