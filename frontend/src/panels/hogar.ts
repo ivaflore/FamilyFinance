@@ -306,7 +306,7 @@ export async function renderCalendario() {
         <button class="btn btn-sm btn-primary" id="cal-generar"><i class="ti ti-shopping-cart"></i> Agregar ingredientes a la alacena</button>
       </div>
       <table class="tbl">
-        <thead><tr><th>Fecha</th><th>Comida</th><th>Receta</th></tr></thead>
+        <thead><tr><th>Fecha</th><th>Comida</th><th>Receta</th><th></th></tr></thead>
         <tbody id="cal-tbody"></tbody>
       </table>
       <div class="card" style="margin-top:10px">
@@ -318,21 +318,82 @@ export async function renderCalendario() {
           <button class="btn btn-primary" id="cal-add">Agregar</button>
         </div>
       </div>
-    </div>`;
+    </div>
+    <div id="cal-modal"></div>`;
+
+  let recetasDisponibles: Receta[] = [];
+
+  function abrirEdicion(p: Planificacion) {
+    document.getElementById('cal-modal')!.innerHTML = `
+      <div class="modal-overlay" id="cm-overlay">
+        <div class="modal">
+          <div class="modal-title">Editar comida planificada</div>
+          <div class="form-row"><label class="form-label">Fecha</label><input type="date" id="cm-fecha" value="${p.fecha.slice(0, 10)}" /></div>
+          <div class="form-row"><label class="form-label">Tipo</label>
+            <select id="cm-tipo">
+              ${['almuerzo', 'cena', 'desayuno'].map((t) => `<option value="${t}" ${t === p.tipoComida ? 'selected' : ''}>${t[0].toUpperCase()}${t.slice(1)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-row"><label class="form-label">Receta</label>
+            <select id="cm-receta">${recetasDisponibles.map((r) => `<option value="${r.id}" ${r.id === p.receta.id ? 'selected' : ''}>${escapeHtml(r.nombre)}</option>`).join('')}</select>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-primary" id="cm-save" style="flex:1">Guardar</button>
+            <button class="btn" id="cm-cancel">Cancelar</button>
+          </div>
+        </div>
+      </div>`;
+    const close = () => (document.getElementById('cal-modal')!.innerHTML = '');
+    document.getElementById('cm-overlay')!.addEventListener('click', (e) => e.target === e.currentTarget && close());
+    document.getElementById('cm-cancel')!.addEventListener('click', close);
+    document.getElementById('cm-save')!.addEventListener('click', async () => {
+      const fecha = (document.getElementById('cm-fecha') as HTMLInputElement).value;
+      const tipoComida = (document.getElementById('cm-tipo') as HTMLSelectElement).value;
+      const recetaId = (document.getElementById('cm-receta') as HTMLSelectElement).value;
+      if (!fecha || !recetaId) return;
+      await api.put(`/groups/${grupo!.id}/calendario/${p.id}`, { fecha, tipoComida, recetaId });
+      close();
+      await cargar();
+    });
+  }
 
   async function cargar() {
     const [planificaciones, recetas] = await Promise.all([
       api.get<Planificacion[]>(`/groups/${grupo!.id}/calendario?anio=${hoy.getFullYear()}&mes=${hoy.getMonth()}`),
       api.get<Receta[]>(`/groups/${grupo!.id}/recetas`),
     ]);
+    recetasDisponibles = recetas;
+
     document.getElementById('cal-tbody')!.innerHTML = planificaciones.length
       ? planificaciones
           .map(
             (p) =>
-              `<tr><td>${new Date(p.fecha).toLocaleDateString('es-CL')}</td><td><span class="tag">${p.tipoComida}</span></td><td>${escapeHtml(p.receta.nombre)}</td></tr>`,
+              `<tr>
+                <td>${new Date(p.fecha).toLocaleDateString('es-CL')}</td>
+                <td><span class="tag">${p.tipoComida}</span></td>
+                <td>${escapeHtml(p.receta.nombre)}</td>
+                <td style="text-align:right;white-space:nowrap">
+                  <button class="btn btn-sm cal-editar" data-id="${p.id}" title="Modificar"><i class="ti ti-pencil"></i></button>
+                  <button class="btn btn-sm cal-eliminar" data-id="${p.id}" title="Eliminar"><i class="ti ti-trash"></i></button>
+                </td>
+              </tr>`,
           )
           .join('')
-      : `<tr><td colspan="3" style="color:var(--text-3);font-size:12px">Sin comidas planificadas este mes.</td></tr>`;
+      : `<tr><td colspan="4" style="color:var(--text-3);font-size:12px">Sin comidas planificadas este mes.</td></tr>`;
+
+    document.querySelectorAll<HTMLElement>('.cal-editar').forEach((el) =>
+      el.addEventListener('click', () => {
+        const p = planificaciones.find((x) => x.id === el.dataset.id);
+        if (p) abrirEdicion(p);
+      }),
+    );
+    document.querySelectorAll<HTMLElement>('.cal-eliminar').forEach((el) =>
+      el.addEventListener('click', async () => {
+        if (!confirm('¿Eliminar esta comida planificada?')) return;
+        await api.del(`/groups/${grupo!.id}/calendario/${el.dataset.id}`);
+        await cargar();
+      }),
+    );
 
     const select = document.getElementById('cal-receta') as HTMLSelectElement;
     select.innerHTML = recetas.map((r) => `<option value="${r.id}">${escapeHtml(r.nombre)}</option>`).join('');

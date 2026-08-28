@@ -57,6 +57,12 @@ export const hogarRepository = {
   crearPlanificacion(data: { grupoFamiliarId: string; fecha: Date; tipoComida: string; recetaId: string }) {
     return prisma.planificacionDia.create({ data });
   },
+  actualizarPlanificacion(id: string, grupoFamiliarId: string, data: { fecha: Date; tipoComida: string; recetaId: string }) {
+    return prisma.planificacionDia.updateMany({ where: { id, grupoFamiliarId }, data });
+  },
+  eliminarPlanificacion(id: string, grupoFamiliarId: string) {
+    return prisma.planificacionDia.deleteMany({ where: { id, grupoFamiliarId } });
+  },
   listarPlanificacionesRango(grupoFamiliarId: string, desde: Date, hasta: Date) {
     return prisma.planificacionDia.findMany({
       where: { grupoFamiliarId, fecha: { gte: desde, lt: hasta } },

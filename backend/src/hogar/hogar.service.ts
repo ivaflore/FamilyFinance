@@ -150,6 +150,16 @@ export const hogarService = {
       recetaId: data.recetaId,
     });
   },
+  actualizarPlanificacion(grupoFamiliarId: string, id: string, data: { fecha: string; tipoComida: string; recetaId: string }) {
+    return hogarRepository.actualizarPlanificacion(id, grupoFamiliarId, {
+      fecha: new Date(data.fecha),
+      tipoComida: data.tipoComida,
+      recetaId: data.recetaId,
+    });
+  },
+  eliminarPlanificacion(grupoFamiliarId: string, id: string) {
+    return hogarRepository.eliminarPlanificacion(id, grupoFamiliarId);
+  },
 
   obtenerCalendarioMes(grupoFamiliarId: string, anio: number, mes: number) {
     const desde = new Date(Date.UTC(anio, mes, 1));

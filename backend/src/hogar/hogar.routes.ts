@@ -146,3 +146,20 @@ hogarRouter.post('/groups/:grupoId/calendario', requireAuth, requireGrupo, async
     next(err);
   }
 });
+hogarRouter.put('/groups/:grupoId/calendario/:planificacionId', requireAuth, requireGrupo, async (req, res, next) => {
+  try {
+    const data = z.object({ fecha: z.string(), tipoComida: z.string(), recetaId: z.string() }).parse(req.body);
+    await hogarService.actualizarPlanificacion(req.grupoFamiliarId!, req.params.planificacionId, data);
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
+hogarRouter.delete('/groups/:grupoId/calendario/:planificacionId', requireAuth, requireGrupo, async (req, res, next) => {
+  try {
+    await hogarService.eliminarPlanificacion(req.grupoFamiliarId!, req.params.planificacionId);
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
