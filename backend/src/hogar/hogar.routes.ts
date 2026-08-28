@@ -155,6 +155,7 @@ hogarRouter.post('/groups/:grupoId/recetas', requireAuth, requireGrupo, async (r
         porciones: z.number().positive(),
         ingredientes: z.array(z.object({ n: z.string(), cat: z.string() })),
         pasos: z.array(z.string()),
+        linkVideo: z.string().url().optional(),
       })
       .parse(req.body);
     res.status(201).json(await hogarService.agregarReceta(req.grupoFamiliarId!, data));

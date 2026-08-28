@@ -28,9 +28,45 @@ interface ProductoSugerido extends ProductoAlacena {
 }
 interface ItemCompra { id: string; nombre: string; precioEstimado: number; comprado: boolean }
 interface ListaCompras { sugeridos: ProductoSugerido[]; manuales: ItemCompra[] }
-interface Receta { id: string; nombre: string; tipos: string[]; tiempoMin: number; porciones: number; ingredientes: { n: string }[]; pasos: string[] }
-interface RecetaPlantilla { id: string; nombre: string; tiempoMin: number; porciones: number; ingredientes: { n: string }[] }
+interface Receta {
+  id: string;
+  nombre: string;
+  tipos: string[];
+  tiempoMin: number;
+  porciones: number;
+  ingredientes: { n: string }[];
+  pasos: string[];
+  linkVideo?: string;
+}
+interface RecetaPlantilla {
+  id: string;
+  nombre: string;
+  tipos: string[];
+  tiempoMin: number;
+  porciones: number;
+  ingredientes: { n: string }[];
+  linkVideo?: string;
+}
 interface Planificacion { id: string; fecha: string; tipoComida: string; receta: Receta; disponible: boolean; faltantes: string[] }
+
+const TIPOS_RECETA: Record<string, string> = {
+  desayuno: 'Desayuno',
+  almuerzo: 'Almuerzo',
+  cena: 'Cena',
+  postre: 'Postre',
+};
+function etiquetaTipo(tipo: string) {
+  return TIPOS_RECETA[tipo] ?? tipo[0].toUpperCase() + tipo.slice(1);
+}
+// Agrupa recetas por su primer tipo (una receta puede tener varios, ej.
+// ["almuerzo","cena"]) respetando el orden desayuno→almuerzo→cena→postre
+// y agregando al final cualquier tipo no contemplado.
+function agruparPorTipo<T extends { tipos: string[] }>(items: T[]): [string, T[]][] {
+  const ordenBase = Object.keys(TIPOS_RECETA);
+  const tiposPresentes = new Set(items.map((i) => i.tipos[0] ?? 'otros'));
+  const orden = [...ordenBase.filter((t) => tiposPresentes.has(t)), ...[...tiposPresentes].filter((t) => !ordenBase.includes(t))];
+  return orden.map((tipo) => [tipo, items.filter((i) => (i.tipos[0] ?? 'otros') === tipo)]);
+}
 
 export async function renderAlacena() {
   const content = document.getElementById('content')!;
@@ -344,14 +380,29 @@ export async function renderRecetario() {
     </div>
     <div id="recipe-modal"></div>`;
 
+  function botonVideo(linkVideo?: string) {
+    if (!linkVideo) return '';
+    return `<a href="${escapeHtml(linkVideo)}" target="_blank" rel="noopener" class="btn btn-sm rc-video" onclick="event.stopPropagation()">▶️ Ver video</a>`;
+  }
+
   async function cargarPlantillas() {
     const plantillas = await api.get<RecetaPlantilla[]>('/recetas-plantilla');
-    document.getElementById('recipe-plantillas')!.innerHTML = plantillas
+    document.getElementById('recipe-plantillas')!.innerHTML = agruparPorTipo(plantillas)
       .map(
-        (p) => `<div class="recipe-card p-plantilla" data-id="${p.id}">
-          <div class="rc-name">${escapeHtml(p.nombre)}</div>
-          <div class="rc-meta"><span>${p.tiempoMin} min</span><span>${p.porciones} pers.</span></div>
-          <div style="font-size:10px;color:var(--text-3)">${escapeHtml((p.ingredientes ?? []).map((i) => i.n).join(', '))}</div>
+        ([tipo, items]) => `<div class="pantry-cat">
+          <div class="pantry-cat-title">${etiquetaTipo(tipo)} <span class="pantry-cat-count">${items.length}</span></div>
+          <div class="recipe-grid">
+            ${items
+              .map(
+                (p) => `<div class="recipe-card p-plantilla" data-id="${p.id}">
+                  <div class="rc-name">${escapeHtml(p.nombre)}</div>
+                  <div class="rc-meta"><span>${p.tiempoMin} min</span><span>${p.porciones} pers.</span></div>
+                  <div style="font-size:10px;color:var(--text-3)">${escapeHtml((p.ingredientes ?? []).map((i) => i.n).join(', '))}</div>
+                  ${botonVideo(p.linkVideo)}
+                </div>`,
+              )
+              .join('')}
+          </div>
         </div>`,
       )
       .join('');
@@ -367,12 +418,22 @@ export async function renderRecetario() {
   async function cargar() {
     const recetas = await api.get<Receta[]>(`/groups/${grupo!.id}/recetas`);
     document.getElementById('recipe-grid')!.innerHTML = recetas.length
-      ? recetas
+      ? agruparPorTipo(recetas)
           .map(
-            (r) => `<div class="recipe-card">
-              <div class="rc-name">${escapeHtml(r.nombre)}</div>
-              <div class="rc-meta"><span>${r.tiempoMin} min</span><span>${r.porciones} pers.</span></div>
-              <div style="font-size:10px;color:var(--text-3)">${escapeHtml((r.ingredientes ?? []).map((i) => i.n).join(', '))}</div>
+            ([tipo, items]) => `<div class="pantry-cat">
+              <div class="pantry-cat-title">${etiquetaTipo(tipo)} <span class="pantry-cat-count">${items.length}</span></div>
+              <div class="recipe-grid">
+                ${items
+                  .map(
+                    (r) => `<div class="recipe-card">
+                      <div class="rc-name">${escapeHtml(r.nombre)}</div>
+                      <div class="rc-meta"><span>${r.tiempoMin} min</span><span>${r.porciones} pers.</span></div>
+                      <div style="font-size:10px;color:var(--text-3)">${escapeHtml((r.ingredientes ?? []).map((i) => i.n).join(', '))}</div>
+                      ${botonVideo(r.linkVideo)}
+                    </div>`,
+                  )
+                  .join('')}
+              </div>
             </div>`,
           )
           .join('')
@@ -385,10 +446,14 @@ export async function renderRecetario() {
         <div class="modal">
           <div class="modal-title">Nueva receta</div>
           <div class="form-row"><label class="form-label">Nombre</label><input type="text" id="nr-nombre" /></div>
+          <div class="form-row"><label class="form-label">Tipo</label>
+            <select id="nr-tipo">${Object.entries(TIPOS_RECETA).map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select>
+          </div>
           <div class="form-row"><label class="form-label">Tiempo (min)</label><input type="number" id="nr-tiempo" value="30" /></div>
           <div class="form-row"><label class="form-label">Porciones</label><input type="number" id="nr-porciones" value="4" /></div>
           <div class="form-row"><label class="form-label">Ingredientes (separados por coma)</label><input type="text" id="nr-ingr" placeholder="arroz, tomate, aceite" /></div>
           <div class="form-row"><label class="form-label">Pasos (separados por punto)</label><textarea id="nr-pasos"></textarea></div>
+          <div class="form-row"><label class="form-label">Link a video (opcional)</label><input type="url" id="nr-video" placeholder="https://www.youtube.com/..." /></div>
           <div class="modal-actions">
             <button class="btn btn-primary" id="nr-save" style="flex:1">Guardar</button>
             <button class="btn" id="nr-cancel">Cancelar</button>
@@ -410,13 +475,15 @@ export async function renderRecetario() {
         .split('.')
         .map((s) => s.trim())
         .filter(Boolean);
+      const linkVideo = (document.getElementById('nr-video') as HTMLInputElement).value.trim();
       await api.post(`/groups/${grupo!.id}/recetas`, {
         nombre,
-        tipos: ['almuerzo'],
+        tipos: [(document.getElementById('nr-tipo') as HTMLSelectElement).value],
         tiempoMin: Number((document.getElementById('nr-tiempo') as HTMLInputElement).value) || 30,
         porciones: Number((document.getElementById('nr-porciones') as HTMLInputElement).value) || 4,
         ingredientes,
         pasos: pasos.length ? pasos : ['Preparar y cocinar'],
+        ...(linkVideo ? { linkVideo } : {}),
       });
       close();
       await cargar();

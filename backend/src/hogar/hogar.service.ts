@@ -159,12 +159,21 @@ export const hogarService = {
       porciones: plantilla.porciones,
       ingredientes: plantilla.ingredientes as Prisma.InputJsonValue,
       pasos: plantilla.pasos,
+      linkVideo: plantilla.linkVideo ?? undefined,
     });
   },
 
   agregarReceta(
     grupoFamiliarId: string,
-    data: { nombre: string; tipos: string[]; tiempoMin: number; porciones: number; ingredientes: Ingrediente[]; pasos: string[] },
+    data: {
+      nombre: string;
+      tipos: string[];
+      tiempoMin: number;
+      porciones: number;
+      ingredientes: Ingrediente[];
+      pasos: string[];
+      linkVideo?: string;
+    },
   ) {
     if (!data.nombre?.trim()) throw new AppError(400, 'La receta necesita un nombre.');
     return hogarRepository.crearReceta({

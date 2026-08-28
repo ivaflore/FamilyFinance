@@ -211,6 +211,7 @@ model RecetaPlantilla {
   porciones    Int
   ingredientes Json
   pasos        String[]
+  linkVideo    String?
 }
 
 model Receta {
@@ -223,6 +224,7 @@ model Receta {
   porciones       Int
   ingredientes    Json
   pasos           String[]
+  linkVideo       String?
 
   planificaciones PlanificacionDia[]
 

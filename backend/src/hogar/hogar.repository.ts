@@ -64,6 +64,7 @@ export const hogarRepository = {
     porciones: number;
     ingredientes: Prisma.InputJsonValue;
     pasos: string[];
+    linkVideo?: string;
   }) {
     return prisma.receta.create({ data });
   },

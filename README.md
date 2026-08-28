@@ -87,6 +87,8 @@ npm test
 3. Invita a los demás miembros de tu familia desde "Mi familia" → "Invitar" (comparte el link generado).
 4. Empieza a registrar gastos, definir tu presupuesto, y usar el resto de las secciones — todo se sincroniza automáticamente entre los miembros del grupo.
 
+El Recetario incluye un catálogo de recetas sugeridas (desayunos, almuerzos, cenas y postres) agrupadas por tipo, cada una con un link directo de búsqueda al canal de YouTube de Álvaro Barrientos Montero para ver cómo prepararla.
+
 ## Instalar como app (PWA)
 
 FamilyFinance es una Progressive Web App instalable en el celular (Android/iOS) o el computador: desde el navegador, usa la opción "Instalar app" / "Agregar a la pantalla de inicio". Las pantallas compartidas (Alacena, Lista de compras, Menú del mes) se refrescan solas cada 10 segundos para que los cambios de otros miembros aparezcan sin recargar.
