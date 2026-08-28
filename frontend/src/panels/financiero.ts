@@ -4,7 +4,22 @@ import { grupoActivo } from '../state';
 interface Gasto { id: string; descripcion: string; monto: number; categoria: string; fecha: string; miembro: string }
 interface EstadoCategoria { categoria: string; montoAsignado: number; gastado: number; disponible: number }
 
-const CATEGORIAS = ['supermercado', 'transporte', 'salud', 'servicios', 'entretenimiento', 'otros'];
+const CATEGORIAS = [
+  'Vivienda',
+  'Servicios Básicos',
+  'Alimentación Central',
+  'Transporte Diario',
+  'Salud y Seguros',
+  'Educación o Deudas',
+  'Salidas y Ocio',
+  'Suscripciones Digitales',
+  'Cuidado Personal',
+  'Ropa y Calzado',
+  'Gastos Hormiga',
+  'Tecnología y Hogar',
+  'Fondo de Emergencia',
+  'Inversión o Metas',
+];
 
 export async function renderDashboard() {
   const content = document.getElementById('content')!;
