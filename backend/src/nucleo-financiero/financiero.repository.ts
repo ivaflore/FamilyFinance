@@ -7,6 +7,12 @@ export const financieroRepository = {
   listarGastos(grupoFamiliarId: string) {
     return prisma.gasto.findMany({ where: { grupoFamiliarId }, include: { usuario: true }, orderBy: { fecha: 'desc' } });
   },
+  actualizarGasto(id: string, grupoFamiliarId: string, data: { descripcion: string; monto: number; categoria: string }) {
+    return prisma.gasto.updateMany({ where: { id, grupoFamiliarId }, data });
+  },
+  eliminarGasto(id: string, grupoFamiliarId: string) {
+    return prisma.gasto.deleteMany({ where: { id, grupoFamiliarId } });
+  },
   upsertPresupuesto(grupoFamiliarId: string, categoria: string, montoAsignado: number) {
     return prisma.presupuesto.upsert({
       where: { grupoFamiliarId_categoria: { grupoFamiliarId, categoria } },

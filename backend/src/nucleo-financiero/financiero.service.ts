@@ -45,6 +45,17 @@ export const financieroService = {
     return financieroRepository.listarGastos(grupoFamiliarId);
   },
 
+  // BR-09: solo el administrador del grupo puede corregir o eliminar un
+  // gasto ya registrado (aplicado en la ruta vía requireAdmin).
+  actualizarGasto(grupoFamiliarId: string, id: string, data: { descripcion: string; monto: number; categoria: string }) {
+    if (!(data.monto > 0)) throw new AppError(400, 'El monto debe ser mayor a cero.');
+    if (!data.descripcion?.trim()) throw new AppError(400, 'La descripción es obligatoria.');
+    return financieroRepository.actualizarGasto(id, grupoFamiliarId, { ...data, descripcion: data.descripcion.trim() });
+  },
+  eliminarGasto(grupoFamiliarId: string, id: string) {
+    return financieroRepository.eliminarGasto(id, grupoFamiliarId);
+  },
+
   // Escanea una boleta/recibo fotografiado y extrae monto, comercio y
   // categoría sugerida. No crea el gasto directamente — el usuario confirma
   // o corrige los datos extraídos antes de guardarlos (POST /gastos ya

@@ -70,6 +70,7 @@ export async function renderDashboard() {
 export async function renderGastos() {
   const content = document.getElementById('content')!;
   const grupo = grupoActivo();
+  const esAdmin = grupo!.rol === 'Administrador';
   content.innerHTML = `
     <div class="card">
       <div class="card-hd">
@@ -89,11 +90,46 @@ export async function renderGastos() {
     <div class="card">
       <div class="card-hd"><div class="card-title">Historial de gastos</div></div>
       <table class="tbl">
-        <thead><tr><th>Descripción</th><th>Categoría</th><th>Miembro</th><th style="text-align:right">Monto</th></tr></thead>
+        <thead><tr><th>Descripción</th><th>Categoría</th><th>Miembro</th><th style="text-align:right">Monto</th>${esAdmin ? '<th></th>' : ''}</tr></thead>
         <tbody id="gastos-tbody"></tbody>
       </table>
     </div>
-    <div id="scan-modal"></div>`;
+    <div id="scan-modal"></div>
+    <div id="gasto-modal"></div>`;
+
+  function abrirEdicionGasto(g: Gasto) {
+    document.getElementById('gasto-modal')!.innerHTML = `
+      <div class="modal-overlay" id="gm-overlay">
+        <div class="modal">
+          <div class="modal-title">Editar gasto</div>
+          <div class="form-row"><label class="form-label">Descripción</label><input type="text" id="gm-desc" value="${escapeHtml(g.descripcion)}" /></div>
+          <div class="form-row"><label class="form-label">Monto ($)</label><input type="number" id="gm-monto" value="${g.monto}" /></div>
+          <div class="form-row"><label class="form-label">Categoría</label>
+            <select id="gm-cat">${CATEGORIAS.map((c) => `<option value="${c}" ${c === g.categoria ? 'selected' : ''}>${c}</option>`).join('')}</select>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-primary" id="gm-save" style="flex:1">Guardar</button>
+            <button class="btn" id="gm-cancel">Cancelar</button>
+          </div>
+        </div>
+      </div>`;
+    const close = () => (document.getElementById('gasto-modal')!.innerHTML = '');
+    document.getElementById('gm-overlay')!.addEventListener('click', (e) => e.target === e.currentTarget && close());
+    document.getElementById('gm-cancel')!.addEventListener('click', close);
+    document.getElementById('gm-save')!.addEventListener('click', async () => {
+      const descripcion = (document.getElementById('gm-desc') as HTMLInputElement).value.trim();
+      const monto = Number((document.getElementById('gm-monto') as HTMLInputElement).value);
+      const categoria = (document.getElementById('gm-cat') as HTMLSelectElement).value;
+      if (!descripcion || !(monto > 0)) return;
+      try {
+        await api.put(`/groups/${grupo!.id}/gastos/${g.id}`, { descripcion, monto, categoria });
+        close();
+        await cargar();
+      } catch (err) {
+        alert((err as Error).message);
+      }
+    });
+  }
 
   function abrirConfirmacion(datos: { descripcion: string; monto: number; categoria: string }) {
     document.getElementById('scan-modal')!.innerHTML = `
@@ -159,9 +195,33 @@ export async function renderGastos() {
           <td><span class="tag">${escapeHtml(g.categoria)}</span></td>
           <td>${escapeHtml(g.miembro)}</td>
           <td style="text-align:right;color:var(--coral);font-weight:600">${fmt(g.monto)}</td>
+          ${
+            esAdmin
+              ? `<td style="text-align:right;white-space:nowrap">
+                  <button class="btn btn-sm g-editar" data-id="${g.id}" title="Modificar"><i class="ti ti-pencil"></i></button>
+                  <button class="btn btn-sm g-eliminar" data-id="${g.id}" title="Eliminar"><i class="ti ti-trash"></i></button>
+                </td>`
+              : ''
+          }
         </tr>`,
       )
       .join('');
+
+    if (esAdmin) {
+      document.querySelectorAll<HTMLElement>('.g-editar').forEach((el) =>
+        el.addEventListener('click', () => {
+          const g = gastos.find((x) => x.id === el.dataset.id);
+          if (g) abrirEdicionGasto(g);
+        }),
+      );
+      document.querySelectorAll<HTMLElement>('.g-eliminar').forEach((el) =>
+        el.addEventListener('click', async () => {
+          if (!confirm('¿Eliminar este gasto?')) return;
+          await api.del(`/groups/${grupo!.id}/gastos/${el.dataset.id}`);
+          await cargar();
+        }),
+      );
+    }
   }
 
   document.getElementById('g-add')!.addEventListener('click', async () => {

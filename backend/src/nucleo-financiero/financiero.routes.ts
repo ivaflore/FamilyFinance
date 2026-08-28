@@ -68,6 +68,25 @@ financieroRouter.get('/groups/:grupoId/gastos', requireAuth, requireGrupo, async
   }
 });
 
+financieroRouter.put('/groups/:grupoId/gastos/:id', requireAuth, requireGrupo, requireAdmin, async (req, res, next) => {
+  try {
+    const data = gastoSchema.parse(req.body);
+    await financieroService.actualizarGasto(req.grupoFamiliarId!, req.params.id, data);
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
+
+financieroRouter.delete('/groups/:grupoId/gastos/:id', requireAuth, requireGrupo, requireAdmin, async (req, res, next) => {
+  try {
+    await financieroService.eliminarGasto(req.grupoFamiliarId!, req.params.id);
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
+
 financieroRouter.put('/groups/:grupoId/presupuesto', requireAuth, requireGrupo, requireAdmin, async (req, res, next) => {
   try {
     const { categoria, monto } = z.object({ categoria: z.string().min(1), monto: z.number().nonnegative() }).parse(req.body);
