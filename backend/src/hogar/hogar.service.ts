@@ -182,10 +182,40 @@ export const hogarService = {
     return hogarRepository.eliminarPlanificacion(id, grupoFamiliarId);
   },
 
-  obtenerCalendarioMes(grupoFamiliarId: string, anio: number, mes: number) {
+  // Cada comida planificada se marca "disponible" si TODOS sus ingredientes
+  // están en la alacena con stock (cantidadActual > 0) — el semáforo del
+  // menú del mes. "faltantes" son los nombres que no están en stock, listos
+  // para agregarSe a la alacena/lista de compras con un clic.
+  async obtenerCalendarioMes(grupoFamiliarId: string, anio: number, mes: number) {
     const desde = new Date(Date.UTC(anio, mes, 1));
     const hasta = new Date(Date.UTC(anio, mes + 1, 1));
-    return hogarRepository.listarPlanificacionesRango(grupoFamiliarId, desde, hasta);
+    const [planificaciones, alacena] = await Promise.all([
+      hogarRepository.listarPlanificacionesRango(grupoFamiliarId, desde, hasta),
+      this.listarAlacena(grupoFamiliarId),
+    ]);
+    const nombresEnStock = alacena.filter((p) => p.cantidadActual > 0).map((p) => p.nombre);
+    return planificaciones.map((p) => {
+      const ingredientes = (p.receta.ingredientes as unknown as Ingrediente[])?.map((i) => i.n) ?? [];
+      const faltantes = calcularFaltantesParaLista(ingredientes, nombresEnStock);
+      return { ...p, disponible: faltantes.length === 0, faltantes };
+    });
+  },
+
+  // Agrega a la alacena (cantidadActual = 0, sin duplicar lo ya existente —
+  // BR-19) los ingredientes de UNA receta puntual que todavía no se
+  // mantienen como producto, para que aparezcan en la lista de compras.
+  async agregarFaltantesReceta(grupoFamiliarId: string, recetaId: string) {
+    const recetas = await hogarRepository.listarRecetas(grupoFamiliarId);
+    const receta = recetas.find((r) => r.id === recetaId);
+    if (!receta) throw new AppError(404, 'Receta no encontrada.');
+    const ingredientes = (receta.ingredientes as unknown as Ingrediente[])?.map((i) => i.n) ?? [];
+    const productosExistentes = (await hogarRepository.listarAlacena(grupoFamiliarId)).map((p) => p.nombre);
+
+    const faltantes = calcularFaltantesParaLista(ingredientes, productosExistentes);
+    for (const nombre of faltantes) {
+      await hogarRepository.crearProductoAlacena({ grupoFamiliarId, nombre, cantidadIdeal: 1, cantidadActual: 0 });
+    }
+    return { agregados: faltantes };
   },
 
   // BR-19: no duplica productos ya presentes en la alacena. Los ingredientes

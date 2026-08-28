@@ -28,7 +28,7 @@ interface ItemCompra { id: string; nombre: string; precioEstimado: number; compr
 interface ListaCompras { sugeridos: ProductoSugerido[]; manuales: ItemCompra[] }
 interface Receta { id: string; nombre: string; tipos: string[]; tiempoMin: number; porciones: number; ingredientes: { n: string }[]; pasos: string[] }
 interface RecetaPlantilla { id: string; nombre: string; tiempoMin: number; porciones: number; ingredientes: { n: string }[] }
-interface Planificacion { id: string; fecha: string; tipoComida: string; receta: Receta }
+interface Planificacion { id: string; fecha: string; tipoComida: string; receta: Receta; disponible: boolean; faltantes: string[] }
 
 export async function renderAlacena() {
   const content = document.getElementById('content')!;
@@ -392,7 +392,7 @@ export async function renderCalendario() {
         <button class="btn btn-sm btn-primary" id="cal-generar"><i class="ti ti-shopping-cart"></i> Agregar ingredientes a la alacena</button>
       </div>
       <table class="tbl">
-        <thead><tr><th>Fecha</th><th>Comida</th><th>Receta</th><th></th></tr></thead>
+        <thead><tr><th>Fecha</th><th>Comida</th><th>Receta</th><th>¿Tienes todo?</th><th></th></tr></thead>
         <tbody id="cal-tbody"></tbody>
       </table>
       <div class="card" style="margin-top:10px">
@@ -458,6 +458,14 @@ export async function renderCalendario() {
                 <td>${new Date(p.fecha).toLocaleDateString('es-CL')}</td>
                 <td><span class="tag">${p.tipoComida}</span></td>
                 <td>${escapeHtml(p.receta.nombre)}</td>
+                <td>
+                  ${
+                    p.disponible
+                      ? `<span title="Tienes todos los ingredientes en la alacena">🟢 Sí</span>`
+                      : `<span title="Faltan: ${escapeHtml(p.faltantes.join(', '))}">🔴 Faltan ${p.faltantes.length}</span>
+                         <button class="btn btn-sm btn-primary cal-comprar" data-receta-id="${p.receta.id}" style="margin-left:6px">Agregar a la compra</button>`
+                  }
+                </td>
                 <td style="text-align:right;white-space:nowrap">
                   <button class="btn btn-sm btn-edit cal-editar" data-id="${p.id}"><i class="ti ti-pencil"></i> Modificar</button>
                   <button class="btn btn-sm btn-danger cal-eliminar" data-id="${p.id}"><i class="ti ti-trash"></i> Eliminar</button>
@@ -465,8 +473,22 @@ export async function renderCalendario() {
               </tr>`,
           )
           .join('')
-      : `<tr><td colspan="4" style="color:var(--text-3);font-size:12px">Sin comidas planificadas este mes.</td></tr>`;
+      : `<tr><td colspan="5" style="color:var(--text-3);font-size:12px">Sin comidas planificadas este mes.</td></tr>`;
 
+    document.querySelectorAll<HTMLElement>('.cal-comprar').forEach((el) =>
+      el.addEventListener('click', async () => {
+        const res = await api.post<{ agregados: string[] }>(
+          `/groups/${grupo!.id}/recetas/${el.dataset.recetaId}/agregar-faltantes`,
+          {},
+        );
+        alert(
+          res.agregados.length
+            ? `${res.agregados.length} producto(s) agregados a tu alacena y a la lista de compras.`
+            : 'Esos ingredientes ya están en tu alacena — revisa si tienen stock suficiente.',
+        );
+        await cargar();
+      }),
+    );
     document.querySelectorAll<HTMLElement>('.cal-editar').forEach((el) =>
       el.addEventListener('click', () => {
         const p = planificaciones.find((x) => x.id === el.dataset.id);

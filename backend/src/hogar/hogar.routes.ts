@@ -136,6 +136,13 @@ hogarRouter.get('/groups/:grupoId/recetas', requireAuth, requireGrupo, async (re
     next(err);
   }
 });
+hogarRouter.post('/groups/:grupoId/recetas/:recetaId/agregar-faltantes', requireAuth, requireGrupo, async (req, res, next) => {
+  try {
+    res.json(await hogarService.agregarFaltantesReceta(req.grupoFamiliarId!, req.params.recetaId));
+  } catch (err) {
+    next(err);
+  }
+});
 hogarRouter.post('/groups/:grupoId/recetas', requireAuth, requireGrupo, async (req, res, next) => {
   try {
     const data = z
