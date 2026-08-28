@@ -23,6 +23,7 @@ hogarRouter.post('/groups/:grupoId/alacena', requireAuth, requireGrupo, async (r
         categoria: z.string().min(1).optional(),
         cantidadIdeal: z.number().positive(),
         cantidadActual: z.number().nonnegative(),
+        precioEstimado: z.number().nonnegative().optional(),
         icono: z.string().optional(),
       })
       .parse(req.body);
@@ -49,6 +50,7 @@ hogarRouter.put('/groups/:grupoId/alacena/:productoId', requireAuth, requireGrup
         categoria: z.string().min(1),
         cantidadIdeal: z.number().positive(),
         cantidadActual: z.number().nonnegative(),
+        precioEstimado: z.number().nonnegative(),
       })
       .parse(req.body);
     await hogarService.actualizarProductoAlacena(req.grupoFamiliarId!, req.params.productoId, data);

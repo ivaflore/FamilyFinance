@@ -140,6 +140,7 @@ model ProductoAlacena {
   categoria       String        @default("Otros")
   cantidadIdeal   Decimal       @default(1) @db.Decimal(10, 2)
   cantidadActual  Decimal       @default(1) @db.Decimal(10, 2)
+  precioEstimado  Decimal       @default(0) @db.Decimal(12, 2)
 
   @@index([grupoFamiliarId])
 }

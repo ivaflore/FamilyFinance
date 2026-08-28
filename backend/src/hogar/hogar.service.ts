@@ -12,11 +12,22 @@ interface Ingrediente {
 export const hogarService = {
   async agregarProductoAlacena(
     grupoFamiliarId: string,
-    data: { nombre: string; unidad?: string; categoria?: string; cantidadIdeal: number; cantidadActual: number; icono?: string },
+    data: {
+      nombre: string;
+      unidad?: string;
+      categoria?: string;
+      cantidadIdeal: number;
+      cantidadActual: number;
+      precioEstimado?: number;
+      icono?: string;
+    },
   ) {
     if (!data.nombre?.trim()) throw new AppError(400, 'El producto necesita un nombre.');
     if (!(data.cantidadIdeal > 0)) throw new AppError(400, 'La cantidad ideal debe ser mayor a cero.');
     if (!(data.cantidadActual >= 0)) throw new AppError(400, 'La cantidad actual no puede ser negativa.');
+    if (data.precioEstimado !== undefined && !(data.precioEstimado >= 0)) {
+      throw new AppError(400, 'El precio estimado no puede ser negativo.');
+    }
     const nombre = data.nombre.trim();
     const existente = await hogarRepository.buscarProductoAlacenaPorNombre(grupoFamiliarId, nombre);
     if (existente) throw new AppError(409, `"${nombre}" ya está en tu alacena. Edítalo en vez de agregarlo de nuevo.`);
@@ -32,6 +43,7 @@ export const hogarService = {
       categoria: p.categoria,
       cantidadIdeal: Number(p.cantidadIdeal),
       cantidadActual: Number(p.cantidadActual),
+      precioEstimado: Number(p.precioEstimado),
       faltante: calcularFaltante(Number(p.cantidadIdeal), Number(p.cantidadActual)),
     }));
   },
@@ -42,11 +54,12 @@ export const hogarService = {
   async actualizarProductoAlacena(
     grupoFamiliarId: string,
     id: string,
-    data: { nombre: string; unidad: string; categoria: string; cantidadIdeal: number; cantidadActual: number },
+    data: { nombre: string; unidad: string; categoria: string; cantidadIdeal: number; cantidadActual: number; precioEstimado: number },
   ) {
     if (!data.nombre?.trim()) throw new AppError(400, 'El producto necesita un nombre.');
     if (!(data.cantidadIdeal > 0)) throw new AppError(400, 'La cantidad ideal debe ser mayor a cero.');
     if (!(data.cantidadActual >= 0)) throw new AppError(400, 'La cantidad actual no puede ser negativa.');
+    if (!(data.precioEstimado >= 0)) throw new AppError(400, 'El precio estimado no puede ser negativo.');
     const nombre = data.nombre.trim();
     const existente = await hogarRepository.buscarProductoAlacenaPorNombre(grupoFamiliarId, nombre, id);
     if (existente) throw new AppError(409, `"${nombre}" ya está en tu alacena. Edítalo en vez de duplicarlo.`);
@@ -125,6 +138,7 @@ export const hogarService = {
         categoria: item.categoria,
         cantidadIdeal: item.cantidadIdeal,
         cantidadActual: 0,
+        precioEstimado: item.precioEstimado,
         icono: item.icono,
       });
     }

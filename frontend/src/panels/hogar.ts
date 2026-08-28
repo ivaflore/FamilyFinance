@@ -9,6 +9,7 @@ interface ProductoAlacena {
   categoria: string;
   cantidadIdeal: number;
   cantidadActual: number;
+  precioEstimado: number;
   faltante: number;
 }
 
@@ -40,7 +41,7 @@ export async function renderAlacena() {
         <button class="btn btn-sm" id="a-importar">📥 Importar despensa base</button>
       </div>
       <div style="font-size:11px;color:var(--text-3);margin:-6px 0 10px">Define cuánto deberías tener siempre y cuánto tienes ahora</div>
-      <div style="display:grid;grid-template-columns:1.3fr 1.3fr 1fr 0.8fr 0.8fr auto;gap:8px;align-items:end">
+      <div style="display:grid;grid-template-columns:1.2fr 1.2fr 1fr 0.7fr 0.7fr 0.8fr auto;gap:8px;align-items:end">
         <div><label class="form-label">Producto</label><input type="text" id="a-nombre" placeholder="ej: Leche" /></div>
         <div><label class="form-label">Categoría</label>
           <select id="a-categoria">${CATEGORIAS_ALACENA.map((c) => `<option value="${c}">${c}</option>`).join('')}</select>
@@ -48,6 +49,7 @@ export async function renderAlacena() {
         <div><label class="form-label">Unidad</label><input type="text" id="a-unidad" placeholder="ej: litros" value="unidades" /></div>
         <div><label class="form-label">Ideal</label><input type="number" id="a-ideal" placeholder="2" min="0.01" step="0.01" /></div>
         <div><label class="form-label">Tengo ahora</label><input type="number" id="a-actual" placeholder="2" min="0" step="0.01" /></div>
+        <div><label class="form-label">Precio est. ($)</label><input type="number" id="a-precio" placeholder="0" min="0" step="1" /></div>
         <button class="btn btn-primary" id="a-add"><i class="ti ti-plus"></i> Agregar</button>
       </div>
     </div>
@@ -66,6 +68,7 @@ export async function renderAlacena() {
           <div class="form-row"><label class="form-label">Unidad</label><input type="text" id="am-unidad" value="${escapeHtml(p.unidad)}" /></div>
           <div class="form-row"><label class="form-label">Ideal</label><input type="number" id="am-ideal" value="${p.cantidadIdeal}" min="0.01" step="0.01" /></div>
           <div class="form-row"><label class="form-label">Tengo ahora</label><input type="number" id="am-actual" value="${p.cantidadActual}" min="0" step="0.01" /></div>
+          <div class="form-row"><label class="form-label">Precio estimado ($)</label><input type="number" id="am-precio" value="${p.precioEstimado}" min="0" step="1" /></div>
           <div class="modal-actions">
             <button class="btn btn-primary" id="am-save" style="flex:1">Guardar</button>
             <button class="btn" id="am-cancel">Cancelar</button>
@@ -81,9 +84,10 @@ export async function renderAlacena() {
       const unidad = (document.getElementById('am-unidad') as HTMLInputElement).value.trim() || 'unidades';
       const cantidadIdeal = Number((document.getElementById('am-ideal') as HTMLInputElement).value);
       const cantidadActual = Number((document.getElementById('am-actual') as HTMLInputElement).value);
+      const precioEstimado = Number((document.getElementById('am-precio') as HTMLInputElement).value) || 0;
       if (!nombre || !(cantidadIdeal > 0) || !(cantidadActual >= 0)) return;
       try {
-        await api.put(`/groups/${grupo!.id}/alacena/${p.id}`, { nombre, categoria, unidad, cantidadIdeal, cantidadActual });
+        await api.put(`/groups/${grupo!.id}/alacena/${p.id}`, { nombre, categoria, unidad, cantidadIdeal, cantidadActual, precioEstimado });
         close();
         await cargar();
       } catch (err) {
@@ -100,6 +104,7 @@ export async function renderAlacena() {
         <span class="p-icon">${escapeHtml(p.icono || '📦')}</span>
         <div class="p-name">${escapeHtml(p.nombre)}</div>
         <div class="p-qty">${p.cantidadActual} / ${p.cantidadIdeal} ${escapeHtml(p.unidad)}</div>
+        ${p.precioEstimado > 0 ? `<div style="font-size:10px;color:var(--text-3)">${fmt(p.precioEstimado)} c/u</div>` : ''}
         ${p.faltante > 0 ? `<div style="font-size:10px;color:var(--coral-d);font-weight:600;margin-top:2px">Faltan ${p.faltante}</div>` : ''}
         <div style="display:flex;gap:4px;justify-content:center;margin-top:6px;flex-wrap:wrap">
           <button class="btn btn-sm p-menos" data-id="${p.id}" data-actual="${p.cantidadActual}">−1</button>
@@ -168,12 +173,14 @@ export async function renderAlacena() {
     const cantidadIdeal = Number((document.getElementById('a-ideal') as HTMLInputElement).value);
     const cantidadActualInput = (document.getElementById('a-actual') as HTMLInputElement).value;
     const cantidadActual = cantidadActualInput === '' ? cantidadIdeal : Number(cantidadActualInput);
+    const precioEstimado = Number((document.getElementById('a-precio') as HTMLInputElement).value) || 0;
     if (!nombre || !(cantidadIdeal > 0)) return;
     try {
-      await api.post(`/groups/${grupo!.id}/alacena`, { nombre, categoria, unidad, cantidadIdeal, cantidadActual });
+      await api.post(`/groups/${grupo!.id}/alacena`, { nombre, categoria, unidad, cantidadIdeal, cantidadActual, precioEstimado });
       (document.getElementById('a-nombre') as HTMLInputElement).value = '';
       (document.getElementById('a-ideal') as HTMLInputElement).value = '';
       (document.getElementById('a-actual') as HTMLInputElement).value = '';
+      (document.getElementById('a-precio') as HTMLInputElement).value = '';
       await cargar();
     } catch (err) {
       alert((err as Error).message);
@@ -190,7 +197,7 @@ export async function renderCompras() {
     <div class="card">
       <div class="card-hd">
         <div class="card-title">Sugeridos desde tu alacena</div>
-        <span class="card-sub">Productos por debajo de la cantidad que deberías tener</span>
+        <span class="card-sub">Agrupados como en el supermercado — total estimado: <strong id="shop-total">$0</strong></span>
       </div>
       <div id="shop-sugeridos"></div>
     </div>
@@ -205,34 +212,68 @@ export async function renderCompras() {
       <div id="shop-list"></div>
     </div>`;
 
+  let totalManuales = 0;
+
+  function recalcularTotal() {
+    let total = totalManuales;
+    document.querySelectorAll<HTMLInputElement>('.p-cant-comprar').forEach((input) => {
+      total += Number(input.dataset.precio) * (Number(input.value) || 0);
+    });
+    document.getElementById('shop-total')!.textContent = fmt(total);
+  }
+
   async function cargar() {
     const { sugeridos, manuales } = await api.get<ListaCompras>(`/groups/${grupo!.id}/compras`);
+    totalManuales = manuales.reduce((a, i) => a + i.precioEstimado, 0);
 
     const ORIGEN_LABEL: Record<ProductoSugerido['origen'], { texto: string; bg: string; fg: string }> = {
-      alacena: { texto: 'Abastecimiento habitual', bg: 'var(--amber-l)', fg: 'var(--amber-d)' },
-      receta: { texto: '🍽️ Para el menú', bg: 'var(--purple-l)', fg: 'var(--purple-d)' },
+      alacena: { texto: 'Habitual', bg: 'var(--amber-l)', fg: 'var(--amber-d)' },
+      receta: { texto: '🍽️ Menú', bg: 'var(--purple-l)', fg: 'var(--purple-d)' },
     };
 
-    document.getElementById('shop-sugeridos')!.innerHTML = sugeridos.length
-      ? `<table class="tbl">
-          <thead><tr><th>Motivo</th><th>Producto</th><th>Cantidad propuesta a comprar</th><th></th></tr></thead>
-          <tbody>${sugeridos
-            .map((p) => {
-              const origen = ORIGEN_LABEL[p.origen];
-              return `<tr>
-                <td><span class="tag" style="background:${origen.bg};color:${origen.fg}">${origen.texto}</span></td>
-                <td>${escapeHtml(p.nombre)}</td>
-                <td>
-                  <input type="number" class="p-cant-comprar" data-id="${p.id}" data-actual="${p.cantidadActual}" value="${p.faltante}" min="0.01" step="0.01" style="width:64px" />
-                  ${escapeHtml(p.unidad)}
-                </td>
-                <td style="text-align:right"><button class="btn btn-sm btn-primary p-comprado" data-id="${p.id}">Ya compré</button></td>
-              </tr>`;
-            })
-            .join('')}</tbody>
-        </table>`
-      : `<div style="font-size:12px;color:var(--text-3)">Tu alacena está completa — nada pendiente por comprar.</div>`;
+    function fila(p: ProductoSugerido) {
+      const origen = ORIGEN_LABEL[p.origen];
+      const subtotal = p.precioEstimado * p.faltante;
+      return `<tr>
+        <td><span class="tag" style="background:${origen.bg};color:${origen.fg}">${origen.texto}</span></td>
+        <td>${escapeHtml(p.nombre)}</td>
+        <td>
+          <input type="number" class="p-cant-comprar" data-id="${p.id}" data-actual="${p.cantidadActual}" data-precio="${p.precioEstimado}" value="${p.faltante}" min="0.01" step="0.01" style="width:64px" />
+          ${escapeHtml(p.unidad)}
+        </td>
+        <td style="text-align:right;color:var(--text-3)">${p.precioEstimado > 0 ? fmt(p.precioEstimado) : '—'}</td>
+        <td style="text-align:right;font-weight:600" class="p-subtotal">${p.precioEstimado > 0 ? fmt(subtotal) : '—'}</td>
+        <td style="text-align:right"><button class="btn btn-sm btn-primary p-comprado" data-id="${p.id}">Ya compré</button></td>
+      </tr>`;
+    }
 
+    if (!sugeridos.length) {
+      document.getElementById('shop-sugeridos')!.innerHTML = `<div style="font-size:12px;color:var(--text-3)">Tu alacena está completa — nada pendiente por comprar.</div>`;
+    } else {
+      const categoriasConSugeridos = CATEGORIAS_ALACENA.filter((c) => sugeridos.some((p) => p.categoria === c));
+      document.getElementById('shop-sugeridos')!.innerHTML = categoriasConSugeridos
+        .map((categoria) => {
+          const items = sugeridos.filter((p) => p.categoria === categoria);
+          return `<div class="pantry-cat">
+            <div class="pantry-cat-title">${escapeHtml(categoria)} <span class="pantry-cat-count">${items.length}</span></div>
+            <table class="tbl">
+              <thead><tr><th>Motivo</th><th>Producto</th><th>Cantidad a comprar</th><th style="text-align:right">Precio est.</th><th style="text-align:right">Subtotal</th><th></th></tr></thead>
+              <tbody>${items.map(fila).join('')}</tbody>
+            </table>
+          </div>`;
+        })
+        .join('');
+    }
+
+    document.querySelectorAll<HTMLInputElement>('.p-cant-comprar').forEach((input) =>
+      input.addEventListener('input', () => {
+        const precio = Number(input.dataset.precio);
+        const fila = input.closest('tr')!;
+        const cantidad = Number(input.value) || 0;
+        fila.querySelector('.p-subtotal')!.textContent = precio > 0 ? fmt(precio * cantidad) : '—';
+        recalcularTotal();
+      }),
+    );
     document.querySelectorAll<HTMLElement>('.p-comprado').forEach((el) =>
       el.addEventListener('click', async () => {
         const fila = el.closest('tr')!;
@@ -244,6 +285,7 @@ export async function renderCompras() {
         await cargar();
       }),
     );
+    recalcularTotal();
 
     const list = document.getElementById('shop-list')!;
     list.innerHTML = manuales.length

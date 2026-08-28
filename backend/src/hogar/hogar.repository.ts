@@ -9,6 +9,7 @@ export const hogarRepository = {
     categoria?: string;
     cantidadIdeal: number;
     cantidadActual: number;
+    precioEstimado?: number;
     icono?: string;
   }) {
     return prisma.productoAlacena.create({ data });
@@ -27,7 +28,7 @@ export const hogarRepository = {
   actualizarProductoAlacena(
     id: string,
     grupoFamiliarId: string,
-    data: { nombre: string; unidad: string; categoria: string; cantidadIdeal: number; cantidadActual: number },
+    data: { nombre: string; unidad: string; categoria: string; cantidadIdeal: number; cantidadActual: number; precioEstimado: number },
   ) {
     return prisma.productoAlacena.updateMany({ where: { id, grupoFamiliarId }, data });
   },

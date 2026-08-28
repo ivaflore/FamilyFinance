@@ -31,14 +31,49 @@ export async function renderDashboard() {
     api.get<Gasto[]>(`/groups/${grupo!.id}/gastos`),
   ]);
 
-  const totalGasto = estado.reduce((a, e) => a + e.gastado, 0);
+  // Gasto real total del grupo (BR-15: siempre derivado de los gastos reales,
+  // no de la suma de "gastado" por categoría — así una categoría sin
+  // presupuesto asignado no queda fuera del total).
+  const totalGasto = gastos.reduce((a, g) => a + g.monto, 0);
   const totalPresupuesto = estado.reduce((a, e) => a + e.montoAsignado, 0);
+  const disponible = totalPresupuesto - totalGasto;
+
+  // Proyección: al ritmo de gasto diario promedio de lo que va del mes, ¿en
+  // cuánto vamos a terminar? (BR: puramente informativo, no persiste nada).
+  const hoy = new Date();
+  const diaActual = hoy.getDate();
+  const diasEnMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
+  const proyeccion = (totalGasto / diaActual) * diasEnMes;
+  const sobrePresupuesto = totalPresupuesto > 0 && proyeccion > totalPresupuesto;
+  const porcentajeGastado = totalPresupuesto > 0 ? Math.round((totalGasto / totalPresupuesto) * 100) : 0;
+  const miembrosActivos = new Set(gastos.map((g) => g.miembro)).size;
 
   content.innerHTML = `
-    <div class="g3">
-      <div class="metric"><div class="m-label">Gasto del mes</div><div class="m-val">${fmt(totalGasto)}</div></div>
-      <div class="metric"><div class="m-label">Presupuesto disponible</div><div class="m-val">${fmt(Math.max(0, totalPresupuesto - totalGasto))}</div></div>
-      <div class="metric"><div class="m-label">Transacciones</div><div class="m-val">${gastos.length}</div></div>
+    <div class="g4">
+      <div class="metric">
+        <div class="m-label">Gasto del mes</div>
+        <div class="m-val">${fmt(totalGasto)}</div>
+        ${totalPresupuesto > 0 ? `<div class="m-sub ${porcentajeGastado > 100 ? 'm-bad' : ''}">${porcentajeGastado}% del presupuesto</div>` : `<div class="m-sub">Sin presupuesto definido</div>`}
+      </div>
+      <div class="metric">
+        <div class="m-label">Presupuesto disponible</div>
+        <div class="m-val ${disponible < 0 ? 'm-bad' : ''}">${fmt(Math.max(0, disponible))}</div>
+        <div class="m-sub">de ${fmt(totalPresupuesto)} totales</div>
+      </div>
+      <div class="metric">
+        <div class="m-label">Proyección fin de mes</div>
+        <div class="m-val">${fmt(proyeccion)}</div>
+        ${
+          totalPresupuesto > 0
+            ? `<div class="m-sub ${sobrePresupuesto ? 'm-bad' : 'm-good'}">${sobrePresupuesto ? `↑ $${Math.round(proyeccion - totalPresupuesto).toLocaleString('es-CL')} sobre presupuesto` : 'dentro del presupuesto'}</div>`
+            : `<div class="m-sub">día ${diaActual} de ${diasEnMes}</div>`
+        }
+      </div>
+      <div class="metric">
+        <div class="m-label">Transacciones</div>
+        <div class="m-val">${gastos.length}</div>
+        <div class="m-sub">${miembrosActivos ? `por ${miembrosActivos} miembro(s)` : 'este mes'}</div>
+      </div>
     </div>
     <div class="card">
       <div class="card-hd"><div class="card-title">Gastos por categoría</div></div>
@@ -54,17 +89,25 @@ export async function renderDashboard() {
     estado.length === 0
       ? `<div style="font-size:12px;color:var(--text-3)">Aún no has definido presupuestos. Ve a "Presupuesto" para empezar.</div>`
       : estado
-          .map(
-            (e) => `<div class="bar-row"><div class="bar-lbl">${escapeHtml(e.categoria)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round((e.gastado / maxGastado) * 100)}%;background:var(--teal)"></div></div><div class="bar-val">${fmt(e.gastado)}</div></div>`,
-          )
+          .map((e) => {
+            const sobre = e.montoAsignado > 0 && e.gastado > e.montoAsignado;
+            const pct = e.montoAsignado > 0 ? Math.round((e.gastado / e.montoAsignado) * 100) : null;
+            return `<div class="bar-row">
+              <div class="bar-lbl">${escapeHtml(e.categoria)}</div>
+              <div class="bar-track"><div class="bar-fill" style="width:${Math.round((e.gastado / maxGastado) * 100)}%;background:${sobre ? 'var(--coral)' : 'var(--teal)'}"></div></div>
+              <div class="bar-val">${fmt(e.gastado)}${pct !== null ? ` <span style="color:${sobre ? 'var(--coral)' : 'var(--text-3)'}">(${pct}%)</span>` : ''}</div>
+            </div>`;
+          })
           .join('');
 
-  document.getElementById('dash-gastos')!.innerHTML = gastos
-    .slice(0, 6)
-    .map(
-      (g) => `<tr><td><div style="font-size:12px;font-weight:600">${escapeHtml(g.descripcion)}</div><div style="font-size:10px;color:var(--text-3)">${escapeHtml(g.miembro)}</div></td><td style="text-align:right;color:var(--coral);font-weight:600">${fmt(g.monto)}</td></tr>`,
-    )
-    .join('');
+  document.getElementById('dash-gastos')!.innerHTML = gastos.length
+    ? gastos
+        .slice(0, 6)
+        .map(
+          (g) => `<tr><td><div style="font-size:12px;font-weight:600">${escapeHtml(g.descripcion)}</div><div style="font-size:10px;color:var(--text-3)">${escapeHtml(g.miembro)}</div></td><td style="text-align:right;color:var(--coral);font-weight:600">${fmt(g.monto)}</td></tr>`,
+        )
+        .join('')
+    : `<tr><td style="color:var(--text-3);font-size:12px">Todavía no hay gastos registrados.</td></tr>`;
 }
 
 export async function renderGastos() {
