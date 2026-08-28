@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { AppError } from '../middleware/errorHandler';
+import { DESPENSA_BASE } from './despensa-base';
 import { calcularFaltante, calcularFaltantesParaLista } from './hogar.logic';
 import { hogarRepository } from './hogar.repository';
 
@@ -39,21 +40,74 @@ export const hogarService = {
     if (!data.nombre?.trim()) throw new AppError(400, 'El ítem necesita un nombre.');
     return hogarRepository.crearItemCompra({ grupoFamiliarId, ...data });
   },
+  // Nombres (normalizados) de los ingredientes requeridos por el menú
+  // planificado del mes actual y del mes siguiente — se usa para explicar
+  // POR QUÉ se sugiere comprar un producto (BR-20b).
+  async origenesDesdeMenu(grupoFamiliarId: string): Promise<Set<string>> {
+    const ahora = new Date();
+    const desde = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), 1));
+    const hasta = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth() + 2, 1));
+    const planificaciones = await hogarRepository.listarPlanificacionesRango(grupoFamiliarId, desde, hasta);
+    const nombres = new Set<string>();
+    for (const p of planificaciones) {
+      const ingredientes = (p.receta.ingredientes as unknown as Ingrediente[]) ?? [];
+      for (const i of ingredientes) nombres.add(i.n.trim().toLowerCase());
+    }
+    return nombres;
+  },
+
   // BR-20: la lista de compras combina los productos de la alacena por debajo
-  // de su cantidad ideal (sugeridos) con los ítems sueltos agregados a mano.
+  // de su cantidad ideal (sugeridos, con la cantidad propuesta a comprar y el
+  // motivo — abastecimiento habitual o receta del menú planificado) con los
+  // ítems sueltos agregados a mano.
   async listarCompras(grupoFamiliarId: string) {
-    const [alacena, manuales] = await Promise.all([
+    const [alacena, manuales, origenesReceta] = await Promise.all([
       this.listarAlacena(grupoFamiliarId),
       hogarRepository.listarCompras(grupoFamiliarId),
+      this.origenesDesdeMenu(grupoFamiliarId),
     ]);
     return {
-      sugeridos: alacena.filter((p) => p.faltante > 0),
+      sugeridos: alacena
+        .filter((p) => p.faltante > 0)
+        .map((p) => ({
+          ...p,
+          origen: (origenesReceta.has(p.nombre.trim().toLowerCase()) ? 'receta' : 'alacena') as 'receta' | 'alacena',
+        })),
       manuales,
     };
   },
   // BR-18: idempotente
   marcarComprado(grupoFamiliarId: string, itemId: string, comprado: boolean) {
     return hogarRepository.marcarComprado(itemId, grupoFamiliarId, comprado);
+  },
+
+  listarDespensaBase() {
+    return DESPENSA_BASE;
+  },
+  // No duplica productos que el grupo ya mantiene en su alacena (mismo
+  // criterio de idempotencia que generarListaDesdeMenu, BR-19). Los que se
+  // importan quedan con cantidadActual = 0, así aparecen de inmediato como
+  // sugeridos en la lista de compras.
+  async importarDespensaBase(grupoFamiliarId: string) {
+    const existentes = (await hogarRepository.listarAlacena(grupoFamiliarId)).map((p) => p.nombre);
+    const nombresFaltantes = new Set(
+      calcularFaltantesParaLista(
+        DESPENSA_BASE.map((p) => p.nombre),
+        existentes,
+      ).map((n) => n.trim().toLowerCase()),
+    );
+    const aImportar = DESPENSA_BASE.filter((p) => nombresFaltantes.has(p.nombre.trim().toLowerCase()));
+    for (const item of aImportar) {
+      await hogarRepository.crearProductoAlacena({
+        grupoFamiliarId,
+        nombre: item.nombre,
+        unidad: item.unidad,
+        cantidadIdeal: item.cantidadIdeal,
+        cantidadActual: 0,
+        icono: item.icono,
+      });
+    }
+    return { agregados: aImportar.map((p) => p.nombre) };
   },
 
   listarRecetasPlantilla() {

@@ -10,8 +10,11 @@ interface ProductoAlacena {
   cantidadActual: number;
   faltante: number;
 }
+interface ProductoSugerido extends ProductoAlacena {
+  origen: 'alacena' | 'receta';
+}
 interface ItemCompra { id: string; nombre: string; precioEstimado: number; comprado: boolean }
-interface ListaCompras { sugeridos: ProductoAlacena[]; manuales: ItemCompra[] }
+interface ListaCompras { sugeridos: ProductoSugerido[]; manuales: ItemCompra[] }
 interface Receta { id: string; nombre: string; tipos: string[]; tiempoMin: number; porciones: number; ingredientes: { n: string }[]; pasos: string[] }
 interface RecetaPlantilla { id: string; nombre: string; tiempoMin: number; porciones: number; ingredientes: { n: string }[] }
 interface Planificacion { id: string; fecha: string; tipoComida: string; receta: Receta }
@@ -23,8 +26,9 @@ export async function renderAlacena() {
     <div class="card">
       <div class="card-hd">
         <div class="card-title">Agregar producto a mantener</div>
-        <span class="card-sub">Define cuánto deberías tener siempre y cuánto tienes ahora</span>
+        <button class="btn btn-sm" id="a-importar">📥 Importar despensa base</button>
       </div>
+      <div style="font-size:11px;color:var(--text-3);margin:-6px 0 10px">Define cuánto deberías tener siempre y cuánto tienes ahora</div>
       <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr auto;gap:8px;align-items:end">
         <div><label class="form-label">Producto</label><input type="text" id="a-nombre" placeholder="ej: Leche" /></div>
         <div><label class="form-label">Unidad</label><input type="text" id="a-unidad" placeholder="ej: litros" value="unidades" /></div>
@@ -69,6 +73,13 @@ export async function renderAlacena() {
     );
   }
 
+  document.getElementById('a-importar')!.addEventListener('click', async () => {
+    if (!confirm('Esto agrega ~60 productos típicos de despensa (los que ya tengas con el mismo nombre no se duplican). ¿Continuar?')) return;
+    const res = await api.post<{ agregados: string[] }>(`/groups/${grupo!.id}/alacena/importar-despensa-base`, {});
+    alert(res.agregados.length ? `${res.agregados.length} producto(s) agregados a tu alacena.` : 'Ya tenías todos los productos de la despensa base.');
+    await cargar();
+  });
+
   document.getElementById('a-add')!.addEventListener('click', async () => {
     const nombre = (document.getElementById('a-nombre') as HTMLInputElement).value.trim();
     const unidad = (document.getElementById('a-unidad') as HTMLInputElement).value.trim() || 'unidades';
@@ -111,21 +122,39 @@ export async function renderCompras() {
   async function cargar() {
     const { sugeridos, manuales } = await api.get<ListaCompras>(`/groups/${grupo!.id}/compras`);
 
+    const ORIGEN_LABEL: Record<ProductoSugerido['origen'], { texto: string; bg: string; fg: string }> = {
+      alacena: { texto: 'Abastecimiento habitual', bg: 'var(--amber-l)', fg: 'var(--amber-d)' },
+      receta: { texto: '🍽️ Para el menú', bg: 'var(--purple-l)', fg: 'var(--purple-d)' },
+    };
+
     document.getElementById('shop-sugeridos')!.innerHTML = sugeridos.length
-      ? sugeridos
-          .map(
-            (p) => `<div class="shop-item">
-              <span class="tag" style="background:var(--coral-l);color:var(--coral-d)">Faltan ${p.faltante} ${escapeHtml(p.unidad)}</span>
-              <div class="shop-name">${escapeHtml(p.nombre)}</div>
-              <button class="btn btn-sm btn-primary p-comprado" data-id="${p.id}" data-ideal="${p.cantidadIdeal}">Ya compré</button>
-            </div>`,
-          )
-          .join('')
+      ? `<table class="tbl">
+          <thead><tr><th>Motivo</th><th>Producto</th><th>Cantidad propuesta a comprar</th><th></th></tr></thead>
+          <tbody>${sugeridos
+            .map((p) => {
+              const origen = ORIGEN_LABEL[p.origen];
+              return `<tr>
+                <td><span class="tag" style="background:${origen.bg};color:${origen.fg}">${origen.texto}</span></td>
+                <td>${escapeHtml(p.nombre)}</td>
+                <td>
+                  <input type="number" class="p-cant-comprar" data-id="${p.id}" data-actual="${p.cantidadActual}" value="${p.faltante}" min="0.01" step="0.01" style="width:64px" />
+                  ${escapeHtml(p.unidad)}
+                </td>
+                <td style="text-align:right"><button class="btn btn-sm btn-primary p-comprado" data-id="${p.id}">Ya compré</button></td>
+              </tr>`;
+            })
+            .join('')}</tbody>
+        </table>`
       : `<div style="font-size:12px;color:var(--text-3)">Tu alacena está completa — nada pendiente por comprar.</div>`;
 
     document.querySelectorAll<HTMLElement>('.p-comprado').forEach((el) =>
       el.addEventListener('click', async () => {
-        await api.patch(`/groups/${grupo!.id}/alacena/${el.dataset.id}`, { cantidadActual: Number(el.dataset.ideal) });
+        const fila = el.closest('tr')!;
+        const input = fila.querySelector<HTMLInputElement>('.p-cant-comprar')!;
+        const comprado = Number(input.value);
+        if (!(comprado > 0)) return;
+        const nuevaCantidad = Number(input.dataset.actual) + comprado;
+        await api.patch(`/groups/${grupo!.id}/alacena/${el.dataset.id}`, { cantidadActual: nuevaCantidad });
         await cargar();
       }),
     );

@@ -39,6 +39,20 @@ hogarRouter.patch('/groups/:grupoId/alacena/:productoId', requireAuth, requireGr
     next(err);
   }
 });
+hogarRouter.get('/despensa-base', requireAuth, async (_req, res, next) => {
+  try {
+    res.json(hogarService.listarDespensaBase());
+  } catch (err) {
+    next(err);
+  }
+});
+hogarRouter.post('/groups/:grupoId/alacena/importar-despensa-base', requireAuth, requireGrupo, async (req, res, next) => {
+  try {
+    res.json(await hogarService.importarDespensaBase(req.grupoFamiliarId!));
+  } catch (err) {
+    next(err);
+  }
+});
 
 // Lista de compras
 hogarRouter.get('/groups/:grupoId/compras', requireAuth, requireGrupo, async (req, res, next) => {
