@@ -106,7 +106,10 @@ export const hogarService = {
           ...p,
           origen: (origenesReceta.has(p.nombre.trim().toLowerCase()) ? 'receta' : 'alacena') as 'receta' | 'alacena',
         })),
-      manuales,
+      // Decimal de Prisma serializa como string en el JSON — se convierte
+      // explícitamente a number para que el frontend pueda sumarlo (si no,
+      // "0 + '1500'" concatena en vez de sumar).
+      manuales: manuales.map((i) => ({ id: i.id, nombre: i.nombre, precioEstimado: Number(i.precioEstimado), comprado: i.comprado })),
     };
   },
   // BR-18: idempotente

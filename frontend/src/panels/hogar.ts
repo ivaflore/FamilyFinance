@@ -262,7 +262,7 @@ export async function renderCompras() {
 
   async function cargar() {
     const { sugeridos, manuales } = await api.get<ListaCompras>(`/groups/${grupo!.id}/compras`);
-    totalManuales = manuales.reduce((a, i) => a + i.precioEstimado, 0);
+    totalManuales = manuales.reduce((a, i) => a + Number(i.precioEstimado), 0);
 
     const ORIGEN_LABEL: Record<ProductoSugerido['origen'], { texto: string; bg: string; fg: string }> = {
       alacena: { texto: 'Habitual', bg: 'var(--amber-l)', fg: 'var(--amber-d)' },
