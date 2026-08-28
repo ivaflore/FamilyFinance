@@ -67,6 +67,22 @@ function agruparPorTipo<T extends { tipos: string[] }>(items: T[]): [string, T[]
   const orden = [...ordenBase.filter((t) => tiposPresentes.has(t)), ...[...tiposPresentes].filter((t) => !ordenBase.includes(t))];
   return orden.map((tipo) => [tipo, items.filter((i) => (i.tipos[0] ?? 'otros') === tipo)]);
 }
+// Llena un <select> de recetas solo con las que calzan con el tipo de
+// comida elegido (una receta puede tener varios tipos, ej. almuerzo/cena),
+// para que "Planificar una comida" no ofrezca, por ejemplo, un postre al
+// planificar el desayuno.
+function poblarSelectRecetas(select: HTMLSelectElement, recetas: Receta[], tipo: string, idSeleccionado?: string) {
+  const filtradas = recetas.filter((r) => r.tipos.includes(tipo));
+  if (!filtradas.length) {
+    select.innerHTML = `<option value="">Sin recetas de ${etiquetaTipo(tipo).toLowerCase()} en tu recetario</option>`;
+    select.disabled = true;
+    return;
+  }
+  select.disabled = false;
+  select.innerHTML = filtradas
+    .map((r) => `<option value="${r.id}" ${r.id === idSeleccionado ? 'selected' : ''}>${escapeHtml(r.nombre)}</option>`)
+    .join('');
+}
 
 export async function renderAlacena() {
   const content = document.getElementById('content')!;
@@ -511,7 +527,7 @@ export async function renderCalendario() {
         <div class="card-title" style="margin-bottom:.75rem">Planificar una comida</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end">
           <div><label class="form-label">Fecha</label><input type="date" id="cal-fecha" /></div>
-          <div><label class="form-label">Tipo</label><select id="cal-tipo"><option value="almuerzo">Almuerzo</option><option value="cena">Cena</option><option value="desayuno">Desayuno</option></select></div>
+          <div><label class="form-label">Tipo</label><select id="cal-tipo">${Object.entries(TIPOS_RECETA).map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div>
           <div><label class="form-label">Receta</label><select id="cal-receta"></select></div>
           <button class="btn btn-primary" id="cal-add">Agregar</button>
         </div>
@@ -529,11 +545,11 @@ export async function renderCalendario() {
           <div class="form-row"><label class="form-label">Fecha</label><input type="date" id="cm-fecha" value="${p.fecha.slice(0, 10)}" /></div>
           <div class="form-row"><label class="form-label">Tipo</label>
             <select id="cm-tipo">
-              ${['almuerzo', 'cena', 'desayuno'].map((t) => `<option value="${t}" ${t === p.tipoComida ? 'selected' : ''}>${t[0].toUpperCase()}${t.slice(1)}</option>`).join('')}
+              ${Object.entries(TIPOS_RECETA).map(([v, l]) => `<option value="${v}" ${v === p.tipoComida ? 'selected' : ''}>${l}</option>`).join('')}
             </select>
           </div>
           <div class="form-row"><label class="form-label">Receta</label>
-            <select id="cm-receta">${recetasDisponibles.map((r) => `<option value="${r.id}" ${r.id === p.receta.id ? 'selected' : ''}>${escapeHtml(r.nombre)}</option>`).join('')}</select>
+            <select id="cm-receta"></select>
           </div>
           <div class="modal-actions">
             <button class="btn btn-primary" id="cm-save" style="flex:1">Guardar</button>
@@ -541,6 +557,11 @@ export async function renderCalendario() {
           </div>
         </div>
       </div>`;
+    poblarSelectRecetas(document.getElementById('cm-receta') as HTMLSelectElement, recetasDisponibles, p.tipoComida, p.receta.id);
+    document.getElementById('cm-tipo')!.addEventListener('change', () => {
+      const tipo = (document.getElementById('cm-tipo') as HTMLSelectElement).value;
+      poblarSelectRecetas(document.getElementById('cm-receta') as HTMLSelectElement, recetasDisponibles, tipo);
+    });
     const close = () => (document.getElementById('cal-modal')!.innerHTML = '');
     document.getElementById('cm-overlay')!.addEventListener('click', (e) => e.target === e.currentTarget && close());
     document.getElementById('cm-cancel')!.addEventListener('click', close);
@@ -615,9 +636,14 @@ export async function renderCalendario() {
       }),
     );
 
-    const select = document.getElementById('cal-receta') as HTMLSelectElement;
-    select.innerHTML = recetas.map((r) => `<option value="${r.id}">${escapeHtml(r.nombre)}</option>`).join('');
+    const tipoElegido = (document.getElementById('cal-tipo') as HTMLSelectElement).value;
+    poblarSelectRecetas(document.getElementById('cal-receta') as HTMLSelectElement, recetas, tipoElegido);
   }
+
+  document.getElementById('cal-tipo')!.addEventListener('change', () => {
+    const tipo = (document.getElementById('cal-tipo') as HTMLSelectElement).value;
+    poblarSelectRecetas(document.getElementById('cal-receta') as HTMLSelectElement, recetasDisponibles, tipo);
+  });
 
   document.getElementById('cal-add')!.addEventListener('click', async () => {
     const fecha = (document.getElementById('cal-fecha') as HTMLInputElement).value;
