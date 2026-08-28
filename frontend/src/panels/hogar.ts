@@ -37,7 +37,42 @@ export async function renderAlacena() {
         <button class="btn btn-primary" id="a-add"><i class="ti ti-plus"></i> Agregar</button>
       </div>
     </div>
-    <div class="card"><div class="card-hd"><div class="card-title">Inventario del grupo</div></div><div class="pantry-grid" id="pantry-grid"></div></div>`;
+    <div class="card"><div class="card-hd"><div class="card-title">Inventario del grupo</div></div><div class="pantry-grid" id="pantry-grid"></div></div>
+    <div id="alacena-modal"></div>`;
+
+  function abrirEdicion(p: ProductoAlacena) {
+    document.getElementById('alacena-modal')!.innerHTML = `
+      <div class="modal-overlay" id="am-overlay">
+        <div class="modal">
+          <div class="modal-title">Editar producto</div>
+          <div class="form-row"><label class="form-label">Producto</label><input type="text" id="am-nombre" value="${escapeHtml(p.nombre)}" /></div>
+          <div class="form-row"><label class="form-label">Unidad</label><input type="text" id="am-unidad" value="${escapeHtml(p.unidad)}" /></div>
+          <div class="form-row"><label class="form-label">Ideal</label><input type="number" id="am-ideal" value="${p.cantidadIdeal}" min="0.01" step="0.01" /></div>
+          <div class="form-row"><label class="form-label">Tengo ahora</label><input type="number" id="am-actual" value="${p.cantidadActual}" min="0" step="0.01" /></div>
+          <div class="modal-actions">
+            <button class="btn btn-primary" id="am-save" style="flex:1">Guardar</button>
+            <button class="btn" id="am-cancel">Cancelar</button>
+          </div>
+        </div>
+      </div>`;
+    const close = () => (document.getElementById('alacena-modal')!.innerHTML = '');
+    document.getElementById('am-overlay')!.addEventListener('click', (e) => e.target === e.currentTarget && close());
+    document.getElementById('am-cancel')!.addEventListener('click', close);
+    document.getElementById('am-save')!.addEventListener('click', async () => {
+      const nombre = (document.getElementById('am-nombre') as HTMLInputElement).value.trim();
+      const unidad = (document.getElementById('am-unidad') as HTMLInputElement).value.trim() || 'unidades';
+      const cantidadIdeal = Number((document.getElementById('am-ideal') as HTMLInputElement).value);
+      const cantidadActual = Number((document.getElementById('am-actual') as HTMLInputElement).value);
+      if (!nombre || !(cantidadIdeal > 0) || !(cantidadActual >= 0)) return;
+      try {
+        await api.put(`/groups/${grupo!.id}/alacena/${p.id}`, { nombre, unidad, cantidadIdeal, cantidadActual });
+        close();
+        await cargar();
+      } catch (err) {
+        alert((err as Error).message);
+      }
+    });
+  }
 
   async function cargar() {
     const productos = await api.get<ProductoAlacena[]>(`/groups/${grupo!.id}/alacena`);
@@ -49,9 +84,11 @@ export async function renderAlacena() {
               <div class="p-name">${escapeHtml(p.nombre)}</div>
               <div class="p-qty">${p.cantidadActual} / ${p.cantidadIdeal} ${escapeHtml(p.unidad)}</div>
               ${p.faltante > 0 ? `<div style="font-size:10px;color:var(--coral-d);font-weight:600;margin-top:2px">Faltan ${p.faltante}</div>` : ''}
-              <div style="display:flex;gap:4px;justify-content:center;margin-top:6px">
+              <div style="display:flex;gap:4px;justify-content:center;margin-top:6px;flex-wrap:wrap">
                 <button class="btn btn-sm p-menos" data-id="${p.id}" data-actual="${p.cantidadActual}">−1</button>
                 <button class="btn btn-sm p-repone" data-id="${p.id}" data-ideal="${p.cantidadIdeal}">Reponer</button>
+                <button class="btn btn-sm p-editar" data-id="${p.id}" title="Modificar"><i class="ti ti-pencil"></i></button>
+                <button class="btn btn-sm p-eliminar" data-id="${p.id}" title="Eliminar"><i class="ti ti-trash"></i></button>
               </div>
             </div>`,
           )
@@ -71,6 +108,19 @@ export async function renderAlacena() {
         await cargar();
       }),
     );
+    document.querySelectorAll<HTMLElement>('.p-editar').forEach((el) =>
+      el.addEventListener('click', () => {
+        const p = productos.find((x) => x.id === el.dataset.id);
+        if (p) abrirEdicion(p);
+      }),
+    );
+    document.querySelectorAll<HTMLElement>('.p-eliminar').forEach((el) =>
+      el.addEventListener('click', async () => {
+        if (!confirm('¿Eliminar este producto de la alacena?')) return;
+        await api.del(`/groups/${grupo!.id}/alacena/${el.dataset.id}`);
+        await cargar();
+      }),
+    );
   }
 
   document.getElementById('a-importar')!.addEventListener('click', async () => {
@@ -87,11 +137,15 @@ export async function renderAlacena() {
     const cantidadActualInput = (document.getElementById('a-actual') as HTMLInputElement).value;
     const cantidadActual = cantidadActualInput === '' ? cantidadIdeal : Number(cantidadActualInput);
     if (!nombre || !(cantidadIdeal > 0)) return;
-    await api.post(`/groups/${grupo!.id}/alacena`, { nombre, unidad, cantidadIdeal, cantidadActual });
-    (document.getElementById('a-nombre') as HTMLInputElement).value = '';
-    (document.getElementById('a-ideal') as HTMLInputElement).value = '';
-    (document.getElementById('a-actual') as HTMLInputElement).value = '';
-    await cargar();
+    try {
+      await api.post(`/groups/${grupo!.id}/alacena`, { nombre, unidad, cantidadIdeal, cantidadActual });
+      (document.getElementById('a-nombre') as HTMLInputElement).value = '';
+      (document.getElementById('a-ideal') as HTMLInputElement).value = '';
+      (document.getElementById('a-actual') as HTMLInputElement).value = '';
+      await cargar();
+    } catch (err) {
+      alert((err as Error).message);
+    }
   });
 
   await cargar();

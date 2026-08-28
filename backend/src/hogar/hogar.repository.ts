@@ -15,8 +15,23 @@ export const hogarRepository = {
   listarAlacena(grupoFamiliarId: string) {
     return prisma.productoAlacena.findMany({ where: { grupoFamiliarId }, orderBy: { nombre: 'asc' } });
   },
+  buscarProductoAlacenaPorNombre(grupoFamiliarId: string, nombre: string, excluirId?: string) {
+    return prisma.productoAlacena.findFirst({
+      where: { grupoFamiliarId, nombre: { equals: nombre, mode: 'insensitive' }, id: excluirId ? { not: excluirId } : undefined },
+    });
+  },
   actualizarCantidadActual(id: string, grupoFamiliarId: string, cantidadActual: number) {
     return prisma.productoAlacena.updateMany({ where: { id, grupoFamiliarId }, data: { cantidadActual } });
+  },
+  actualizarProductoAlacena(
+    id: string,
+    grupoFamiliarId: string,
+    data: { nombre: string; unidad: string; cantidadIdeal: number; cantidadActual: number },
+  ) {
+    return prisma.productoAlacena.updateMany({ where: { id, grupoFamiliarId }, data });
+  },
+  eliminarProductoAlacena(id: string, grupoFamiliarId: string) {
+    return prisma.productoAlacena.deleteMany({ where: { id, grupoFamiliarId } });
   },
 
   crearItemCompra(data: { grupoFamiliarId: string; nombre: string; precioEstimado?: number }) {

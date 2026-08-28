@@ -10,14 +10,17 @@ interface Ingrediente {
 }
 
 export const hogarService = {
-  agregarProductoAlacena(
+  async agregarProductoAlacena(
     grupoFamiliarId: string,
     data: { nombre: string; unidad?: string; cantidadIdeal: number; cantidadActual: number; icono?: string },
   ) {
     if (!data.nombre?.trim()) throw new AppError(400, 'El producto necesita un nombre.');
     if (!(data.cantidadIdeal > 0)) throw new AppError(400, 'La cantidad ideal debe ser mayor a cero.');
     if (!(data.cantidadActual >= 0)) throw new AppError(400, 'La cantidad actual no puede ser negativa.');
-    return hogarRepository.crearProductoAlacena({ grupoFamiliarId, ...data });
+    const nombre = data.nombre.trim();
+    const existente = await hogarRepository.buscarProductoAlacenaPorNombre(grupoFamiliarId, nombre);
+    if (existente) throw new AppError(409, `"${nombre}" ya está en tu alacena. Edítalo en vez de agregarlo de nuevo.`);
+    return hogarRepository.crearProductoAlacena({ grupoFamiliarId, ...data, nombre });
   },
   async listarAlacena(grupoFamiliarId: string) {
     const productos = await hogarRepository.listarAlacena(grupoFamiliarId);
@@ -34,6 +37,22 @@ export const hogarService = {
   actualizarCantidadActual(grupoFamiliarId: string, id: string, cantidadActual: number) {
     if (!(cantidadActual >= 0)) throw new AppError(400, 'La cantidad actual no puede ser negativa.');
     return hogarRepository.actualizarCantidadActual(id, grupoFamiliarId, cantidadActual);
+  },
+  async actualizarProductoAlacena(
+    grupoFamiliarId: string,
+    id: string,
+    data: { nombre: string; unidad: string; cantidadIdeal: number; cantidadActual: number },
+  ) {
+    if (!data.nombre?.trim()) throw new AppError(400, 'El producto necesita un nombre.');
+    if (!(data.cantidadIdeal > 0)) throw new AppError(400, 'La cantidad ideal debe ser mayor a cero.');
+    if (!(data.cantidadActual >= 0)) throw new AppError(400, 'La cantidad actual no puede ser negativa.');
+    const nombre = data.nombre.trim();
+    const existente = await hogarRepository.buscarProductoAlacenaPorNombre(grupoFamiliarId, nombre, id);
+    if (existente) throw new AppError(409, `"${nombre}" ya está en tu alacena. Edítalo en vez de duplicarlo.`);
+    return hogarRepository.actualizarProductoAlacena(id, grupoFamiliarId, { ...data, nombre });
+  },
+  eliminarProductoAlacena(grupoFamiliarId: string, id: string) {
+    return hogarRepository.eliminarProductoAlacena(id, grupoFamiliarId);
   },
 
   agregarItemCompra(grupoFamiliarId: string, data: { nombre: string; precioEstimado?: number }) {

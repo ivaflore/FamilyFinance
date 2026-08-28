@@ -39,6 +39,30 @@ hogarRouter.patch('/groups/:grupoId/alacena/:productoId', requireAuth, requireGr
     next(err);
   }
 });
+hogarRouter.put('/groups/:grupoId/alacena/:productoId', requireAuth, requireGrupo, async (req, res, next) => {
+  try {
+    const data = z
+      .object({
+        nombre: z.string().min(1),
+        unidad: z.string().min(1),
+        cantidadIdeal: z.number().positive(),
+        cantidadActual: z.number().nonnegative(),
+      })
+      .parse(req.body);
+    await hogarService.actualizarProductoAlacena(req.grupoFamiliarId!, req.params.productoId, data);
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
+hogarRouter.delete('/groups/:grupoId/alacena/:productoId', requireAuth, requireGrupo, async (req, res, next) => {
+  try {
+    await hogarService.eliminarProductoAlacena(req.grupoFamiliarId!, req.params.productoId);
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
 hogarRouter.get('/despensa-base', requireAuth, async (_req, res, next) => {
   try {
     res.json(hogarService.listarDespensaBase());
